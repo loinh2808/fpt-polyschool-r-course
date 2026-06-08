@@ -23,41 +23,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -112,6 +77,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
+<meta name="mermaid-theme" content="forest">
+<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="styles.css">
@@ -602,10 +571,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#learning-roadmap" id="toc-learning-roadmap" class="nav-link active" data-scroll-target="#learning-roadmap">Learning Roadmap</a>
   <ul class="collapse">
-  <li><a href="#foundation-modules" id="toc-foundation-modules" class="nav-link" data-scroll-target="#foundation-modules">Foundation Modules</a></li>
-  <li><a href="#advanced-analytics-modules" id="toc-advanced-analytics-modules" class="nav-link" data-scroll-target="#advanced-analytics-modules">Advanced Analytics Modules</a></li>
+  <li><a href="#foundation-learning-path" id="toc-foundation-learning-path" class="nav-link" data-scroll-target="#foundation-learning-path">1. Foundation Learning Path</a></li>
+  <li><a href="#advanced-analytics-learning-path" id="toc-advanced-analytics-learning-path" class="nav-link" data-scroll-target="#advanced-analytics-learning-path">2. Advanced Analytics Learning Path</a></li>
+  <li><a href="#visual-learning-path" id="toc-visual-learning-path" class="nav-link" data-scroll-target="#visual-learning-path">3. Visual Learning Path</a></li>
+  <li><a href="#suggested-pathways-by-learner-type" id="toc-suggested-pathways-by-learner-type" class="nav-link" data-scroll-target="#suggested-pathways-by-learner-type">4. Suggested Pathways by Learner Type</a>
+  <ul class="collapse">
+  <li><a href="#lecturers-and-instructors" id="toc-lecturers-and-instructors" class="nav-link" data-scroll-target="#lecturers-and-instructors">Lecturers and Instructors</a></li>
+  <li><a href="#graduate-students-and-phd-candidates" id="toc-graduate-students-and-phd-candidates" class="nav-link" data-scroll-target="#graduate-students-and-phd-candidates">Graduate Students and PhD Candidates</a></li>
+  <li><a href="#applied-researchers" id="toc-applied-researchers" class="nav-link" data-scroll-target="#applied-researchers">Applied Researchers</a></li>
+  <li><a href="#data-analysts" id="toc-data-analysts" class="nav-link" data-scroll-target="#data-analysts">Data Analysts</a></li>
   </ul></li>
-  <li><a href="#learning-roadmap-1" id="toc-learning-roadmap-1" class="nav-link" data-scroll-target="#learning-roadmap-1">Learning Roadmap</a></li>
+  <li><a href="#case-study-integration" id="toc-case-study-integration" class="nav-link" data-scroll-target="#case-study-integration">5. Case Study Integration</a></li>
+  <li><a href="#final-capstone" id="toc-final-capstone" class="nav-link" data-scroll-target="#final-capstone">6. Final Capstone</a></li>
+  <li><a href="#final-output" id="toc-final-output" class="nav-link" data-scroll-target="#final-output">Final Output</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -615,7 +594,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./research-toolkit.html">Learning Support</a></li><li class="breadcrumb-item"><a href="./roadmap.html">Learning Roadmap</a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">Learning Roadmap</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<h1 class="title">Learning Roadmap</h1>
+<p class="subtitle lead">Recommended Pathway for R for Research and Data Analytics</p>
 </div>
 
 
@@ -634,137 +614,376 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="learning-roadmap" class="level1">
 <h1>Learning Roadmap</h1>
-<section id="foundation-modules" class="level2">
-<h2 class="anchored" data-anchor-id="foundation-modules">Foundation Modules</h2>
+<p>This roadmap presents the recommended learning sequence for the <strong>R for Research and Data Analytics</strong> course. Learners may complete the modules sequentially or select modules according to their research needs.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>How to Use This Roadmap
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Start with the foundation modules if you are new to R or research data analysis. Move to the advanced modules when you already understand data cleaning, descriptive statistics, regression, visualization, and basic research reporting.</p>
+</div>
+</div>
+<section id="foundation-learning-path" class="level2">
+<h2 class="anchored" data-anchor-id="foundation-learning-path">1. Foundation Learning Path</h2>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Module</th>
-<th>Topic</th>
-<th>Output</th>
+<th>Vietnamese Title</th>
+<th>English Title</th>
+<th>Main Output</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>1</td>
-<td>R Fundamentals</td>
-<td>Data Import Report</td>
+<td>Module 1</td>
+<td>Nhập môn R và quản lý dữ liệu nghiên cứu</td>
+<td>Introduction to R and Research Data Management</td>
+<td>Data Import and Diagnostic Report</td>
 </tr>
 <tr class="even">
-<td>2</td>
-<td>Data Cleaning</td>
+<td>Module 2</td>
+<td>Làm sạch và chuẩn bị dữ liệu</td>
+<td>Data Cleaning and Preparation</td>
 <td>Clean Dataset</td>
 </tr>
 <tr class="odd">
-<td>3</td>
-<td>Descriptive Statistics</td>
-<td>Descriptive Report</td>
+<td>Module 3</td>
+<td>Thống kê mô tả và so sánh nhóm</td>
+<td>Descriptive Statistics and Group Comparisons</td>
+<td>Descriptive and Group Comparison Report</td>
 </tr>
 <tr class="even">
-<td>4</td>
-<td>Correlation &amp; Regression</td>
+<td>Module 4</td>
+<td>Tương quan và hồi quy</td>
+<td>Correlation and Regression Analysis</td>
 <td>Regression Report</td>
 </tr>
 <tr class="odd">
-<td>5</td>
-<td>PLS-SEM</td>
-<td>SEM Results</td>
+<td>Module 5</td>
+<td>PLS-SEM bằng R</td>
+<td>PLS-SEM with R</td>
+<td>SEM Results Tables</td>
 </tr>
 <tr class="even">
-<td>6</td>
-<td>Visualization &amp; Reporting</td>
-<td>Publication Figures</td>
+<td>Module 6</td>
+<td>Trực quan hóa dữ liệu và viết kết quả</td>
+<td>Data Visualization and Results Reporting</td>
+<td>Figure Set and Results Draft</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="advanced-analytics-modules" class="level2">
-<h2 class="anchored" data-anchor-id="advanced-analytics-modules">Advanced Analytics Modules</h2>
+<section id="advanced-analytics-learning-path" class="level2">
+<h2 class="anchored" data-anchor-id="advanced-analytics-learning-path">2. Advanced Analytics Learning Path</h2>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Module</th>
-<th>Topic</th>
+<th>Vietnamese Title</th>
+<th>English Title</th>
+<th>Main Output</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>A1</td>
+<td>Chẩn đoán thống kê mô tả</td>
 <td>Descriptive Diagnostics</td>
+<td>Diagnostic Report</td>
 </tr>
 <tr class="even">
 <td>A2</td>
+<td>Hồi quy nâng cao</td>
 <td>Advanced Regression</td>
+<td>Academic Regression Tables</td>
 </tr>
 <tr class="odd">
 <td>A3</td>
-<td>Ridge, LASSO &amp; Elastic Net</td>
+<td>Hồi quy chính quy hóa</td>
+<td>Ridge, LASSO, and Elastic Net</td>
+<td>Prediction Model</td>
 </tr>
 <tr class="even">
 <td>A4</td>
+<td>SEM nâng cao</td>
 <td>Advanced SEM</td>
+<td>Measurement and Structural Model</td>
 </tr>
 <tr class="odd">
 <td>A5</td>
+<td>Thống kê Bayes</td>
 <td>Bayesian Statistics</td>
+<td>Posterior Interpretation</td>
 </tr>
 <tr class="even">
 <td>A6</td>
+<td>Mô phỏng Monte Carlo</td>
 <td>Monte Carlo Simulation</td>
+<td>Simulation Report</td>
 </tr>
 <tr class="odd">
 <td>A7</td>
+<td>Nghịch lý Simpson</td>
 <td>Simpson’s Paradox</td>
+<td>Grouped Data Insight</td>
 </tr>
 <tr class="even">
 <td>A8</td>
+<td>Phân tích Likert nâng cao</td>
 <td>Advanced Likert Analysis</td>
+<td>Likert Visualization Report</td>
 </tr>
 <tr class="odd">
 <td>A9</td>
+<td>Thư viện trực quan hóa</td>
 <td>Visualization Gallery</td>
+<td>Publication-ready Figures</td>
 </tr>
 <tr class="even">
 <td>A10</td>
+<td>Bộ công cụ nghiên cứu</td>
 <td>Research Toolkit</td>
+<td>Method Decision Framework</td>
 </tr>
 <tr class="odd">
 <td>A11</td>
+<td>Phân tích tổng hợp</td>
 <td>Meta-analysis</td>
+<td>Forest and Funnel Plots</td>
 </tr>
 <tr class="even">
 <td>A12</td>
+<td>Phân tích trắc lượng thư mục</td>
 <td>Bibliometric Analysis</td>
+<td>Science Mapping Report</td>
 </tr>
 <tr class="odd">
 <td>A13</td>
-<td>Experimental Design &amp; ANOVA</td>
+<td>Thiết kế thí nghiệm và ANOVA</td>
+<td>Experimental Design and ANOVA</td>
+<td>ANOVA Report</td>
 </tr>
 <tr class="even">
 <td>A14</td>
-<td>Mixed Models</td>
+<td>Mô hình hỗn hợp và dữ liệu dọc</td>
+<td>Mixed Models and Longitudinal Data</td>
+<td>Longitudinal Model Report</td>
 </tr>
 <tr class="odd">
 <td>A15</td>
+<td>Nghiên cứu tái lập và báo cáo học thuật</td>
 <td>Reproducible Research</td>
+<td>Quarto Research Report</td>
 </tr>
 </tbody>
 </table>
 </section>
+<section id="visual-learning-path" class="level2">
+<h2 class="anchored" data-anchor-id="visual-learning-path">3. Visual Learning Path</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+
+M1["Module 1&lt;br&gt;Import &amp; Manage Data"]
+M2["Module 2&lt;br&gt;Clean Data"]
+M3["Module 3&lt;br&gt;Describe Data"]
+M4["Module 4&lt;br&gt;Regression"]
+M5["Module 5&lt;br&gt;PLS-SEM"]
+M6["Module 6&lt;br&gt;Visualize &amp; Report"]
+
+A1["Advanced Analytics&lt;br&gt;A1–A15"]
+CS["Case Studies"]
+CAP["Final Capstone"]
+
+M1 --&gt; M2
+M2 --&gt; M3
+M3 --&gt; M4
+M4 --&gt; M5
+M5 --&gt; M6
+M6 --&gt; A1
+A1 --&gt; CS
+CS --&gt; CAP
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
 </section>
-<section id="learning-roadmap-1" class="level1">
-<h1>Learning Roadmap</h1>
-<p>```{mermaid}</p>
-<p>flowchart TD</p>
-<p>A[Module 1: Import Data] –&gt; B[Module 2: Clean Data]</p>
-<p>B –&gt; C[Module 3: Describe Data]</p>
-<p>C –&gt; D[Module 4: Regression]</p>
-<p>D –&gt; E[Module 5: PLS-SEM]</p>
-<p>E –&gt; F[Module 6: Visualization]</p>
-<p>F –&gt; G[Advanced Analytics]</p>
+<section id="suggested-pathways-by-learner-type" class="level2">
+<h2 class="anchored" data-anchor-id="suggested-pathways-by-learner-type">4. Suggested Pathways by Learner Type</h2>
+<section id="lecturers-and-instructors" class="level3">
+<h3 class="anchored" data-anchor-id="lecturers-and-instructors">Lecturers and Instructors</h3>
+<p>Recommended sequence:</p>
+<ol type="1">
+<li>Module 1: Introduction to R and Data Management</li>
+<li>Module 2: Data Cleaning and Preparation</li>
+<li>Module 3: Descriptive Statistics and Group Comparisons</li>
+<li>Module 6: Data Visualization and Reporting</li>
+<li>A15: Reproducible Research</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Best For Teaching
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This pathway is suitable for lecturers who want to use R for classroom teaching, student projects, and research supervision.</p>
+</div>
+</div>
+</section>
+<section id="graduate-students-and-phd-candidates" class="level3">
+<h3 class="anchored" data-anchor-id="graduate-students-and-phd-candidates">Graduate Students and PhD Candidates</h3>
+<p>Recommended sequence:</p>
+<ol type="1">
+<li>Module 1 to Module 6</li>
+<li>A2: Advanced Regression</li>
+<li>A4: Advanced SEM</li>
+<li>A11: Meta-analysis</li>
+<li>A12: Bibliometric Analysis</li>
+<li>A15: Reproducible Research</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Best For Thesis and Publication
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This pathway supports thesis writing, manuscript preparation, and publication-oriented research.</p>
+</div>
+</div>
+</section>
+<section id="applied-researchers" class="level3">
+<h3 class="anchored" data-anchor-id="applied-researchers">Applied Researchers</h3>
+<p>Recommended sequence:</p>
+<ol type="1">
+<li>Module 1 to Module 6</li>
+<li>A1: Descriptive Diagnostics</li>
+<li>A2: Advanced Regression</li>
+<li>A6: Monte Carlo Simulation</li>
+<li>A13: Experimental Design and ANOVA</li>
+<li>A14: Mixed Models</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Best For Research Projects
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This pathway is useful for research teams working with field data, survey data, experimental data, or longitudinal datasets.</p>
+</div>
+</div>
+</section>
+<section id="data-analysts" class="level3">
+<h3 class="anchored" data-anchor-id="data-analysts">Data Analysts</h3>
+<p>Recommended sequence:</p>
+<ol type="1">
+<li>Module 1 to Module 4</li>
+<li>Module 6</li>
+<li>A2: Advanced Regression</li>
+<li>A3: Ridge, LASSO, and Elastic Net</li>
+<li>A9: Visualization Gallery</li>
+<li>A15: Reproducible Research</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Best For Analytics Practice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This pathway focuses on data preparation, modelling, prediction, visualization, and reproducible reporting.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="case-study-integration" class="level2">
+<h2 class="anchored" data-anchor-id="case-study-integration">5. Case Study Integration</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Case Study</th>
+<th>Focus</th>
+<th>Recommended After</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Case Study 1: UTAUT and PLS-SEM</td>
+<td>Technology acceptance and SEM workflow</td>
+<td>Module 5</td>
+</tr>
+<tr class="even">
+<td>Case Study 2: CDIO Digital Assessment Adoption</td>
+<td>Teacher–student comparison, visualization, and SEM</td>
+<td>Module 6 and A4</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="final-capstone" class="level2">
+<h2 class="anchored" data-anchor-id="final-capstone">6. Final Capstone</h2>
+<p>At the end of the course, learners should complete a final research analytics report that includes:</p>
+<ul>
+<li>Dataset overview</li>
+<li>Data cleaning summary</li>
+<li>Descriptive statistics</li>
+<li>Group comparison</li>
+<li>Regression model</li>
+<li>PLS-SEM or advanced model</li>
+<li>Publication-ready figures</li>
+<li>Academic-style results section</li>
+<li>Reproducible Quarto report</li>
+</ul>
+</section>
+<section id="final-output" class="level2 callout-success">
+<h2 class="anchored" data-anchor-id="final-output">Final Output</h2>
+<p>The recommended final product is:</p>
+<p><code>Final_Research_Analytics_Report.html</code></p>
+<p>This report should demonstrate that the learner can move from raw data to research interpretation and academic reporting.</p>
+</section>
 
-
-<!-- -->
 
 </section>
 
@@ -852,57 +1071,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         container: window.document.getElementById('quarto-embedded-source-code-modal')
       });
       clipboardModal.on('success', onCopySuccess);
-    }
-    const viewSource = window.document.getElementById('quarto-view-source') ||
-                       window.document.getElementById('quarto-code-tools-source');
-    if (viewSource) {
-      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
-      viewSource.addEventListener("click", function(e) {
-        if (sourceUrl) {
-          // rstudio viewer pane
-          if (/\bcapabilities=\b/.test(window.location)) {
-            window.open(sourceUrl);
-          } else {
-            window.location.href = sourceUrl;
-          }
-        } else {
-          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
-          modal.show();
-        }
-        return false;
-      });
-    }
-    function toggleCodeHandler(show) {
-      return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
-          if (show) {
-            details.open = true;
-          } else {
-            details.removeAttribute("open");
-          }
-        }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
-        const fromCls = show ? "hidden" : "unhidden";
-        const toCls = show ? "unhidden" : "hidden";
-        for (let i=0; i<cellCodeDivs.length; i++) {
-          const codeDiv = cellCodeDivs[i];
-          if (codeDiv.classList.contains(fromCls)) {
-            codeDiv.classList.remove(fromCls);
-            codeDiv.classList.add(toCls);
-          } 
-        }
-        return false;
-      }
-    }
-    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
-    if (hideAllCode) {
-      hideAllCode.addEventListener("click", toggleCodeHandler(false));
-    }
-    const showAllCode = window.document.getElementById("quarto-show-all-code");
-    if (showAllCode) {
-      showAllCode.addEventListener("click", toggleCodeHandler(true));
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -1244,62 +1412,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <span class="nav-page-text">Glossary</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
-</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Learning Roadmap"</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu"># Learning Roadmap</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## Foundation Modules</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Module <span class="pp">|</span> Topic                     <span class="pp">|</span> Output              <span class="pp">|</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|---------------------------|---------------------|</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 1      <span class="pp">|</span> R Fundamentals            <span class="pp">|</span> Data Import Report  <span class="pp">|</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2      <span class="pp">|</span> Data Cleaning             <span class="pp">|</span> Clean Dataset       <span class="pp">|</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 3      <span class="pp">|</span> Descriptive Statistics    <span class="pp">|</span> Descriptive Report  <span class="pp">|</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 4      <span class="pp">|</span> Correlation &amp; Regression  <span class="pp">|</span> Regression Report   <span class="pp">|</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 5      <span class="pp">|</span> PLS-SEM                   <span class="pp">|</span> SEM Results         <span class="pp">|</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 6      <span class="pp">|</span> Visualization &amp; Reporting <span class="pp">|</span> Publication Figures <span class="pp">|</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">## Advanced Analytics Modules</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Module <span class="pp">|</span> Topic                       <span class="pp">|</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|-----------------------------|</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A1     <span class="pp">|</span> Descriptive Diagnostics     <span class="pp">|</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A2     <span class="pp">|</span> Advanced Regression         <span class="pp">|</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A3     <span class="pp">|</span> Ridge, LASSO &amp; Elastic Net  <span class="pp">|</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A4     <span class="pp">|</span> Advanced SEM                <span class="pp">|</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A5     <span class="pp">|</span> Bayesian Statistics         <span class="pp">|</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A6     <span class="pp">|</span> Monte Carlo Simulation      <span class="pp">|</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A7     <span class="pp">|</span> Simpson's Paradox           <span class="pp">|</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A8     <span class="pp">|</span> Advanced Likert Analysis    <span class="pp">|</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A9     <span class="pp">|</span> Visualization Gallery       <span class="pp">|</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A10    <span class="pp">|</span> Research Toolkit            <span class="pp">|</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A11    <span class="pp">|</span> Meta-analysis               <span class="pp">|</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A12    <span class="pp">|</span> Bibliometric Analysis       <span class="pp">|</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A13    <span class="pp">|</span> Experimental Design &amp; ANOVA <span class="pp">|</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A14    <span class="pp">|</span> Mixed Models                <span class="pp">|</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> A15    <span class="pp">|</span> Reproducible Research       <span class="pp">|</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu"># Learning Roadmap</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="sc">\`\`\`</span>{mermaid}</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>flowchart TD</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>A<span class="sc">\[</span>Module 1: Import Data<span class="sc">\]</span> --<span class="sc">\&gt;</span> B<span class="sc">\[</span>Module 2: Clean Data<span class="sc">\]</span></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>B --<span class="sc">\&gt;</span> C<span class="sc">\[</span>Module 3: Describe Data<span class="sc">\]</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>C --<span class="sc">\&gt;</span> D<span class="sc">\[</span>Module 4: Regression<span class="sc">\]</span></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>D --<span class="sc">\&gt;</span> E<span class="sc">\[</span>Module 5: PLS-SEM<span class="sc">\]</span></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>E --<span class="sc">\&gt;</span> F<span class="sc">\[</span>Module 6: Visualization<span class="sc">\]</span></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>F --<span class="sc">\&gt;</span> G<span class="sc">\[</span>Advanced Analytics<span class="sc">\]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
-</div></div></div></div></div>
+</nav>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">

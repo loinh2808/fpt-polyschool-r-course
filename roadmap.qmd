@@ -1,54 +1,171 @@
 ---
 title: "Learning Roadmap"
+subtitle: "Recommended Pathway for R for Research and Data Analytics"
 ---
 
 # Learning Roadmap
 
-## Foundation Modules
+This roadmap presents the recommended learning sequence for the **R for Research and Data Analytics** course. Learners may complete the modules sequentially or select modules according to their research needs.
 
-| Module | Topic                     | Output              |
-|--------|---------------------------|---------------------|
-| 1      | R Fundamentals            | Data Import Report  |
-| 2      | Data Cleaning             | Clean Dataset       |
-| 3      | Descriptive Statistics    | Descriptive Report  |
-| 4      | Correlation & Regression  | Regression Report   |
-| 5      | PLS-SEM                   | SEM Results         |
-| 6      | Visualization & Reporting | Publication Figures |
+::: {.callout-note}
+## How to Use This Roadmap
 
-## Advanced Analytics Modules
+Start with the foundation modules if you are new to R or research data analysis. Move to the advanced modules when you already understand data cleaning, descriptive statistics, regression, visualization, and basic research reporting.
+:::
 
-| Module | Topic                       |
-|--------|-----------------------------|
-| A1     | Descriptive Diagnostics     |
-| A2     | Advanced Regression         |
-| A3     | Ridge, LASSO & Elastic Net  |
-| A4     | Advanced SEM                |
-| A5     | Bayesian Statistics         |
-| A6     | Monte Carlo Simulation      |
-| A7     | Simpson's Paradox           |
-| A8     | Advanced Likert Analysis    |
-| A9     | Visualization Gallery       |
-| A10    | Research Toolkit            |
-| A11    | Meta-analysis               |
-| A12    | Bibliometric Analysis       |
-| A13    | Experimental Design & ANOVA |
-| A14    | Mixed Models                |
-| A15    | Reproducible Research       |
+## 1. Foundation Learning Path
 
-# Learning Roadmap
+| Module | Vietnamese Title | English Title | Main Output |
+|---|---|---|---|
+| Module 1 | Nhập môn R và quản lý dữ liệu nghiên cứu | Introduction to R and Research Data Management | Data Import and Diagnostic Report |
+| Module 2 | Làm sạch và chuẩn bị dữ liệu | Data Cleaning and Preparation | Clean Dataset |
+| Module 3 | Thống kê mô tả và so sánh nhóm | Descriptive Statistics and Group Comparisons | Descriptive and Group Comparison Report |
+| Module 4 | Tương quan và hồi quy | Correlation and Regression Analysis | Regression Report |
+| Module 5 | PLS-SEM bằng R | PLS-SEM with R | SEM Results Tables |
+| Module 6 | Trực quan hóa dữ liệu và viết kết quả | Data Visualization and Results Reporting | Figure Set and Results Draft |
 
-\`\`\`{mermaid}
+## 2. Advanced Analytics Learning Path
 
-flowchart TD
+| Module | Vietnamese Title | English Title | Main Output |
+|---|---|---|---|
+| A1 | Chẩn đoán thống kê mô tả | Descriptive Diagnostics | Diagnostic Report |
+| A2 | Hồi quy nâng cao | Advanced Regression | Academic Regression Tables |
+| A3 | Hồi quy chính quy hóa | Ridge, LASSO, and Elastic Net | Prediction Model |
+| A4 | SEM nâng cao | Advanced SEM | Measurement and Structural Model |
+| A5 | Thống kê Bayes | Bayesian Statistics | Posterior Interpretation |
+| A6 | Mô phỏng Monte Carlo | Monte Carlo Simulation | Simulation Report |
+| A7 | Nghịch lý Simpson | Simpson's Paradox | Grouped Data Insight |
+| A8 | Phân tích Likert nâng cao | Advanced Likert Analysis | Likert Visualization Report |
+| A9 | Thư viện trực quan hóa | Visualization Gallery | Publication-ready Figures |
+| A10 | Bộ công cụ nghiên cứu | Research Toolkit | Method Decision Framework |
+| A11 | Phân tích tổng hợp | Meta-analysis | Forest and Funnel Plots |
+| A12 | Phân tích trắc lượng thư mục | Bibliometric Analysis | Science Mapping Report |
+| A13 | Thiết kế thí nghiệm và ANOVA | Experimental Design and ANOVA | ANOVA Report |
+| A14 | Mô hình hỗn hợp và dữ liệu dọc | Mixed Models and Longitudinal Data | Longitudinal Model Report |
+| A15 | Nghiên cứu tái lập và báo cáo học thuật | Reproducible Research | Quarto Research Report |
 
-A\[Module 1: Import Data\] --\> B\[Module 2: Clean Data\]
+## 3. Visual Learning Path
 
-B --\> C\[Module 3: Describe Data\]
+```{mermaid}
+flowchart LR
 
-C --\> D\[Module 4: Regression\]
+M1["Module 1<br>Import & Manage Data"]
+M2["Module 2<br>Clean Data"]
+M3["Module 3<br>Describe Data"]
+M4["Module 4<br>Regression"]
+M5["Module 5<br>PLS-SEM"]
+M6["Module 6<br>Visualize & Report"]
 
-D --\> E\[Module 5: PLS-SEM\]
+A1["Advanced Analytics<br>A1–A15"]
+CS["Case Studies"]
+CAP["Final Capstone"]
 
-E --\> F\[Module 6: Visualization\]
+M1 --> M2
+M2 --> M3
+M3 --> M4
+M4 --> M5
+M5 --> M6
+M6 --> A1
+A1 --> CS
+CS --> CAP
+```
 
-F --\> G\[Advanced Analytics\]
+## 4. Suggested Pathways by Learner Type
+
+### Lecturers and Instructors
+
+Recommended sequence:
+
+1. Module 1: Introduction to R and Data Management
+2. Module 2: Data Cleaning and Preparation
+3. Module 3: Descriptive Statistics and Group Comparisons
+4. Module 6: Data Visualization and Reporting
+5. A15: Reproducible Research
+
+::: {.callout-tip}
+## Best For Teaching
+
+This pathway is suitable for lecturers who want to use R for classroom teaching, student projects, and research supervision.
+:::
+
+### Graduate Students and PhD Candidates
+
+Recommended sequence:
+
+1. Module 1 to Module 6
+2. A2: Advanced Regression
+3. A4: Advanced SEM
+4. A11: Meta-analysis
+5. A12: Bibliometric Analysis
+6. A15: Reproducible Research
+
+::: {.callout-tip}
+## Best For Thesis and Publication
+
+This pathway supports thesis writing, manuscript preparation, and publication-oriented research.
+:::
+
+### Applied Researchers
+
+Recommended sequence:
+
+1. Module 1 to Module 6
+2. A1: Descriptive Diagnostics
+3. A2: Advanced Regression
+4. A6: Monte Carlo Simulation
+5. A13: Experimental Design and ANOVA
+6. A14: Mixed Models
+
+::: {.callout-tip}
+## Best For Research Projects
+
+This pathway is useful for research teams working with field data, survey data, experimental data, or longitudinal datasets.
+:::
+
+### Data Analysts
+
+Recommended sequence:
+
+1. Module 1 to Module 4
+2. Module 6
+3. A2: Advanced Regression
+4. A3: Ridge, LASSO, and Elastic Net
+5. A9: Visualization Gallery
+6. A15: Reproducible Research
+
+::: {.callout-tip}
+## Best For Analytics Practice
+
+This pathway focuses on data preparation, modelling, prediction, visualization, and reproducible reporting.
+:::
+
+## 5. Case Study Integration
+
+| Case Study | Focus | Recommended After |
+|---|---|---|
+| Case Study 1: UTAUT and PLS-SEM | Technology acceptance and SEM workflow | Module 5 |
+| Case Study 2: CDIO Digital Assessment Adoption | Teacher–student comparison, visualization, and SEM | Module 6 and A4 |
+
+## 6. Final Capstone
+
+At the end of the course, learners should complete a final research analytics report that includes:
+
+- Dataset overview
+- Data cleaning summary
+- Descriptive statistics
+- Group comparison
+- Regression model
+- PLS-SEM or advanced model
+- Publication-ready figures
+- Academic-style results section
+- Reproducible Quarto report
+
+::: {.callout-success}
+## Final Output
+
+The recommended final product is:
+
+`Final_Research_Analytics_Report.html`
+
+This report should demonstrate that the learner can move from raw data to research interpretation and academic reporting.
+:::

@@ -1,34 +1,97 @@
 ---
 title: "Instructor"
+subtitle: "Course Instructor Profile"
 ---
 
 # Instructor
 
-::::: columns
-::: {.column width="35%"}
-![](images/LoiNH.jpg){fig-align="center" width="82%"}
+```{=html}
+<style>
+.instructor-hero {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.profile-photo-card {
+  width: 340px;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.12);
+  background: #f4f7fb;
+}
+
+.profile-photo-card img {
+  width: 100%;
+  height: 520px;
+  object-fit: cover;
+  object-position: center 43%;
+  display: block;
+}
+
+.instructor-name {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+}
+
+.instructor-role {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #24384a;
+  margin-bottom: 1rem;
+}
+
+.credential-card {
+  border-left: 5px solid #00a88e;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  background: #f6fbfa;
+  border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+  .instructor-hero {
+    grid-template-columns: 1fr;
+  }
+  .profile-photo-card {
+    width: 100%;
+    max-width: 340px;
+  }
+}
+</style>
+```
+
+:::::::::: instructor-hero
+::: profile-photo-card
+<img src="images/LoiNH.jpg" alt="Nguyễn Hữu Lợi"/>
 :::
 
-::: {.column width="65%"}
-# Nguyễn Hữu Lợi
-
-### Head of Specialty Department
-
-FPT PolySchool
-
-### PhD Candidate
-
-Asian Institute of Technology (AIT), Thailand
-
-### MSc Sustainability Management
-
-University of Agder (UiA), Norway
-
-### MBA
-
-Universitas Gadjah Mada (UGM), Indonesia
+:::::::: {}
+::: instructor-name
+Nguyễn Hữu Lợi
 :::
-:::::
+
+::: instructor-role
+Head of Specialty Department<br>FPT PolySchool
+:::
+
+::: credential-card
+<strong>PhD Candidate</strong><br> Asian Institute of Technology (AIT), Thailand
+:::
+
+::: credential-card
+<strong>MSc Sustainability Management</strong><br> University of Agder (UiA), Norway
+:::
+
+::: credential-card
+<strong>MBA</strong><br> Universitas Gadjah Mada (UGM), Indonesia
+:::
+::::::::
+::::::::::
 
 ------------------------------------------------------------------------
 
@@ -36,16 +99,7 @@ Universitas Gadjah Mada (UGM), Indonesia
 
 Nguyễn Hữu Lợi is an educator, researcher, and academic practitioner with interdisciplinary training in sustainability management, business administration, and natural resource management.
 
-His work focuses on:
-
-- Data Analytics
-- Research Methodology
-- Structural Equation Modeling (SEM)
-- Sustainable Development
-- Academic Writing and Publication
-- Reproducible Research
-
-------------------------------------------------------------------------
+His work focuses on research analytics, quantitative methods, structural equation modelling, sustainable development, climate-smart agriculture, academic writing, and reproducible research.
 
 ## Research Interests
 
@@ -66,20 +120,17 @@ His work focuses on:
 
 ### Sustainability and Development
 
-- Sustainability management & ESG
+- Climate-Smart Agriculture
 - Sustainable Livelihoods
-- Digital Transformation
-- Innovation Systems
-
-------------------------------------------------------------------------
+- Low-Carbon Rice Production
+- Participatory Innovation Systems
 
 ## Current Positions
 
 - Head of Specialty Department, FPT PolySchool
 - PhD Candidate, Asian Institute of Technology (AIT)
-- Visiting Researcher, Mekong Delta Development Research Institute (MDI)- Can Tho University
-
-------------------------------------------------------------------------
+- Researcher, Mekong Delta Development Research Institute (MDI)
+- Project Secretary, BOLD-RICE Vietnam
 
 ## Purpose of This Course
 
@@ -91,12 +142,9 @@ This course was developed to help lecturers and researchers move beyond software
 - Produce publication-ready outputs
 - Conduct reproducible research
 
-------------------------------------------------------------------------
-
 ## Contact
 
-**Nguyễn Hữu Lợi**
-
+**Nguyễn Hữu Lợi**\
 Head of Specialty Department\
 FPT PolySchool
 
