@@ -1,0 +1,94 @@
+---
+title: "About"
+---
+
+# About This Course
+
+## R for Research and Data Analytics
+
+R for Research and Data Analytics is a project-based learning program designed for lecturers, researchers, postgraduate students, and data analysts who wish to apply R in research, teaching, and academic publication.
+
+The course emphasizes not only how to perform analyses in R, but also why specific methods should be used, how results should be interpreted, and how findings should be communicated effectively in academic reports and scientific publications.
+
+## Course Philosophy
+
+> Learn statistics through research.
+
+Rather than teaching isolated statistical techniques, the course guides learners through a complete quantitative research workflow from research questions and data preparation to advanced modelling and academic reporting.
+
+## Learning Approach
+
+The program combines:
+
+- Conceptual understanding
+- Hands-on coding
+- Research case studies
+- Academic interpretation
+- Publication-ready reporting
+
+## Course Structure
+
+### Foundation Modules
+
+1.  Introduction to R and Data Management
+2.  Data Cleaning and Preparation
+3.  Descriptive Statistics and Group Comparisons
+4.  Correlation and Regression
+5.  PLS-SEM with R
+6.  Data Visualization and Reporting
+
+### Advanced Analytics Modules
+
+- Advanced Diagnostics
+- Advanced Regression
+- Regularized Regression
+- Advanced SEM
+- Bayesian Statistics
+- Monte Carlo Simulation
+- Simpson's Paradox
+- Meta-analysis
+- Bibliometric Analysis
+- Experimental Design
+- Mixed Models
+- Reproducible Research
+
+## Expected Learning Outcomes
+
+By completing this course, learners will be able to:
+
+- Manage research projects using R
+- Clean and prepare survey datasets
+- Conduct descriptive and inferential analyses
+- Apply regression and SEM techniques
+- Create publication-quality visualizations
+- Write reproducible analytical reports
+- Interpret statistical findings appropriately
+
+## Target Audience
+
+This course is designed for:
+
+- University lecturers
+- Vocational education instructors
+- Researchers
+- Graduate students
+- PhD candidates
+- Data analysts
+- Academic professionals
+
+## Website Purpose
+
+This website serves as a centralized learning hub integrating:
+
+- Learning modules
+- Research toolkit
+- Case studies
+- Glossary
+- Learning resources
+- Self-study materials
+
+## Instructor
+
+Learn more about the instructor here:
+
+[Instructor Profile](instructor.qmd)

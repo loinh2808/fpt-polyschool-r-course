@@ -1,0 +1,105 @@
+---
+title: "Instructor"
+---
+
+# Instructor
+
+::::: columns
+::: {.column width="35%"}
+![](images/LoiNH.jpg){fig-align="center" width="82%"}
+:::
+
+::: {.column width="65%"}
+# Nguyễn Hữu Lợi
+
+### Head of Specialty Department
+
+FPT PolySchool
+
+### PhD Candidate
+
+Asian Institute of Technology (AIT), Thailand
+
+### MSc Sustainability Management
+
+University of Agder (UiA), Norway
+
+### MBA
+
+Universitas Gadjah Mada (UGM), Indonesia
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Professional Profile
+
+Nguyễn Hữu Lợi is an educator, researcher, and academic practitioner with interdisciplinary training in sustainability management, business administration, and natural resource management.
+
+His work focuses on:
+
+- Data Analytics
+- Research Methodology
+- Structural Equation Modeling (SEM)
+- Sustainable Development
+- Academic Writing and Publication
+- Reproducible Research
+
+------------------------------------------------------------------------
+
+## Research Interests
+
+### Data Science and Analytics
+
+- Statistical Modelling
+- Predictive Analytics
+- Data Visualization
+- Research Analytics
+
+### Research Methods
+
+- PLS-SEM
+- Structural Equation Modelling
+- Meta-analysis
+- Bibliometric Analysis
+- Reproducible Research
+
+### Sustainability and Development
+
+- Sustainability management & ESG
+- Sustainable Livelihoods
+- Digital Transformation
+- Innovation Systems
+
+------------------------------------------------------------------------
+
+## Current Positions
+
+- Head of Specialty Department, FPT PolySchool
+- PhD Candidate, Asian Institute of Technology (AIT)
+- Visiting Researcher, Mekong Delta Development Research Institute (MDI)- Can Tho University
+
+------------------------------------------------------------------------
+
+## Purpose of This Course
+
+This course was developed to help lecturers and researchers move beyond software operation and develop the ability to:
+
+- Understand analytical logic
+- Select appropriate methods
+- Interpret results correctly
+- Produce publication-ready outputs
+- Conduct reproducible research
+
+------------------------------------------------------------------------
+
+## Contact
+
+**Nguyễn Hữu Lợi**
+
+Head of Specialty Department\
+FPT PolySchool
+
+Email: loinh14\@fe.edu.vn
+
+GitHub: <https://github.com/loinh2808>
