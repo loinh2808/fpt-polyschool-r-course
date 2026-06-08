@@ -27,9 +27,13 @@ website:
         text: Glossary
       - href: resources.qmd
         text: Resources
+      - href: about.qmd
+        text: About
+      - href: instructor.qmd
+        text: Instructor
     right:
       - icon: github
-        href: https://github.com/
+        href: https://loinh2808.github.io/fpt-polyschool-r-course/
         aria-label: GitHub
 
   sidebar:
@@ -132,7 +136,7 @@ format:
     smooth-scroll: true
     code-copy: true
     code-overflow: wrap
-    code-tools: true
+    code-tools: false
     code-fold: false
     df-print: paged
     fontsize: 1rem
