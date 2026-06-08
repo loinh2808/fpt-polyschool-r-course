@@ -1,0 +1,147 @@
+project:
+  type: website
+  output-dir: docs
+  resources:
+    - resources/**
+    - data/**
+
+website:
+  title: "R for Research and Data Analytics"
+  description: "Khóa học R dựa trên dự án (project-based) dành cho nghiên cứu, phân tích dữ liệu, trực quan hóa và báo cáo học thuật."
+
+  page-navigation: true
+  reader-mode: true
+  search: true
+
+  navbar:
+    background: primary
+    logo: images/LogoFPS.png
+    left:
+      - href: index.qmd
+        text: Home
+      - href: research-toolkit.qmd
+        text: Research Toolkit
+      - href: roadmap.qmd
+        text: Learning Roadmap
+      - href: glossary.qmd
+        text: Glossary
+      - href: resources.qmd
+        text: Resources
+    right:
+      - icon: github
+        href: https://github.com/
+        aria-label: GitHub
+
+  sidebar:
+    style: docked
+    search: true
+    collapse-level: 1
+    contents:
+      - href: index.qmd
+        text: "Course Home"
+
+      - section: "Foundation Modules"
+        contents:
+          - href: module-1.qmd
+            text: "Module 1. Nhập môn R (Introduction to R)"
+          - href: module-2.qmd
+            text: "Module 2. Làm sạch dữ liệu (Data Cleaning and Wrangling)"
+          - href: module-3.qmd
+            text: "Module 3. Thống kê mô tả (Descriptive Statistics)"
+          - href: module-4.qmd
+            text: "Module 4. Tương quan và Hồi quy (Correlation and Regression)"
+          - href: module-5.qmd
+            text: "Module 5. PLS-SEM"
+          - href: module-6.qmd
+            text: "Module 6. Trực quan hóa và Viết kết quả (Visualization and Reporting)"
+
+      - section: "Advanced Analytics Modules"
+        contents:
+          - href: advanced/advanced-home.qmd
+            text: "Advanced Overview"
+          - href: advanced/adv-01-descriptive.qmd
+            text: "Module A1. Chẩn đoán Thống kê Mô tả (Descriptive Diagnostics)"
+          - href: advanced/adv-02-regression.qmd
+            text: "Module A2. Hồi quy Nâng cao (Advanced Regression)"
+          - href: advanced/adv-03-regularized.qmd
+            text: "Module A3. Hồi quy Chính quy hóa (Regularized Regression)"
+          - href: advanced/adv-04-sem.qmd
+            text: "Module A4. SEM Nâng cao (Advanced SEM)"
+          - href: advanced/adv-05-bayesian.qmd
+            text: "Module A5. Thống kê Bayes (Bayesian Statistics)"
+          - href: advanced/adv-06-monte-carlo.qmd
+            text: "Module A6. Mô phỏng Monte Carlo (Monte Carlo Simulation)"
+          - href: advanced/adv-07-simpson.qmd
+            text: "Module A7. Nghịch lý Simpson (Simpson's Paradox)"
+          - href: advanced/adv-08-likert.qmd
+            text: "Module A8. Phân tích Likert Nâng cao (Advanced Likert Analysis)"
+          - href: advanced/adv-09-visualization.qmd
+            text: "Module A9. Thư viện Trực quan hóa (Visualization Gallery)"
+          - href: advanced/adv-10-toolkit.qmd
+            text: "Module A10. Bộ Công cụ Nghiên cứu (Research Toolkit)"
+          - href: advanced/adv-11-meta-analysis.qmd
+            text: "Module A11. Phân tích Tổng hợp (Meta-analysis)"
+          - href: advanced/adv-12-bibliometric.qmd
+            text: "Module A12. Phân tích Trắc lượng Thư mục (Bibliometric Analysis)"
+          - href: advanced/adv-13-anova.qmd
+            text: "Module A13. Thiết kế Thí nghiệm và ANOVA (Experimental Design and ANOVA)"
+          - href: advanced/adv-14-mixed-models.qmd
+            text: "Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc (Mixed Models)"
+          - href: advanced/adv-15-reproducible.qmd
+            text: "Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật (Reproducible Research)"
+
+      - section: "Learning Support"
+        contents:
+          - href: research-toolkit.qmd
+            text: "Research Toolkit"
+          - href: roadmap.qmd
+            text: "Learning Roadmap"
+          - href: glossary.qmd
+            text: "Glossary"
+          - href: resources.qmd
+            text: "Resources"
+
+      - section: "Case Studies"
+        contents:
+          - href: case-study-utaut.qmd
+            text: "Case Study 1. UTAUT & PLS-SEM"
+          - href: case-study-cdio.qmd
+            text: "Case Study 2. CDIO & Digital Assessment Adoption"
+
+  page-footer:
+    left: |
+      © 2026 FPT PolySchool
+    center: |
+      R for Research and Data Analytics
+    right: |
+      Developed by Nguyen Huu Loi @ FPT PolySchool
+
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    mermaid:
+      theme: forest
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    number-sections: false
+    page-layout: article
+    smooth-scroll: true
+    code-copy: true
+    code-overflow: wrap
+    code-tools: true
+    code-fold: false
+    df-print: paged
+    fontsize: 1rem
+    linestretch: 1.6
+    highlight-style: github
+
+execute:
+  freeze: auto
+  warning: false
+  message: false
+
+editor: visual

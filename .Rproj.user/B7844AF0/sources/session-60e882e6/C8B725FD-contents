@@ -1,0 +1,1134 @@
+---
+title: "Advanced 13. Thiết kế Thí nghiệm và ANOVA"
+subtitle: "Experimental Design, ANOVA, and Post Hoc Analysis with R"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Hiểu vai trò của thiết kế thí nghiệm (Experimental Design)
+- Phân biệt CRD, RCBD, factorial design và split-plot design
+- Hiểu ANOVA dùng để làm gì
+- Chạy one-way ANOVA
+- Chạy two-way ANOVA
+- Chạy RCBD ANOVA
+- Kiểm tra giả định ANOVA
+- Thực hiện post hoc test
+- Sử dụng estimated marginal means bằng `emmeans`
+- Tạo biểu đồ mean comparison
+- Viết kết quả ANOVA theo chuẩn học thuật
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Khi nghiên cứu có nhiều nhóm, nghiệm thức hoặc thiết kế thí nghiệm, làm thế nào để so sánh kết quả một cách đúng đắn?**
+
+Quy trình:
+
+```text
+Research Question
+↓
+Experimental Design
+↓
+Outcome Variable
+↓
+ANOVA Model
+↓
+Assumption Check
+↓
+Post Hoc Test
+↓
+Visualization
+↓
+Academic Reporting
+```
+
+:::
+
+## Quy trình ANOVA
+
+```{mermaid}
+flowchart TD
+
+A[Research Question]
+--> B[Design Type]
+
+B --> C[CRD / RCBD / Factorial]
+
+C --> D[Fit ANOVA Model]
+
+D --> E[Check Assumptions]
+
+E --> F{Significant Effect?}
+
+F -->|Yes| G[Post Hoc / emmeans]
+
+F -->|No| H[Report No Evidence]
+
+G --> I[Mean Comparison Plot]
+
+H --> I
+
+I --> J[Academic Reporting]
+```
+
+# 1. Vì sao cần thiết kế thí nghiệm?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Thiết kế thí nghiệm (Experimental Design) là cách bố trí nghiệm thức, đơn vị thí nghiệm, lặp lại và kiểm soát sai số để kiểm tra tác động của các yếu tố nghiên cứu.
+
+**Tại sao cần? (Why?)**
+
+Một thiết kế tốt giúp:
+
+- Giảm sai số
+- Tăng độ tin cậy
+- Kiểm soát yếu tố gây nhiễu
+- So sánh nghiệm thức công bằng
+- Hỗ trợ kết luận nhân quả tốt hơn
+
+**Khi nào dùng? (When?)**
+
+Dùng khi nghiên cứu có:
+
+- Nhiều nhóm điều trị
+- Nhiều nghiệm thức
+- Nhiều mức của một yếu tố
+- Yếu tố khối (block)
+- Tương tác giữa các yếu tố
+
+**Thực hiện thế nào? (How?)**
+
+Chọn thiết kế dựa trên:
+
+- Mục tiêu nghiên cứu
+- Số yếu tố
+- Số nghiệm thức
+- Điều kiện đồng nhất hay không đồng nhất
+- Có cần block hay không
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+ANOVA và thiết kế thí nghiệm được dùng trong:
+
+- Giáo dục
+- Nông nghiệp
+- Y tế
+- Tâm lý học
+- Quản trị
+- Marketing
+- Đánh giá chương trình
+- Thử nghiệm can thiệp
+- Nghiên cứu năng suất và chất lượng
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Người học thường mắc lỗi:
+
+- Dùng nhiều t-test thay vì ANOVA
+- Không kiểm tra giả định
+- Không xét block trong thiết kế RCBD
+- Không kiểm tra interaction trong factorial design
+- Chỉ báo cáo p-value mà không báo cáo mean và CI
+- Diễn giải post hoc khi main effect không phù hợp
+- Không trình bày thiết kế thí nghiệm rõ ràng
+
+:::
+
+# 2. Chuẩn bị dữ liệu
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Module này dùng dữ liệu mô phỏng public để render ổn định.
+
+Dữ liệu gồm:
+
+- `treatment`: nghiệm thức
+- `block`: khối
+- `factor_a`: yếu tố A
+- `factor_b`: yếu tố B
+- `outcome`: biến phụ thuộc
+- `rep`: lần lặp
+
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("car")
+install.packages("emmeans")
+install.packages("agricolae")
+install.packages("broom")
+install.packages("gt")
+install.packages("patchwork")
+```
+
+## Nạp package
+
+```{r}
+library(tidyverse)
+library(broom)
+library(gt)
+library(patchwork)
+```
+
+## Kiểm tra package tùy chọn
+
+```{r}
+has_car <- requireNamespace("car", quietly = TRUE)
+has_emmeans <- requireNamespace("emmeans", quietly = TRUE) && "contrast" %in% getNamespaceExports("emmeans")
+has_agricolae <- requireNamespace("agricolae", quietly = TRUE)
+
+tibble(
+  package = c("car", "emmeans", "agricolae"),
+  installed = c(has_car, has_emmeans, has_agricolae)
+)
+```
+
+## Tạo dữ liệu one-way ANOVA
+
+```{r}
+set.seed(123)
+
+oneway_data <- tibble(
+  treatment = rep(c("Control", "Treatment A", "Treatment B", "Treatment C"), each = 40),
+  outcome = c(
+    rnorm(40, mean = 70, sd = 8),
+    rnorm(40, mean = 74, sd = 8),
+    rnorm(40, mean = 78, sd = 8),
+    rnorm(40, mean = 82, sd = 8)
+  )
+)
+
+glimpse(oneway_data)
+```
+
+## Tạo dữ liệu RCBD
+
+```{r}
+set.seed(123)
+
+rcbd_data <- expand_grid(
+  block = factor(paste0("Block ", 1:6)),
+  treatment = factor(c("Control", "Treatment A", "Treatment B", "Treatment C")),
+  rep = 1:3
+) |>
+  mutate(
+    block_effect = as.numeric(block) * 1.5,
+    treatment_effect = case_when(
+      treatment == "Control" ~ 0,
+      treatment == "Treatment A" ~ 4,
+      treatment == "Treatment B" ~ 7,
+      treatment == "Treatment C" ~ 10
+    ),
+    outcome = 60 + block_effect + treatment_effect + rnorm(n(), 0, 4)
+  )
+
+glimpse(rcbd_data)
+```
+
+## Tạo dữ liệu factorial
+
+```{r}
+set.seed(123)
+
+factorial_data <- expand_grid(
+  factor_a = factor(c("Low", "High")),
+  factor_b = factor(c("Method 1", "Method 2", "Method 3")),
+  rep = 1:35
+) |>
+  mutate(
+    a_effect = if_else(factor_a == "High", 6, 0),
+    b_effect = case_when(
+      factor_b == "Method 1" ~ 0,
+      factor_b == "Method 2" ~ 4,
+      factor_b == "Method 3" ~ 8
+    ),
+    interaction_effect = if_else(factor_a == "High" & factor_b == "Method 3", 5, 0),
+    outcome = 50 + a_effect + b_effect + interaction_effect + rnorm(n(), 0, 6)
+  )
+
+glimpse(factorial_data)
+```
+
+# 3. Các loại thiết kế thí nghiệm phổ biến
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể phân biệt các thiết kế cơ bản.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+| Thiết kế | Tên đầy đủ | Khi nào dùng |
+|---|---|---|
+| CRD | Completely Randomized Design | Đơn vị thí nghiệm đồng nhất |
+| RCBD | Randomized Complete Block Design | Có yếu tố khối gây nhiễu |
+| Factorial | Factorial Design | Có từ hai yếu tố trở lên |
+| Split-plot | Split-plot Design | Có yếu tố khó random hóa ở cấp nhỏ |
+
+:::
+
+## Sơ đồ chọn thiết kế
+
+```{mermaid}
+flowchart TD
+
+A[Experimental Question]
+--> B{One factor?}
+
+B -->|Yes| C{Need blocks?}
+
+C -->|No| D[CRD]
+
+C -->|Yes| E[RCBD]
+
+B -->|No| F{Multiple factors?}
+
+F -->|Yes| G[Factorial Design]
+
+G --> H{Different randomization levels?}
+
+H -->|Yes| I[Split-plot Design]
+
+H -->|No| J[Two-way / Multi-way ANOVA]
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Thiết kế thí nghiệm phải được quyết định trước khi thu thập dữ liệu, không phải sau khi đã có dữ liệu.
+
+:::
+
+# 4. One-way ANOVA
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Chạy one-way ANOVA
+- Hiểu F-test
+- Diễn giải main effect của treatment
+- Tạo bảng ANOVA
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**One-way ANOVA là gì?**
+
+One-way ANOVA dùng để so sánh mean của một biến phụ thuộc giữa nhiều hơn hai nhóm.
+
+**Khi nào dùng?**
+
+Dùng khi có:
+
+```text
+1 outcome continuous
+1 factor categorical với ≥ 3 nhóm
+```
+
+:::
+
+## Thống kê mô tả theo nhóm
+
+```{r}
+oneway_summary <- oneway_data |>
+  group_by(treatment) |>
+  summarise(
+    n = n(),
+    mean = mean(outcome),
+    sd = sd(outcome),
+    se = sd / sqrt(n),
+    .groups = "drop"
+  )
+
+oneway_summary
+```
+
+## Chạy one-way ANOVA
+
+```{r}
+oneway_model <- aov(
+  outcome ~ treatment,
+  data = oneway_data
+)
+
+summary(oneway_model)
+```
+
+## Bảng ANOVA tidy
+
+```{r}
+tidy(oneway_model)
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu p-value của treatment nhỏ hơn .05, có bằng chứng cho thấy ít nhất một nhóm có mean khác nhóm khác.
+
+ANOVA không cho biết nhóm nào khác nhóm nào. Cần post hoc test.
+
+:::
+
+# 5. Kiểm tra giả định ANOVA
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Kiểm tra normality của residuals
+- Kiểm tra homogeneity of variance
+- Vẽ residual plots
+- Biết khi nào cần phương pháp robust hoặc non-parametric
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+ANOVA thường dựa trên các giả định:
+
+| Giả định | Ý nghĩa |
+|---|---|
+| Independence | Quan sát độc lập |
+| Normality | Residuals gần chuẩn |
+| Homogeneity | Phương sai giữa nhóm tương đương |
+| Correct design | Mô hình đúng với thiết kế |
+
+:::
+
+## Residual diagnostic plots
+
+```{r}
+diagnostic_data <- augment(oneway_model)
+
+p_resid_fitted <- ggplot(
+  diagnostic_data,
+  aes(x = .fitted, y = .resid)
+) +
+  geom_point(alpha = 0.6) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Residuals vs Fitted",
+    x = "Fitted values",
+    y = "Residuals"
+  ) +
+  theme_minimal()
+
+p_resid_hist <- ggplot(diagnostic_data, aes(x = .resid)) +
+  geom_histogram(bins = 25) +
+  labs(
+    title = "Residual Distribution",
+    x = "Residuals",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
+p_resid_fitted + p_resid_hist
+```
+
+## Shapiro-Wilk test
+
+```{r}
+shapiro.test(residuals(oneway_model))
+```
+
+## Levene's test
+
+```{r}
+if (has_car) {
+  car::leveneTest(
+    outcome ~ treatment,
+    data = oneway_data
+  )
+}
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên chỉ dựa vào một kiểm định để quyết định mô hình đúng hay sai.
+
+Với sample lớn, kiểm định normality có thể rất nhạy.
+
+Cần kết hợp:
+
+- Residual plots
+- Thiết kế nghiên cứu
+- Robustness checks
+- Kiến thức thực tế
+
+:::
+
+# 6. Post hoc test
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu vì sao cần post hoc
+- Chạy Tukey HSD
+- Đọc pairwise comparisons
+- Tránh lỗi multiple testing
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+ANOVA trả lời:
+
+```text
+Có sự khác biệt giữa các nhóm không?
+```
+
+Post hoc test trả lời:
+
+```text
+Nhóm nào khác nhóm nào?
+```
+
+:::
+
+## Tukey HSD
+
+```{r}
+tukey_result <- TukeyHSD(oneway_model)
+
+tukey_result
+```
+
+## Tidy Tukey result
+
+```{r}
+tukey_tidy <- broom::tidy(tukey_result)
+
+tukey_tidy
+```
+
+## Biểu đồ Tukey comparisons
+
+```{r}
+if ("comparison" %in% names(tukey_tidy)) {
+  tukey_plot_data <- tukey_tidy |>
+    mutate(comparison_label = as.character(comparison))
+} else if ("contrast" %in% names(tukey_tidy)) {
+  tukey_plot_data <- tukey_tidy |>
+    mutate(comparison_label = as.character(contrast))
+} else if ("term" %in% names(tukey_tidy)) {
+  tukey_plot_data <- tukey_tidy |>
+    mutate(comparison_label = as.character(term))
+} else {
+  tukey_plot_data <- tukey_tidy |>
+    mutate(comparison_label = paste0("Comparison ", row_number()))
+}
+
+tukey_plot_data |>
+  ggplot(aes(x = estimate, y = comparison_label)) +
+  geom_point(size = 3) +
+  geom_errorbarh(
+    aes(xmin = conf.low, xmax = conf.high),
+    height = 0.15
+  ) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Tukey HSD Pairwise Comparisons",
+    x = "Mean difference",
+    y = "Comparison"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu confidence interval của một cặp so sánh không cắt 0, hai nhóm đó có khác biệt có ý nghĩa thống kê.
+
+:::
+
+# 7. Estimated marginal means
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu estimated marginal means
+- Dùng `emmeans`
+- Tạo bảng mean đã điều chỉnh
+- So sánh nhóm bằng pairwise contrasts
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Estimated marginal means (EMMs) là mean được ước lượng từ mô hình, thường hữu ích khi mô hình có nhiều yếu tố hoặc covariates.
+
+:::
+
+## emmeans cho one-way ANOVA
+
+```{r}
+if (has_emmeans) {
+  emmeans_oneway <- emmeans::emmeans(
+    oneway_model,
+    ~ treatment
+  )
+
+  emmeans_oneway
+}
+```
+
+## Pairwise comparison bằng emmeans
+
+```{r}
+if (has_emmeans && exists("emmeans_oneway")) {
+  emmeans::contrast(
+    emmeans_oneway,
+    method = "pairwise",
+    adjust = "tukey"
+  )
+}
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+`emmeans` rất hữu ích khi phân tích factorial design, ANCOVA và mixed models.
+
+:::
+
+# 8. Biểu đồ mean comparison
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể tạo biểu đồ mean và confidence interval.
+
+:::
+
+## Mean plot
+
+```{r}
+fig_mean_comparison <- ggplot(
+  oneway_summary,
+  aes(x = mean, y = reorder(treatment, mean))
+) +
+  geom_point(size = 3) +
+  geom_errorbarh(
+    aes(xmin = mean - 1.96 * se, xmax = mean + 1.96 * se),
+    height = 0.15
+  ) +
+  labs(
+    title = "Mean Comparison by Treatment",
+    subtitle = "Points show means; bars show approximate 95% intervals",
+    x = "Mean outcome",
+    y = "Treatment"
+  ) +
+  theme_minimal()
+
+fig_mean_comparison
+```
+
+## Boxplot theo treatment
+
+```{r}
+fig_box_anova <- ggplot(oneway_data, aes(x = treatment, y = outcome)) +
+  geom_boxplot() +
+  labs(
+    title = "Outcome Distribution by Treatment",
+    x = "Treatment",
+    y = "Outcome"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 25, hjust = 1)
+  )
+
+fig_box_anova
+```
+
+# 9. RCBD ANOVA
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu randomized complete block design
+- Biết vì sao cần block
+- Chạy ANOVA có block
+- Diễn giải treatment effect sau khi kiểm soát block
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**RCBD là gì?**
+
+Randomized Complete Block Design dùng khi đơn vị thí nghiệm không hoàn toàn đồng nhất.
+
+Block giúp kiểm soát nguồn biến động không phải nghiệm thức.
+
+Ví dụ block có thể là:
+
+- Lớp học
+- Trường
+- Vị trí ruộng
+- Đợt khảo sát
+- Batch thí nghiệm
+
+:::
+
+## Chạy RCBD model
+
+```{r}
+rcbd_model <- aov(
+  outcome ~ treatment + block,
+  data = rcbd_data
+)
+
+summary(rcbd_model)
+```
+
+## Bảng tidy
+
+```{r}
+tidy(rcbd_model)
+```
+
+## Mean theo treatment trong RCBD
+
+```{r}
+rcbd_summary <- rcbd_data |>
+  group_by(treatment) |>
+  summarise(
+    mean = mean(outcome),
+    sd = sd(outcome),
+    n = n(),
+    se = sd / sqrt(n),
+    .groups = "drop"
+  )
+
+rcbd_summary
+```
+
+## RCBD mean plot
+
+```{r}
+ggplot(rcbd_summary, aes(x = mean, y = reorder(treatment, mean))) +
+  geom_point(size = 3) +
+  geom_errorbarh(
+    aes(xmin = mean - 1.96 * se, xmax = mean + 1.96 * se),
+    height = 0.15
+  ) +
+  labs(
+    title = "RCBD Treatment Means",
+    x = "Mean outcome",
+    y = "Treatment"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Nếu thiết kế có block nhưng mô hình không đưa block vào, sai số có thể bị ước lượng chưa đúng.
+
+:::
+
+# 10. Two-way ANOVA và interaction
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Chạy two-way ANOVA
+- Hiểu main effect
+- Hiểu interaction effect
+- Trực quan hóa interaction
+- Diễn giải interaction thận trọng
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Two-way ANOVA dùng khi có hai yếu tố phân loại.
+
+Ví dụ:
+
+```text
+outcome ~ factor_a * factor_b
+```
+
+Dấu `*` có nghĩa là:
+
+```text
+factor_a + factor_b + factor_a:factor_b
+```
+
+:::
+
+## Chạy two-way ANOVA
+
+```{r}
+factorial_model <- aov(
+  outcome ~ factor_a * factor_b,
+  data = factorial_data
+)
+
+summary(factorial_model)
+```
+
+## Tidy table
+
+```{r}
+tidy(factorial_model)
+```
+
+## Interaction summary
+
+```{r}
+interaction_summary <- factorial_data |>
+  group_by(factor_a, factor_b) |>
+  summarise(
+    mean = mean(outcome),
+    sd = sd(outcome),
+    n = n(),
+    se = sd / sqrt(n),
+    .groups = "drop"
+  )
+
+interaction_summary
+```
+
+## Interaction plot
+
+```{r}
+fig_interaction <- ggplot(
+  interaction_summary,
+  aes(x = factor_b, y = mean, group = factor_a, linetype = factor_a)
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(ymin = mean - 1.96 * se, ymax = mean + 1.96 * se),
+    width = 0.12
+  ) +
+  labs(
+    title = "Interaction Plot",
+    x = "Factor B",
+    y = "Mean outcome",
+    linetype = "Factor A"
+  ) +
+  theme_minimal()
+
+fig_interaction
+```
+
+::: {.callout-important title="Diễn giải interaction (Interpretation)"}
+
+Nếu interaction có ý nghĩa, tác động của một yếu tố phụ thuộc vào mức của yếu tố còn lại.
+
+Khi có interaction, không nên chỉ diễn giải main effects một cách đơn giản.
+
+:::
+
+# 11. Post hoc cho factorial design
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể dùng `emmeans` để so sánh nhóm trong mô hình có interaction.
+
+:::
+
+## emmeans theo tổ hợp nhóm
+
+```{r}
+if (has_emmeans) {
+  factorial_emm <- emmeans::emmeans(
+    factorial_model,
+    ~ factor_a * factor_b
+  )
+
+  factorial_emm
+}
+```
+
+## Pairwise comparisons
+
+```{r}
+if (has_emmeans && exists("factorial_emm")) {
+  emmeans::contrast(
+    factorial_emm,
+    method = "pairwise",
+    adjust = "tukey"
+  )
+}
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Khi có interaction, nên so sánh simple effects hoặc tổ hợp nhóm, thay vì chỉ xem main effects.
+
+:::
+
+# 12. Effect size cho ANOVA
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên hiểu vì sao cần effect size trong ANOVA.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+ANOVA p-value cho biết có bằng chứng thống kê về khác biệt hay không.
+
+Effect size cho biết khác biệt lớn đến đâu.
+
+Một số effect size:
+
+| Chỉ số | Ý nghĩa |
+|---|---|
+| Eta squared | Tỷ lệ phương sai giải thích |
+| Partial eta squared | Tỷ lệ phương sai giải thích sau khi xét yếu tố khác |
+| Omega squared | Ước lượng ít thiên lệch hơn |
+
+:::
+
+## Tính eta squared thủ công cho one-way ANOVA
+
+```{r}
+anova_table <- tidy(oneway_model)
+
+ss_treatment <- anova_table$sumsq[anova_table$term == "treatment"]
+ss_total <- sum(anova_table$sumsq, na.rm = TRUE)
+
+eta_squared <- ss_treatment / ss_total
+
+eta_squared
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Eta squared càng lớn thì treatment giải thích càng nhiều phương sai của outcome.
+
+Không nên chỉ dựa vào p-value.
+
+:::
+
+# 13. Non-parametric alternative
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên biết lựa chọn thay thế khi ANOVA không phù hợp.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Nếu dữ liệu lệch mạnh, ordinal hoặc giả định ANOVA không phù hợp, có thể cân nhắc:
+
+- Kruskal-Wallis test
+- Wilcoxon test
+- Robust ANOVA
+- Permutation test
+- Transform outcome nếu hợp lý
+
+:::
+
+## Kruskal-Wallis test
+
+```{r}
+kruskal.test(
+  outcome ~ treatment,
+  data = oneway_data
+)
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên tự động chuyển sang non-parametric chỉ vì Shapiro-Wilk test có p-value nhỏ.
+
+Cần xem residual plots và bối cảnh dữ liệu.
+
+:::
+
+# 14. Viết kết quả học thuật
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Khi viết ANOVA, cần báo cáo:
+
+- Loại ANOVA
+- Biến phụ thuộc
+- Yếu tố độc lập
+- F statistic
+- df
+- p-value
+- effect size nếu có
+- post hoc nếu main effect có ý nghĩa
+- mean và CI theo nhóm
+
+:::
+
+## Template one-way ANOVA
+
+```text
+A one-way ANOVA was conducted to compare outcome scores across four treatment groups. The results showed a statistically significant effect of treatment on outcome, F(df1, df2) = [F], p = [p]. Post hoc comparisons using Tukey's HSD indicated that [group] differed significantly from [group].
+```
+
+## Template RCBD
+
+```text
+A randomized complete block design ANOVA was conducted with treatment and block included in the model. The treatment effect remained statistically significant after accounting for block differences, suggesting that the observed differences were not solely attributable to block-level variation.
+```
+
+## Template interaction
+
+```text
+A two-way ANOVA revealed a significant interaction between factor A and factor B, indicating that the effect of factor A depended on the level of factor B.
+```
+
+## Template cautious interpretation
+
+```text
+Although the ANOVA results indicate statistically significant group differences, the findings should be interpreted alongside effect sizes, confidence intervals, and the assumptions of the model.
+```
+
+# 15. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Hãy thực hiện:
+
+1. Tạo dữ liệu one-way ANOVA.
+2. Tính mean và SD theo nhóm.
+3. Chạy one-way ANOVA.
+4. Kiểm tra residual plots.
+5. Chạy Tukey HSD.
+6. Tạo mean comparison plot.
+7. Tạo dữ liệu RCBD.
+8. Chạy RCBD ANOVA.
+9. Tạo dữ liệu factorial.
+10. Chạy two-way ANOVA.
+11. Vẽ interaction plot.
+12. Viết đoạn kết quả học thuật.
+
+:::
+
+# 16. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Một nghiên cứu có 4 nghiệm thức, 5 blocks và outcome liên tục.
+
+Kết quả:
+
+```text
+Treatment p < .01
+Block p < .05
+Tukey cho thấy Treatment C cao hơn Control
+```
+
+## Câu hỏi
+
+1. Thiết kế nào phù hợp?
+2. Vì sao cần đưa block vào mô hình?
+3. Có nên chạy nhiều t-test không?
+4. Cần báo cáo thêm chỉ số nào?
+5. Viết kết quả thế nào?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+Một câu trả lời tốt nên nêu:
+
+- Thiết kế phù hợp là RCBD.
+- Block kiểm soát khác biệt nền giữa các khối.
+- Không nên chạy nhiều t-test vì tăng Type I error.
+- Cần báo cáo F, df, p-value, mean, CI và post hoc.
+- Diễn giải rằng Treatment C cao hơn Control sau khi kiểm soát block.
+
+:::
+
+# 17. Dự án nhỏ
+
+::: {.callout-important title="Dự án nhỏ (Mini Project)"}
+
+## Chủ đề
+
+Experimental Design and ANOVA Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+```text
+ANOVA_Experimental_Design_Report.html
+```
+
+## Nội dung báo cáo
+
+1. Research question
+2. Design description
+3. Dataset overview
+4. Descriptive statistics
+5. One-way ANOVA
+6. Assumption checks
+7. Post hoc test
+8. RCBD model
+9. Factorial ANOVA
+10. Interaction plot
+11. Effect size
+12. Academic interpretation
+
+:::
+
+# 18. Điểm cần ghi nhớ
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- ANOVA dùng để so sánh mean giữa nhiều nhóm.
+- Thiết kế thí nghiệm quyết định mô hình phân tích.
+- CRD phù hợp khi đơn vị thí nghiệm đồng nhất.
+- RCBD phù hợp khi có block gây biến động.
+- Factorial design kiểm tra main effects và interaction.
+- ANOVA cần kiểm tra giả định.
+- Post hoc test cho biết nhóm nào khác nhóm nào.
+- `emmeans` rất hữu ích cho mô hình nhiều yếu tố.
+- Cần báo cáo effect size, không chỉ p-value.
+- Diễn giải cần dựa trên thiết kế và giả định mô hình.
+
+:::
+
+# 19. Bước tiếp theo
+
+::: {.callout-note title="Bước tiếp theo (What Next?)"}
+
+Sau khi hoàn thành phần này, học viên nên:
+
+1. Biết chọn thiết kế thí nghiệm phù hợp.
+2. Biết chạy one-way ANOVA, RCBD và factorial ANOVA.
+3. Biết kiểm tra giả định.
+4. Biết dùng post hoc và emmeans.
+5. Chuyển sang:
+
+[Mixed Models and Longitudinal Data](adv-14-mixed-models.qmd)
+
+Trong phần tiếp theo, chúng ta sẽ học mô hình hỗn hợp, repeated measures và dữ liệu phân cấp.
+
+:::

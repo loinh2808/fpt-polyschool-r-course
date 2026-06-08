@@ -1,0 +1,278 @@
+---
+title: ""
+toc: false
+page-layout: article
+---
+
+:::::::::::: home-hero
+::::::::::: hero-grid
+:::: hero-left
+![](images/LogoFPS.png){.hero-logo}
+
+# R for Research and Data Analytics
+
+### Project-Based Learning for Research, Statistics, Data Analytics, Visualization and Academic Reporting
+
+R for Research and Data Analytics là chương trình đào tạo phân tích dữ liệu bằng R dành cho giảng viên, nghiên cứu viên và học viên có nhu cầu ứng dụng R trong nghiên cứu khoa học, giảng dạy và công bố học thuật.
+
+::: hero-actions
+[🚀 Start Learning](module-1.qmd){.btn .btn-primary .btn-lg} [🧭 Research Toolkit](research-toolkit.qmd){.btn .btn-outline-primary .btn-lg}
+:::
+::::
+
+:::::::: hero-right
+::::::: hero-visual
+::: r-badge
+R
+:::
+
+::: laptop-card
+``` text
+library(tidyverse)
+
+data |>
+  clean_names() |>
+  ggplot(aes(x, y)) +
+  geom_point() +
+  geom_smooth()
+```
+:::
+
+::: chart-card
+▁ ▃ ▅ ▆ █
+:::
+
+::: pie-card
+◔
+:::
+:::::::
+::::::::
+:::::::::::
+::::::::::::
+
+# Why This Course?
+
+::::::::: feature-grid
+::: feature-card
+## 🎓 Learn Systematically
+
+Từ nền tảng R đến các phương pháp phân tích nâng cao theo một lộ trình rõ ràng.
+
+[View Roadmap](roadmap.qmd){.btn .btn-sm .btn-outline-primary}
+:::
+
+::: feature-card
+## 📊 Hands-on Practice
+
+Học thông qua dữ liệu thực hành, bài tập theo module và dự án nghiên cứu mô phỏng.
+
+[Start Module 1](module-1.qmd){.btn .btn-sm .btn-outline-primary}
+:::
+
+::: feature-card
+## 🔬 Research Workflow
+
+Đi theo quy trình nghiên cứu hoàn chỉnh từ câu hỏi nghiên cứu đến báo cáo học thuật.
+
+[Research Toolkit](research-toolkit.qmd){.btn .btn-sm .btn-outline-primary}
+:::
+
+::: feature-card
+## 🚀 Advanced Analytics
+
+Bao gồm SEM, Bayesian, Monte Carlo, Meta-analysis, Bibliometric và Mixed Models.
+
+[Advanced Modules](advanced/advanced-home.qmd){.btn .btn-sm .btn-outline-primary}
+:::
+
+::: feature-card
+## 📄 Reproducible Research
+
+Tạo báo cáo có khả năng tái lập bằng Quarto, bảng, hình và quy trình phân tích rõ ràng.
+
+[Module A15](advanced/adv-15-reproducible.qmd){.btn .btn-sm .btn-outline-primary}
+:::
+
+::: feature-card
+## 🌍 Academic Standards
+
+Tập trung vào diễn giải kết quả, viết báo cáo và tạo sản phẩm phục vụ công bố học thuật.
+
+[Resources](resources.qmd){.btn .btn-sm .btn-outline-primary}
+:::
+:::::::::
+
+# Learning Path
+
+::: callout-note
+Khóa học gồm 6 module nền tảng và 15 module nâng cao. Người học có thể đi theo lộ trình tuyến tính hoặc chọn module theo mục tiêu nghiên cứu.
+:::
+
+```{mermaid}
+flowchart LR
+
+M1["Module 1<br/>Introduction to R"]
+--> M2["Module 2<br/>Data Cleaning"]
+
+M2 --> M3["Module 3<br/>Descriptive Statistics"]
+
+M3 --> M4["Module 4<br/>Correlation & Regression"]
+
+M4 --> M5["Module 5<br/>PLS-SEM"]
+
+M5 --> M6["Module 6<br/>Visualization & Reporting"]
+
+M6 --> A1["Module A1<br/>Diagnostics"]
+
+A1 --> A2["Module A2<br/>Advanced Regression"]
+
+A2 --> A9["Module A9<br/>Visualization Gallery"]
+
+A9 --> A15["Module A15<br/>Reproducible Research"]
+```
+
+# Course Structure
+
+## Foundation Modules
+
+| Module | Title | Main Output |
+|----|----|----|
+| [Module 1](module-1.qmd) | Nhập môn R (Introduction to R) | Data Import and Diagnostic Check |
+| [Module 2](module-2.qmd) | Làm sạch dữ liệu (Data Cleaning and Wrangling) | Clean Dataset |
+| [Module 3](module-3.qmd) | Thống kê mô tả (Descriptive Statistics) | Descriptive Report |
+| [Module 4](module-4.qmd) | Tương quan và Hồi quy (Correlation and Regression) | Regression Report |
+| [Module 5](module-5.qmd) | PLS-SEM | SEM Results Tables |
+| [Module 6](module-6.qmd) | Trực quan hóa và Viết kết quả (Visualization and Reporting) | Figure Set and Results Draft |
+
+## Advanced Analytics Modules
+
+| Module | Title | Main Output |
+|----|----|----|
+| [Module A1](advanced/adv-01-descriptive.qmd) | Chẩn đoán Thống kê Mô tả (Descriptive Diagnostics) | Diagnostic Report |
+| [Module A2](advanced/adv-02-regression.qmd) | Hồi quy Nâng cao (Advanced Regression) | Academic Regression Tables |
+| [Module A3](advanced/adv-03-regularized.qmd) | Hồi quy Chính quy hóa (Regularized Regression) | Prediction Model |
+| [Module A4](advanced/adv-04-sem.qmd) | SEM Nâng cao (Advanced SEM) | Measurement and Structural Model |
+| [Module A5](advanced/adv-05-bayesian.qmd) | Thống kê Bayes (Bayesian Statistics) | Posterior Interpretation |
+| [Module A6](advanced/adv-06-monte-carlo.qmd) | Mô phỏng Monte Carlo (Monte Carlo Simulation) | Simulation Report |
+| [Module A7](advanced/adv-07-simpson.qmd) | Nghịch lý Simpson (Simpson's Paradox) | Grouped Data Insight |
+| [Module A8](advanced/adv-08-likert.qmd) | Phân tích Likert Nâng cao (Advanced Likert Analysis) | Likert Visualization Report |
+| [Module A9](advanced/adv-09-visualization.qmd) | Thư viện Trực quan hóa (Visualization Gallery) | Publication-ready Figures |
+| [Module A10](advanced/adv-10-toolkit.qmd) | Bộ Công cụ Nghiên cứu (Research Toolkit) | Method Decision Framework |
+| [Module A11](advanced/adv-11-meta-analysis.qmd) | Phân tích Tổng hợp (Meta-analysis) | Forest and Funnel Plots |
+| [Module A12](advanced/adv-12-bibliometric.qmd) | Phân tích Trắc lượng Thư mục (Bibliometric Analysis) | Science Mapping Report |
+| [Module A13](advanced/adv-13-anova.qmd) | Thiết kế Thí nghiệm và ANOVA (Experimental Design and ANOVA) | ANOVA Report |
+| [Module A14](advanced/adv-14-mixed-models.qmd) | Mô hình Hỗn hợp và Dữ liệu Dọc (Mixed Models) | Longitudinal Model Report |
+| [Module A15](advanced/adv-15-reproducible.qmd) | Nghiên cứu Tái lập và Báo cáo Học thuật (Reproducible Research) | Quarto Research Report |
+
+# Research Workflow
+
+```{mermaid}
+flowchart TD
+
+A[Import Data]
+--> B[Clean Data]
+
+B --> C[Describe Data]
+
+C --> D[Visualize Patterns]
+
+D --> E[Model Relationships]
+
+E --> F[Test Theoretical Models]
+
+F --> G[Advanced Analytics]
+
+G --> H[Write Results]
+
+H --> I[Reproducible Report]
+```
+
+# Who Should Take This Course?
+
+::::::: audience-grid
+::: audience-card
+## 👩‍🏫 Giảng viên
+
+Ứng dụng R trong giảng dạy, nghiên cứu và hướng dẫn học viên.
+:::
+
+::: audience-card
+## 🔬 Nghiên cứu viên
+
+Phân tích dữ liệu định lượng, tạo bảng/hình và viết kết quả học thuật.
+:::
+
+::: audience-card
+## 🎓 Học viên cao học
+
+Xây dựng năng lực phân tích dữ liệu phục vụ luận văn, luận án và công bố.
+:::
+
+::: audience-card
+## 📈 Data Analyst
+
+Nâng cao năng lực xử lý dữ liệu, visualization và báo cáo tái lập.
+:::
+:::::::
+
+# Expected Learning Outcomes
+
+:::::: outcome-grid
+::: outcome-card
+## Technical Skills
+
+- Quản lý project nghiên cứu bằng R
+- Nhập dữ liệu từ Excel
+- Làm sạch dữ liệu khảo sát
+- Tạo thống kê mô tả
+- Thực hiện hồi quy và kiểm tra mô hình
+:::
+
+::: outcome-card
+## Research Skills
+
+- Hiểu quy trình phân tích định lượng
+- Diễn giải kết quả thống kê đúng cách
+- Viết phần Results dựa trên output từ R
+- Tạo bảng và hình phục vụ công bố
+:::
+
+::: outcome-card
+## Advanced Skills
+
+- SEM nâng cao
+- Bayesian statistics
+- Monte Carlo simulation
+- Meta-analysis
+- Bibliometric analysis
+- Mixed models
+:::
+::::::
+
+# Final Capstone
+
+::: capstone-box
+## Final Research Analytics Report
+
+Ở cuối khóa học, học viên xây dựng một báo cáo hoàn chỉnh:
+
+``` text
+Final_Research_Analytics_Report.html
+```
+
+Báo cáo bao gồm dataset overview, data cleaning summary, descriptive statistics, regression model, PLS-SEM results, publication-ready figures và advanced analytics extension.
+
+[📄 Start Capstone with Research Toolkit](research-toolkit.qmd){.btn .btn-primary}
+:::
+
+# Start Learning
+
+::: start-box
+Bắt đầu với:
+
+[Module 1. Nhập môn R (Introduction to R)](module-1.qmd){.btn .btn-primary .btn-lg}
+
+Hoặc đi theo mục tiêu nghiên cứu:
+
+[Research Toolkit](research-toolkit.qmd){.btn .btn-outline-primary .btn-lg}
+:::

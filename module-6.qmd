@@ -1,0 +1,1106 @@
+---
+title: "Module 6. Trực quan hóa Dữ liệu và Viết Kết quả Nghiên cứu"
+---
+
+# Tổng quan Module
+
+::: {.callout-tip title="Learning Outcomes"}
+Sau khi hoàn thành Module 6, học viên có thể:
+
+- Hiểu vai trò của trực quan hóa dữ liệu trong nghiên cứu khoa học
+- Tạo biểu đồ phân phối bằng `ggplot2`
+- Tạo biểu đồ so sánh nhóm
+- Tạo biểu đồ quan hệ giữa các biến
+- Tạo correlation heatmap
+- Tạo biểu đồ Likert dạng horizontal stacked bar
+- Kết hợp nhiều biểu đồ bằng `patchwork`
+- Tạo bảng kết quả bằng `gtsummary` và `flextable`
+- Xuất hình ảnh chất lượng cao
+- Viết phần Results dựa trên output từ R
+- Viết figure captions và table notes theo chuẩn học thuật
+:::
+
+::: {.callout-note title="Module Logic"}
+Module này trả lời câu hỏi:
+
+**Làm thế nào để chuyển kết quả phân tích từ R thành hình, bảng và đoạn viết kết quả có thể dùng trong báo cáo hoặc bài báo khoa học?**
+
+Workflow:
+
+``` text
+Dữ liệu sạch
+↓
+Kết quả mô tả
+↓
+Kết quả hồi quy
+↓
+Kết quả SEM
+↓
+Hình ảnh
+↓
+Bảng biểu
+↓
+Viết kết quả
+↓
+Báo cáo sẵn sàng xuất bản
+```
+:::
+
+------------------------------------------------------------------------
+
+# 6.1 Why Visualization Matters?
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Data visualization là quá trình biểu diễn dữ liệu bằng hình ảnh như biểu đồ, bảng, heatmap hoặc network.
+
+**Why?**
+
+Visualization giúp:
+
+- Hiểu dữ liệu nhanh hơn
+- Phát hiện outliers
+- Nhìn thấy patterns
+- Truyền đạt kết quả rõ ràng hơn
+- Tăng tính thuyết phục của bài báo hoặc báo cáo
+
+**When?**
+
+Dùng visualization ở cả ba giai đoạn:
+
+1.  Data exploration
+2.  Analysis interpretation
+3.  Research communication
+
+**How do we use it in research?**
+
+Hình và bảng thường xuất hiện trong:
+
+- Results section
+- Conference presentation
+- Journal article
+- Thesis chapter
+- Policy report
+:::
+
+::: {.callout-important title="Research Application"}
+Trong nghiên cứu giáo dục, UTAUT, SEM hoặc PhD survey, visualization có thể dùng để trình bày:
+
+- Đặc điểm mẫu
+- Phân phối biến chính
+- So sánh nhóm
+- Tương quan giữa các biến
+- Kết quả hồi quy
+- Kết quả SEM
+- Likert responses
+:::
+
+::: {.callout-warning title="Common Mistakes"}
+Người học thường mắc lỗi:
+
+- Dùng biểu đồ chỉ để trang trí
+- Không đặt tên trục rõ ràng
+- Không ghi đơn vị đo
+- Dùng quá nhiều màu
+- Không có figure caption
+- Dùng hình độ phân giải thấp cho bài báo
+- Diễn giải hình vượt quá dữ liệu
+:::
+
+------------------------------------------------------------------------
+
+# 6.2 Load Packages
+
+::: {.callout-note title="Knowledge Notes"}
+**Main packages**
+
+- `ggplot2`: tạo biểu đồ
+- `patchwork`: ghép nhiều biểu đồ
+- `gtsummary`: tạo bảng học thuật
+- `flextable`: tạo bảng báo cáo Word
+- `officer`: xuất Word
+- `readxl`: đọc Excel
+- `janitor`: làm sạch tên biến
+:::
+
+## Install Packages
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("patchwork")
+install.packages("gtsummary")
+install.packages("flextable")
+install.packages("officer")
+install.packages("gt")
+```
+
+## Load Packages
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(patchwork)
+library(gtsummary)
+library(flextable)
+library(officer)
+library(gt)
+```
+
+------------------------------------------------------------------------
+
+# 6.3 Import Clean Dataset
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Module 6 sử dụng dữ liệu sạch đã được tạo ở Module 2.
+
+**How?**
+
+Ưu tiên đọc file:
+
+``` text
+output/03_Clean_Data.xlsx
+```
+
+Nếu file này chưa tồn tại, hệ thống sẽ đọc sheet `03_Clean_Data` từ file demo ban đầu.
+:::
+
+```{r}
+if (file.exists("output/03_Clean_Data.xlsx")) {
+  data <- read_excel("output/03_Clean_Data.xlsx")
+} else {
+  data <- read_excel(
+    "data/FPT_PolySchool_R_Training_Demo_Dataset.xlsx",
+    sheet = "03_Clean_Data"
+  )
+}
+
+data <- data |>
+  clean_names()
+```
+
+## Check Data
+
+```{r}
+glimpse(data)
+```
+
+------------------------------------------------------------------------
+
+# 6.4 Prepare Variables
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Các biểu đồ và bảng trong module này sử dụng các biến trung bình của construct.
+
+**Why?**
+
+Các biến như `pe_mean`, `bi_mean`, `au_mean` giúp trực quan hóa kết quả nghiên cứu ở cấp độ construct.
+:::
+
+```{r}
+needed_mean_vars <- c(
+  "pe_mean", "ee_mean", "si_mean", "fc_mean",
+  "dr_mean", "tr_mean", "bi_mean", "au_mean"
+)
+
+if (!all(needed_mean_vars %in% names(data))) {
+  data <- data |>
+    mutate(
+      pe_mean = rowMeans(pick(pe1, pe2, pe3, pe4), na.rm = TRUE),
+      ee_mean = rowMeans(pick(ee1, ee2, ee3, ee4), na.rm = TRUE),
+      si_mean = rowMeans(pick(si1, si2, si3, si4), na.rm = TRUE),
+      fc_mean = rowMeans(pick(fc1, fc2, fc3, fc4), na.rm = TRUE),
+      dr_mean = rowMeans(pick(dr1, dr2, dr3, dr4), na.rm = TRUE),
+      tr_mean = rowMeans(pick(tr1, tr2, tr3, tr4), na.rm = TRUE),
+      bi_mean = rowMeans(pick(bi1, bi2, bi3), na.rm = TRUE),
+      au_mean = rowMeans(pick(au1, au2, au3), na.rm = TRUE)
+    )
+}
+```
+
+## Convert Grouping Variables
+
+```{r}
+data <- data |>
+  mutate(
+    gender = as.factor(gender),
+    major = as.factor(major),
+    campus = as.factor(campus)
+  )
+```
+
+------------------------------------------------------------------------
+
+# 6.5 Grammar of Graphics
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+`ggplot2` dựa trên Grammar of Graphics.
+
+Một biểu đồ thường gồm:
+
+``` text
+Data
++
+Aesthetics
++
+Geometry
++
+Theme
+```
+
+**Basic structure**
+
+``` r
+ggplot(data, aes(x = variable_x, y = variable_y)) +
+  geom_point()
+```
+:::
+
+::: {.callout-tip title="Key Points"}
+Trong `ggplot2`:
+
+- `data` là dữ liệu
+- `aes()` là ánh xạ thẩm mỹ
+- `geom_` là loại hình
+- `labs()` đặt tiêu đề và nhãn
+- `theme_` chỉnh giao diện
+:::
+
+------------------------------------------------------------------------
+
+# 6.6 Distribution Plot
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Histogram dùng để xem phân phối của một biến định lượng.
+
+**When?**
+
+Dùng khi cần kiểm tra:
+
+- Shape
+- Skewness
+- Outliers
+- Central tendency
+:::
+
+## BI Distribution
+
+```{r}
+fig_bi_hist <- ggplot(data, aes(x = bi_mean)) +
+  geom_histogram(bins = 20) +
+  labs(
+    title = "Distribution of Behavioral Intention",
+    x = "Behavioral Intention",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
+fig_bi_hist
+```
+
+## AU Distribution
+
+```{r}
+fig_au_hist <- ggplot(data, aes(x = au_mean)) +
+  geom_histogram(bins = 20) +
+  labs(
+    title = "Distribution of Actual Use",
+    x = "Actual Use",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
+fig_au_hist
+```
+
+::: {.callout-important title="Research Application"}
+Histogram giúp kiểm tra xem biến outcome có phân phối hợp lý không trước khi chạy hồi quy hoặc SEM.
+:::
+
+------------------------------------------------------------------------
+
+# 6.7 Group Comparison Plots
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Boxplot dùng để so sánh phân phối của biến định lượng giữa các nhóm.
+
+**When?**
+
+Dùng khi cần so sánh:
+
+``` text
+BI_mean by Gender
+BI_mean by Major
+GPA by Campus
+```
+:::
+
+## BI by Gender
+
+```{r}
+fig_bi_gender <- ggplot(data, aes(x = gender, y = bi_mean)) +
+  geom_boxplot() +
+  labs(
+    title = "Behavioral Intention by Gender",
+    x = "Gender",
+    y = "Behavioral Intention"
+  ) +
+  theme_minimal()
+
+fig_bi_gender
+```
+
+## BI by Major
+
+```{r}
+fig_bi_major <- ggplot(data, aes(x = major, y = bi_mean)) +
+  geom_boxplot() +
+  labs(
+    title = "Behavioral Intention by Major",
+    x = "Major",
+    y = "Behavioral Intention"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  )
+
+fig_bi_major
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên kết luận nhóm khác nhau chỉ dựa trên boxplot.
+
+Boxplot giúp khám phá dữ liệu. Muốn kiểm định cần dùng t-test hoặc ANOVA.
+:::
+
+------------------------------------------------------------------------
+
+# 6.8 Relationship Plots
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Scatterplot dùng để xem mối quan hệ giữa hai biến định lượng.
+
+**When?**
+
+Dùng trước hồi quy hoặc tương quan.
+
+**How?**
+
+Có thể thêm đường hồi quy bằng:
+
+``` r
+geom_smooth(method = "lm")
+```
+:::
+
+## PE and BI
+
+```{r}
+fig_pe_bi <- ggplot(data, aes(x = pe_mean, y = bi_mean)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "Relationship between Performance Expectancy and Behavioral Intention",
+    x = "Performance Expectancy",
+    y = "Behavioral Intention"
+  ) +
+  theme_minimal()
+
+fig_pe_bi
+```
+
+## Trust and BI
+
+```{r}
+fig_tr_bi <- ggplot(data, aes(x = tr_mean, y = bi_mean)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "Relationship between Trust and Behavioral Intention",
+    x = "Trust",
+    y = "Behavioral Intention"
+  ) +
+  theme_minimal()
+
+fig_tr_bi
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Scatterplot cho thấy association, không chứng minh causation.
+:::
+
+------------------------------------------------------------------------
+
+# 6.9 Correlation Heatmap
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Correlation heatmap giúp trình bày ma trận tương quan bằng màu sắc.
+
+**When?**
+
+Dùng khi có nhiều biến định lượng cần xem tương quan.
+:::
+
+## Prepare Correlation Data
+
+```{r}
+corr_data <- data |>
+  select(
+    pe_mean,
+    ee_mean,
+    si_mean,
+    fc_mean,
+    dr_mean,
+    tr_mean,
+    bi_mean,
+    au_mean
+  )
+
+corr_matrix <- cor(
+  corr_data,
+  use = "pairwise.complete.obs"
+)
+
+corr_matrix
+```
+
+## Convert to Long Format
+
+```{r}
+corr_long <- as.data.frame(as.table(corr_matrix)) |>
+  rename(
+    variable_1 = Var1,
+    variable_2 = Var2,
+    correlation = Freq
+  )
+```
+
+## Heatmap
+
+```{r}
+fig_corr_heatmap <- ggplot(
+  corr_long,
+  aes(x = variable_1, y = variable_2, fill = correlation)
+) +
+  geom_tile() +
+  geom_text(aes(label = round(correlation, 2)), size = 3) +
+  labs(
+    title = "Correlation Heatmap",
+    x = NULL,
+    y = NULL,
+    fill = "r"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  )
+
+fig_corr_heatmap
+```
+
+::: {.callout-important title="Research Application"}
+Correlation heatmap phù hợp cho:
+
+- UTAUT variables
+- SEM constructs
+- Psychological scales
+- Survey-based research
+:::
+
+------------------------------------------------------------------------
+
+# 6.10 Likert Visualization
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Likert visualization giúp trình bày phân bố câu trả lời cho các item khảo sát.
+
+**When?**
+
+Dùng khi dữ liệu có các câu hỏi thang đo 1–5.
+
+**Why?**
+
+Biểu đồ Likert giúp người đọc thấy mức độ đồng ý, trung lập và không đồng ý.
+:::
+
+## Select Likert Items
+
+```{r}
+likert_items <- data |>
+  select(pe1, pe2, pe3, pe4)
+```
+
+## Long Format
+
+```{r}
+likert_long <- likert_items |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "item",
+    values_to = "response"
+  ) |>
+  mutate(
+    response = factor(
+      response,
+      levels = 1:5,
+      labels = c(
+        "Strongly disagree",
+        "Disagree",
+        "Neutral",
+        "Agree",
+        "Strongly agree"
+      )
+    )
+  )
+```
+
+## Horizontal Stacked Likert Bar
+
+```{r}
+likert_summary <- likert_long |>
+  count(item, response) |>
+  group_by(item) |>
+  mutate(percent = n / sum(n) * 100) |>
+  ungroup()
+
+fig_likert <- ggplot(
+  likert_summary,
+  aes(x = percent, y = item, fill = response)
+) +
+  geom_col() +
+  labs(
+    title = "Likert Responses for Performance Expectancy Items",
+    x = "Percent",
+    y = "Item",
+    fill = "Response"
+  ) +
+  theme_minimal()
+
+fig_likert
+```
+
+::: {.callout-important title="Research Application"}
+Likert plots rất phù hợp cho:
+
+- UTAUT
+- TPB
+- TAM
+- Teacher survey
+- Student survey
+- Perception studies
+:::
+
+------------------------------------------------------------------------
+
+# 6.11 Combining Figures with Patchwork
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+`patchwork` giúp ghép nhiều biểu đồ thành một figure panel.
+
+**Why?**
+
+Trong bài báo, nhiều hình thường được trình bày thành Figure 1A, 1B, 1C.
+:::
+
+## Distribution Panel
+
+```{r}
+fig_distribution <- fig_bi_hist + fig_au_hist
+
+fig_distribution
+```
+
+## Group Comparison Panel
+
+```{r}
+fig_group_comparison <- fig_bi_gender + fig_bi_major
+
+fig_group_comparison
+```
+
+## Relationship Panel
+
+```{r}
+fig_relationships <- fig_pe_bi + fig_tr_bi
+
+fig_relationships
+```
+
+------------------------------------------------------------------------
+
+# 6.12 Publication-ready Tables
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Bảng học thuật nên rõ ràng, nhất quán và có thể xuất sang Word hoặc HTML.
+
+**Common tools**
+
+- `gtsummary`
+- `gt`
+- `flextable`
+:::
+
+## Table 1
+
+```{r}
+table_1 <- data |>
+  select(
+    gender,
+    age,
+    major,
+    campus,
+    gpa,
+    internet_hours,
+    pe_mean,
+    ee_mean,
+    si_mean,
+    fc_mean,
+    dr_mean,
+    tr_mean,
+    bi_mean,
+    au_mean
+  ) |>
+  tbl_summary(
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    digits = all_continuous() ~ 2
+  ) |>
+  bold_labels()
+
+table_1
+```
+
+## Summary Table with Flextable
+
+```{r}
+summary_table <- data |>
+  summarise(
+    n = n(),
+    mean_bi = mean(bi_mean, na.rm = TRUE),
+    sd_bi = sd(bi_mean, na.rm = TRUE),
+    mean_au = mean(au_mean, na.rm = TRUE),
+    sd_au = sd(au_mean, na.rm = TRUE),
+    mean_pe = mean(pe_mean, na.rm = TRUE),
+    sd_pe = sd(pe_mean, na.rm = TRUE),
+    mean_tr = mean(tr_mean, na.rm = TRUE),
+    sd_tr = sd(tr_mean, na.rm = TRUE)
+  )
+
+summary_table |>
+  flextable() |>
+  autofit()
+```
+
+------------------------------------------------------------------------
+
+# 6.13 Writing Results Section
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Results section trình bày kết quả phân tích một cách rõ ràng, có logic và không suy diễn quá mức.
+
+**Recommended order**
+
+``` text
+Sample characteristics
+↓
+Descriptive statistics
+↓
+Group comparison
+↓
+Regression results
+↓
+SEM results
+↓
+Summary of hypotheses
+```
+:::
+
+## Automatic Values from R
+
+```{r}
+n_sample <- nrow(data)
+
+bi_mean_value <- mean(data$bi_mean, na.rm = TRUE)
+bi_sd_value <- sd(data$bi_mean, na.rm = TRUE)
+
+au_mean_value <- mean(data$au_mean, na.rm = TRUE)
+au_sd_value <- sd(data$au_mean, na.rm = TRUE)
+
+n_sample
+bi_mean_value
+bi_sd_value
+au_mean_value
+au_sd_value
+```
+
+## Descriptive Results Template
+
+``` text
+The sample consisted of [N] respondents. The average Behavioral Intention score was [M] (SD = [SD]), while the average Actual Use score was [M] (SD = [SD]). These results suggest that respondents generally reported [low/moderate/high] levels of intention and usage.
+```
+
+## Regression Results Template
+
+``` text
+A multiple linear regression was conducted to examine the predictors of Behavioral Intention. The model included Performance Expectancy, Effort Expectancy, Social Influence, Facilitating Conditions, Digital Readiness, and Trust as predictors. The results showed that the model explained [R2]% of the variance in Behavioral Intention.
+```
+
+## SEM Results Template
+
+``` text
+The structural model was assessed using path coefficients, R-squared values, and bootstrapping. The results showed that [predictor] significantly predicted Behavioral Intention, while Behavioral Intention significantly predicted Actual Use.
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên viết kết quả không có trong output.
+
+Không nên dùng từ mạnh như:
+
+``` text
+proved
+caused
+confirmed definitively
+```
+
+nếu dữ liệu là khảo sát cắt ngang.
+:::
+
+------------------------------------------------------------------------
+
+# 6.14 Figure Captions and Table Notes
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Figure caption giúp người đọc hiểu hình mà không cần đọc toàn bộ bài viết.
+
+**Good caption**
+
+``` text
+Figure 1. Distribution of Behavioral Intention and Actual Use among respondents.
+```
+
+**Bad caption**
+
+``` text
+Figure 1. Graph.
+```
+:::
+
+## Caption Examples
+
+``` text
+Figure 1. Distribution of Behavioral Intention and Actual Use scores.
+
+Figure 2. Group comparison of Behavioral Intention by gender and academic major.
+
+Figure 3. Relationship between Performance Expectancy, Trust, and Behavioral Intention.
+
+Figure 4. Correlation heatmap of key UTAUT constructs.
+```
+
+## Table Note Example
+
+``` text
+Note. Values for continuous variables are reported as mean (standard deviation). Values for categorical variables are reported as n (%).
+```
+
+------------------------------------------------------------------------
+
+# 6.15 Export Publication Figures
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Publication figures cần có độ phân giải cao.
+
+**Common settings**
+
+- PNG: 300 dpi
+- TIFF: 600 dpi
+- Width: 7–10 inches
+- Height: 5–8 inches
+:::
+
+Để tránh lỗi khi render website, các lệnh xuất hình được đặt `eval: false`.
+
+## Create Output Folder
+
+```{r}
+#| eval: false
+
+dir.create("output", showWarnings = FALSE)
+```
+
+## Export PNG
+
+```{r}
+#| eval: false
+
+ggsave(
+  "output/figure_distribution.png",
+  fig_distribution,
+  width = 10,
+  height = 5,
+  dpi = 300
+)
+```
+
+```{r}
+#| eval: false
+
+ggsave(
+  "output/figure_group_comparison.png",
+  fig_group_comparison,
+  width = 10,
+  height = 5,
+  dpi = 300
+)
+```
+
+```{r}
+#| eval: false
+
+ggsave(
+  "output/figure_relationships.png",
+  fig_relationships,
+  width = 10,
+  height = 5,
+  dpi = 300
+)
+```
+
+------------------------------------------------------------------------
+
+# 6.16 Export Tables to Word
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+`flextable` và `officer` giúp xuất bảng sang Word.
+
+**When?**
+
+Dùng khi cần nộp báo cáo hoặc manuscript bằng Word.
+:::
+
+```{r}
+#| eval: false
+
+doc <- read_docx()
+
+doc <- doc |>
+  body_add_par("Table 1. Summary Statistics", style = "heading 1") |>
+  body_add_flextable(
+    summary_table |>
+      flextable() |>
+      autofit()
+  )
+
+print(
+  doc,
+  target = "output/module6_summary_table.docx"
+)
+```
+
+------------------------------------------------------------------------
+
+# 6.17 Using AI for Results Writing
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+AI có thể hỗ trợ viết Results section nhưng không thay thế trách nhiệm của nhà nghiên cứu.
+
+**Good uses**
+
+- Viết lại câu cho rõ ràng
+- Kiểm tra logic diễn giải
+- Chuyển output thành đoạn văn
+- Rút gọn hoặc làm học thuật hơn
+
+**Bad uses**
+
+- Tự tạo số liệu
+- Diễn giải quá mức
+- Viết kết luận không dựa trên output
+- Bỏ qua kiểm tra thống kê
+:::
+
+## Prompt Template
+
+``` text
+Based on the following R output, write an academic Results paragraph. Do not invent values. Report only the statistics provided. Use cautious academic language.
+```
+
+## Interpretation Check Prompt
+
+``` text
+Please check whether this interpretation is statistically accurate and whether it overclaims causality.
+```
+
+------------------------------------------------------------------------
+
+# Practice Exercise
+
+::: {.callout-important title="Practice Exercise"}
+Sử dụng bộ dữ liệu sạch, hãy thực hiện:
+
+1.  Vẽ histogram cho `bi_mean`.
+2.  Vẽ histogram cho `au_mean`.
+3.  Vẽ boxplot `bi_mean` theo `gender`.
+4.  Vẽ boxplot `bi_mean` theo `major`.
+5.  Vẽ scatterplot giữa `pe_mean` và `bi_mean`.
+6.  Vẽ scatterplot giữa `tr_mean` và `bi_mean`.
+7.  Tạo correlation heatmap.
+8.  Tạo horizontal Likert plot cho các item PE.
+9.  Ghép nhiều hình bằng `patchwork`.
+10. Tạo Table 1.
+11. Viết một đoạn Results hoàn chỉnh.
+12. Viết figure caption cho ít nhất 3 hình.
+:::
+
+------------------------------------------------------------------------
+
+# Challenge
+
+::: {.callout-warning collapse="true" title="Challenge"}
+## Nhiệm vụ
+
+Biến các kết quả từ Module 3, Module 4 và Module 5 thành một bộ sản phẩm công bố gồm:
+
+1.  One descriptive table
+2.  One correlation heatmap
+3.  One regression figure
+4.  One Likert plot
+5.  One Results paragraph
+6.  One figure caption
+:::
+
+::: {.callout-tip collapse="true" title="Suggested Solution"}
+Một bộ sản phẩm tốt nên có:
+
+- Table 1 từ `gtsummary`
+- Correlation heatmap từ `ggplot2`
+- Scatterplot với regression line
+- Likert horizontal stacked bar
+- Results paragraph dựa trên output thật
+- Figure captions rõ ràng và tự giải thích được
+:::
+
+------------------------------------------------------------------------
+
+# Mini Project 6
+
+::: {.callout-important title="Mini Project 6"}
+## Chủ đề
+
+Visualization and Academic Results Writing
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+``` text
+Module6_Results_Report.html
+```
+
+và bộ hình:
+
+``` text
+Figure_1_Distribution.png
+Figure_2_Group_Comparison.png
+Figure_3_Relationships.png
+Figure_4_Correlation_Heatmap.png
+Figure_5_Likert_Plot.png
+```
+
+## Nội dung báo cáo
+
+1.  Sample characteristics
+2.  Descriptive statistics
+3.  Group comparison figures
+4.  Correlation heatmap
+5.  Regression visualization
+6.  Likert visualization
+7.  Results section
+8.  Figure captions
+9.  Table notes
+10. Conclusion
+:::
+
+------------------------------------------------------------------------
+
+# Key Takeaways
+
+::: {.callout-tip title="Key Points"}
+- Visualization là công cụ giao tiếp khoa học.
+- Biểu đồ tốt phải phục vụ câu hỏi nghiên cứu.
+- Không nên dùng biểu đồ chỉ để trang trí.
+- Figure caption cần rõ ràng và tự giải thích được.
+- Table notes giúp người đọc hiểu cách trình bày số liệu.
+- Results section phải dựa trên output thật.
+- Không được diễn giải vượt quá dữ liệu.
+- Publication-ready outputs cần chú ý độ phân giải, bố cục và tính rõ ràng.
+:::
+
+------------------------------------------------------------------------
+
+# What Next?
+
+::: {.callout-note title="What Next?"}
+Sau khi hoàn thành Module 6, học viên nên:
+
+1.  Lưu bộ hình chất lượng cao.
+2.  Lưu các bảng kết quả.
+3.  Viết Results section hoàn chỉnh.
+4.  Tạo báo cáo tổng hợp.
+5.  Chuyển sang **Module 7. Advanced Analytics for Research**.
+
+Trong Module 7, chúng ta sẽ mở rộng sang:
+
+- Advanced descriptive statistics
+- Advanced regression
+- Ridge, LASSO, Elastic Net
+- Bayesian statistics
+- Monte Carlo simulation
+- Simpson's Paradox
+- Advanced Likert analysis
+- Advanced visualization
+:::

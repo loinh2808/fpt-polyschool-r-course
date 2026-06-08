@@ -1,0 +1,946 @@
+---
+title: "Module 5. PLS-SEM cho Nghiên cứu bằng R"
+---
+
+# Tổng quan Module
+
+::: {.callout-tip title="Learning Outcomes"}
+Sau khi hoàn thành Module 5, học viên có thể:
+
+- Hiểu vai trò của SEM và PLS-SEM trong nghiên cứu định lượng
+- Phân biệt measurement model và structural model
+- Xây dựng mô hình PLS-SEM bằng R
+- Đánh giá độ tin cậy thang đo
+- Đánh giá giá trị hội tụ
+- Đánh giá giá trị phân biệt
+- Kiểm định đường dẫn giữa các biến tiềm ẩn
+- Thực hiện bootstrapping
+- Diễn giải kết quả PLS-SEM theo chuẩn bài báo khoa học
+:::
+
+::: {.callout-note title="Module Logic"}
+Module này trả lời câu hỏi:
+
+**Làm thế nào để kiểm định mô hình lý thuyết có nhiều biến tiềm ẩn bằng PLS-SEM trong R?**
+
+Mô hình nghiên cứu:
+
+``` text
+PE, EE, SI, FC, DR, TR → BI → AU
+```
+
+Workflow:
+
+``` text
+Dữ liệu SEM
+↓
+Mô hình đo lường
+↓
+Mô hình cấu trúc
+↓
+Ước tính PLS-SEM
+↓
+Độ tin cậy
+↓
+Tính hợp lệ
+↓
+Hệ số đường dẫn
+↓
+Phương pháp Bootstrap
+↓
+Báo cáo học thuật
+```
+:::
+
+------------------------------------------------------------------------
+
+# 5.1 Why PLS-SEM Matters?
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+PLS-SEM là phương pháp mô hình hóa phương trình cấu trúc dựa trên phương sai, dùng để kiểm định mối quan hệ giữa các biến tiềm ẩn.
+
+**Why?**
+
+PLS-SEM phù hợp khi nghiên cứu có:
+
+- Nhiều cấu trúc tiềm ẩn
+- Nhiều biến quan sát
+- Mô hình dự đoán
+- Cỡ mẫu vừa phải
+- Dữ liệu khảo sát
+- Mục tiêu giải thích và dự đoán outcome
+
+**When?**
+
+Dùng PLS-SEM khi cần kiểm định mô hình như:
+
+``` text
+Perceptions → Intention → Behavior
+```
+
+**How do we use it in research?**
+
+PLS-SEM thường dùng trong:
+
+- UTAUT
+- TAM
+- TPB
+- Consumer behavior
+- Educational technology
+- Digital transformation
+- Adoption studies
+- Management research
+:::
+
+::: {.callout-important title="Research Application"}
+Trong khóa học này, mô hình PLS-SEM kiểm định:
+
+``` text
+Kỳ vọng về hiệu suất
+Kỳ vọng về nỗ lực
+Ảnh hưởng xã hội
+Điều kiện thuận lợi
+Sự sẵn sàng về kỹ thuật số
+Niềm tin
+
+↓
+Ý định hành vi
+
+↓
+Sử dụng thực tế
+```
+
+Đây là dạng mô hình rất phổ biến trong nghiên cứu chấp nhận công nghệ và giáo dục số.
+:::
+
+::: {.callout-warning title="Common Mistakes"}
+Người học thường gặp lỗi:
+
+- Chạy mô hình cấu trúc trước khi đánh giá mô hình đo lường giá
+
+- Chỉ nhìn các hệ số đường dẫn mà bỏ qua độ tin cậy và tính hợp lệ
+
+- Không kiểm tra tải bên ngoài
+
+- Không báo cáo AVE, CR, HTMT
+
+- Giải PLS-SEM như quan hệ nhân quả khi dữ liệu được khảo sát ngang
+
+- Không giải thích được ý nghĩa lý thuyết của mô hình
+:::
+
+------------------------------------------------------------------------
+
+# 5.2 Load Packages
+
+::: {.callout-note title="Knowledge Notes"}
+**Main packages**
+
+- `seminr`: ước lượng PLS-SEM
+- `readxl`: đọc dữ liệu Excel
+- `janitor`: làm sạch tên biến
+- `tidyverse`: xử lý dữ liệu
+- `gt`: trình bày bảng
+:::
+
+## Install Packages
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("seminr")
+install.packages("gt")
+```
+
+## Load Packages
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(seminr)
+library(gt)
+```
+
+------------------------------------------------------------------------
+
+# 5.3 Import SEM Dataset
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Module 5 sử dụng sheet `04_SEM_Data`, được chuẩn bị riêng cho phân tích PLS-SEM.
+
+**Why?**
+
+Dữ liệu SEM cần có các item quan sát cho từng biến tiềm ẩn.
+
+**How?**
+
+Ta đọc dữ liệu từ Excel và làm sạch tên biến bằng `clean_names()`.
+:::
+
+```{r}
+sem_data <- read_excel(
+  "data/FPT_PolySchool_R_Training_Demo_Dataset.xlsx",
+  sheet = "04_SEM_Data"
+) |>
+  clean_names()
+```
+
+## Check Data
+
+```{r}
+glimpse(sem_data)
+```
+
+```{r}
+dim(sem_data)
+```
+
+```{r}
+names(sem_data)
+```
+
+------------------------------------------------------------------------
+
+# 5.4 Check Missing Values
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+PLS-SEM cần dữ liệu đủ sạch trước khi ước lượng.
+
+**Why?**
+
+Missing values có thể gây lỗi hoặc làm sai kết quả.
+
+**In this module**
+
+Ta dùng `drop_na()` để đơn giản hóa thực hành.
+:::
+
+## Missing Values
+
+```{r}
+sem_data |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.))
+    )
+  )
+```
+
+## Remove Missing Values
+
+```{r}
+sem_data <- sem_data |>
+  drop_na()
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên tự động xóa dữ liệu thiếu trong nghiên cứu thật nếu tỷ lệ thiếu cao.
+
+Trong nghiên cứu công bố, cần báo cáo:
+
+- Tỷ lệ missing
+- Cách xử lý missing
+- Cỡ mẫu cuối cùng
+:::
+
+------------------------------------------------------------------------
+
+# 5.5 Conceptual Model
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Conceptual model là mô hình lý thuyết thể hiện quan hệ giữa các cấu trúc nghiên cứu.
+
+**In this module**
+
+Mô hình gồm:
+
+| Construct | Meaning                 |
+|-----------|-------------------------|
+| PE        | Performance Expectancy  |
+| EE        | Effort Expectancy       |
+| SI        | Social Influence        |
+| FC        | Facilitating Conditions |
+| DR        | Digital Readiness       |
+| TR        | Trust                   |
+| BI        | Behavioral Intention    |
+| AU        | Actual Use              |
+:::
+
+## Model Diagram
+
+``` text
+PE ─┐
+EE ─┤
+SI ─┤
+FC ─┤──→ BI ──→ AU
+DR ─┤
+TR ─┘
+```
+
+::: {.callout-important title="Research Application"}
+Mô hình này có thể được dùng trong các nghiên cứu:
+
+- Adoption of digital assessment systems
+- Student acceptance of learning platforms
+- Teacher adoption of AI tools
+- Educational technology usage
+- Digital transformation in schools
+:::
+
+------------------------------------------------------------------------
+
+# 5.6 Measurement Model
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Measurement model mô tả cách các item đo lường biến tiềm ẩn.
+
+Ví dụ:
+
+``` text
+PE → pe1, pe2, pe3, pe4
+```
+
+**Why?**
+
+Trước khi kiểm định quan hệ giữa các cấu trúc, cần đảm bảo thang đo đáng tin cậy và hợp lệ.
+
+**Reflective measurement**
+
+Trong module này, tất cả constructs được xem là reflective.
+:::
+
+## Define Measurement Model
+
+```{r}
+measurement_model <- constructs(
+  composite("PE", multi_items("pe", 1:4)),
+  composite("EE", multi_items("ee", 1:4)),
+  composite("SI", multi_items("si", 1:4)),
+  composite("FC", multi_items("fc", 1:4)),
+  composite("DR", multi_items("dr", 1:4)),
+  composite("TR", multi_items("tr", 1:4)),
+  composite("BI", multi_items("bi", 1:3)),
+  composite("AU", multi_items("au", 1:3))
+)
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên định nghĩa measurement model nếu tên biến trong dữ liệu không khớp.
+
+Ví dụ:
+
+``` text
+pe1, pe2, pe3, pe4
+```
+
+phải tồn tại đúng trong dataset.
+:::
+
+------------------------------------------------------------------------
+
+# 5.7 Structural Model
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Structural model mô tả quan hệ giữa các biến tiềm ẩn.
+
+**In this module**
+
+Các giả thuyết chính:
+
+``` text
+PE → BI
+EE → BI
+SI → BI
+FC → BI
+DR → BI
+TR → BI
+BI → AU
+```
+:::
+
+## Define Structural Model
+
+```{r}
+structural_model <- relationships(
+  paths(
+    from = c("PE", "EE", "SI", "FC", "DR", "TR"),
+    to = "BI"
+  ),
+  paths(
+    from = "BI",
+    to = "AU"
+  )
+)
+```
+
+::: {.callout-important title="Research Application"}
+Mỗi đường dẫn trong structural model tương ứng với một giả thuyết nghiên cứu.
+
+Ví dụ:
+
+``` text
+H1: Performance Expectancy positively influences Behavioral Intention.
+```
+:::
+
+------------------------------------------------------------------------
+
+# 5.8 Estimate PLS-SEM Model
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Sau khi xác định measurement model và structural model, ta ước lượng mô hình PLS-SEM.
+
+**How?**
+
+Dùng hàm `estimate_pls()` trong package `seminr`.
+:::
+
+```{r}
+pls_model <- estimate_pls(
+  data = sem_data,
+  measurement_model = measurement_model,
+  structural_model = structural_model
+)
+```
+
+## Summary
+
+```{r}
+summary_pls <- summary(pls_model)
+
+summary_pls
+```
+
+------------------------------------------------------------------------
+
+# 5.9 Indicator Loadings
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Outer loading cho biết mức độ item phản ánh construct.
+
+**Rule of thumb**
+
+|   Loading | Interpretation      |
+|----------:|---------------------|
+|    ≥ 0.70 | Good                |
+| 0.40–0.70 | Consider carefully  |
+|   \< 0.40 | Usually problematic |
+:::
+
+## Loadings
+
+```{r}
+summary_pls$loadings
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên xóa item chỉ vì loading thấp.
+
+Cần xem xét:
+
+- Lý thuyết
+- Nội dung câu hỏi
+- Reliability
+- AVE
+- Mục tiêu nghiên cứu
+:::
+
+------------------------------------------------------------------------
+
+# 5.10 Reliability Assessment
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Reliability đánh giá mức độ nhất quán nội tại của thang đo.
+
+**Common indicators**
+
+| Indicator             | Recommended threshold |
+|-----------------------|----------------------:|
+| Cronbach's Alpha      |                ≥ 0.70 |
+| Composite Reliability |                ≥ 0.70 |
+| rhoA                  |                ≥ 0.70 |
+:::
+
+## Reliability
+
+```{r}
+summary_pls$reliability
+```
+
+::: {.callout-important title="Research Application"}
+Trong bài báo, phần measurement model thường báo cáo:
+
+``` text
+Cronbach's Alpha
+Composite Reliability
+rhoA
+AVE
+```
+:::
+
+------------------------------------------------------------------------
+
+# 5.11 Convergent Validity
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Convergent validity cho biết các item cùng đo một construct có hội tụ với nhau hay không.
+
+**Main indicator**
+
+``` text
+AVE
+```
+
+**Rule**
+
+``` text
+AVE ≥ 0.50
+```
+:::
+
+## AVE and Fornell-Larcker Criteria
+
+```{r}
+summary_pls$validity$fl_criteria
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên chỉ báo cáo reliability mà bỏ qua AVE.
+
+Một thang đo có reliability tốt nhưng convergent validity chưa chắc đạt.
+:::
+
+------------------------------------------------------------------------
+
+# 5.12 Discriminant Validity
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Discriminant validity cho biết các constructs có phân biệt với nhau hay không.
+
+**Common approaches**
+
+- Fornell-Larcker criterion
+- HTMT
+
+**HTMT rule**
+
+|    HTMT | Interpretation    |
+|--------:|-------------------|
+| \< 0.85 | Strict            |
+| \< 0.90 | Acceptable        |
+|  ≥ 0.90 | Potential problem |
+:::
+
+## HTMT
+
+```{r}
+summary_pls$validity$htmt
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Nếu HTMT quá cao, hai constructs có thể đang đo cùng một khái niệm.
+
+Cần xem lại:
+
+- Nội dung item
+- Lý thuyết
+- Mô hình đo lường
+:::
+
+------------------------------------------------------------------------
+
+# 5.13 Structural Model Results
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Structural model cho biết quan hệ giữa các constructs.
+
+**Main outputs**
+
+- Path coefficients
+- R-squared
+- Indirect effects
+- Total effects
+:::
+
+## Path Coefficients
+
+```{r}
+summary_pls$paths
+```
+
+## R-squared
+
+```{r}
+summary_pls$r_squared
+```
+
+## R-squared Interpretation
+
+|   R² | Interpretation |
+|-----:|----------------|
+| 0.75 | Substantial    |
+| 0.50 | Moderate       |
+| 0.25 | Weak           |
+
+::: {.callout-important title="Research Application"}
+R² của `BI` cho biết các predictors như PE, EE, SI, FC, DR và TR giải thích được bao nhiêu phần trăm biến thiên của Behavioral Intention.
+
+R² của `AU` cho biết Behavioral Intention giải thích được bao nhiêu phần trăm Actual Use.
+:::
+
+------------------------------------------------------------------------
+
+# 5.14 Bootstrapping
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Bootstrapping dùng để kiểm định ý nghĩa thống kê của path coefficients.
+
+**Why?**
+
+PLS-SEM thường dùng bootstrapping để tạo khoảng tin cậy và kiểm định giả thuyết.
+
+**How?**
+
+Ta dùng `bootstrap_model()`.
+:::
+
+```{r}
+boot_model <- bootstrap_model(
+  seminr_model = pls_model,
+  nboot = 500,
+  cores = 1,
+  seed = 123
+)
+```
+
+## Bootstrap Summary
+
+```{r}
+summary_boot <- summary(boot_model)
+
+summary_boot
+```
+
+## Bootstrapped Paths
+
+```{r}
+summary_boot$bootstrapped_paths
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Trong nghiên cứu công bố, số lần bootstrap thường nên cao hơn, ví dụ:
+
+``` text
+5,000 bootstrap samples
+```
+
+Trong khóa học này, ta dùng `500` để render nhanh hơn.
+:::
+
+------------------------------------------------------------------------
+
+# 5.15 Hypothesis Testing
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Mỗi path trong mô hình tương ứng với một giả thuyết.
+
+**Example**
+
+``` text
+H1: PE → BI
+H2: EE → BI
+H3: SI → BI
+H4: FC → BI
+H5: DR → BI
+H6: TR → BI
+H7: BI → AU
+```
+
+**Decision rule**
+
+Nếu p-value \< 0.05 hoặc confidence interval không chứa 0, giả thuyết thường được xem là được hỗ trợ.
+:::
+
+## Create Path Table
+
+```{r}
+path_table <- as.data.frame(summary_boot$bootstrapped_paths)
+
+path_table
+```
+
+------------------------------------------------------------------------
+
+# 5.16 Indirect Effects
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Indirect effect xảy ra khi một biến ảnh hưởng đến outcome thông qua mediator.
+
+Trong mô hình này:
+
+``` text
+PE, EE, SI, FC, DR, TR → BI → AU
+```
+
+`BI` đóng vai trò trung gian giữa các predictors và `AU`.
+:::
+
+## Indirect Effects
+
+```{r}
+summary_boot$total_indirect_effects
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Nếu phiên bản `seminr` không hiển thị indirect effects, có thể tính thủ công:
+
+``` text
+Indirect Effect = Path X→BI × Path BI→AU
+```
+:::
+
+------------------------------------------------------------------------
+
+# 5.17 Academic Reporting
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Academic reporting giúp chuyển kết quả PLS-SEM thành văn bản khoa học.
+
+**Structure**
+
+1.  Measurement model
+2.  Structural model
+3.  Hypothesis testing
+4.  Interpretation
+:::
+
+## Measurement Model Template
+
+``` text
+The measurement model was evaluated using indicator loadings, internal consistency reliability, convergent validity, and discriminant validity. Most indicator loadings exceeded the recommended threshold of 0.70. Composite reliability values were above 0.70, indicating acceptable internal consistency. AVE values were above 0.50, supporting convergent validity.
+```
+
+## Structural Model Template
+
+``` text
+The structural model was assessed using path coefficients, R-squared values, and bootstrapping. The results indicated that [predictor] had a significant positive effect on Behavioral Intention. Behavioral Intention also significantly predicted Actual Use.
+```
+
+## Non-significant Path Template
+
+``` text
+The path from [predictor] to Behavioral Intention was not statistically significant, suggesting that this factor may not be a key driver of Behavioral Intention in the current sample.
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên viết:
+
+``` text
+PE causes BI
+```
+
+nếu dữ liệu là khảo sát cắt ngang.
+
+Nên viết:
+
+``` text
+PE was positively associated with BI
+```
+
+hoặc:
+
+``` text
+PE significantly predicted BI in the estimated model
+```
+:::
+
+------------------------------------------------------------------------
+
+# 5.18 Export Results
+
+Để tránh lỗi khi render website, phần xuất file được đặt `eval: false`.
+
+## Export Path Table
+
+```{r}
+#| eval: false
+
+write_csv(
+  path_table,
+  "output/module5_bootstrapped_paths.csv"
+)
+```
+
+## Export R-squared
+
+```{r}
+#| eval: false
+
+r2_table <- as.data.frame(summary_pls$r_squared)
+
+write_csv(
+  r2_table,
+  "output/module5_r_squared.csv"
+)
+```
+
+------------------------------------------------------------------------
+
+# Practice Exercise
+
+::: {.callout-important title="Practice Exercise"}
+Sử dụng sheet `04_SEM_Data`, hãy thực hiện:
+
+1.  Nhập dữ liệu SEM.
+2.  Kiểm tra dữ liệu thiếu.
+3.  Xây dựng measurement model.
+4.  Xây dựng structural model.
+5.  Ước lượng PLS-SEM.
+6.  Kiểm tra outer loadings.
+7.  Kiểm tra reliability.
+8.  Kiểm tra AVE.
+9.  Kiểm tra HTMT.
+10. Kiểm tra path coefficients.
+11. Thực hiện bootstrapping.
+12. Viết diễn giải kết quả.
+:::
+
+------------------------------------------------------------------------
+
+# Challenge
+
+::: {.callout-warning collapse="true" title="Challenge"}
+## Câu hỏi
+
+Trong mô hình:
+
+``` text
+PE, EE, SI, FC, DR, TR → BI → AU
+```
+
+hãy trả lời:
+
+1.  Construct nào dự đoán BI mạnh nhất?
+2.  BI có dự đoán AU không?
+3.  R² của BI là bao nhiêu?
+4.  R² của AU là bao nhiêu?
+5.  Measurement model có đạt reliability không?
+6.  Có vấn đề discriminant validity không?
+:::
+
+::: {.callout-tip collapse="true" title="Suggested Solution"}
+Một câu trả lời tốt cần dựa trên:
+
+- `summary_pls$loadings`
+- `summary_pls$reliability`
+- `summary_pls$validity$fl_criteria`
+- `summary_pls$validity$htmt`
+- `summary_pls$paths`
+- `summary_pls$r_squared`
+- `summary_boot$bootstrapped_paths`
+:::
+
+------------------------------------------------------------------------
+
+# Mini Project 5
+
+::: {.callout-important title="Mini Project 5"}
+## Chủ đề
+
+PLS-SEM Analysis Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+``` text
+Module5_PLSSEM_Report.html
+```
+
+## Nội dung báo cáo
+
+1.  Research model
+2.  Measurement model specification
+3.  Structural model specification
+4.  Indicator loadings
+5.  Reliability
+6.  Convergent validity
+7.  Discriminant validity
+8.  Path coefficients
+9.  R-squared
+10. Bootstrapping results
+11. Hypothesis testing
+12. Academic interpretation
+:::
+
+------------------------------------------------------------------------
+
+# Key Takeaways
+
+::: {.callout-tip title="Key Points"}
+- PLS-SEM phù hợp với mô hình nghiên cứu có nhiều biến tiềm ẩn.
+- Measurement model cần được đánh giá trước structural model.
+- Reliability, AVE và HTMT là các chỉ số quan trọng.
+- Path coefficients cho biết hướng và độ mạnh của quan hệ.
+- Bootstrapping giúp kiểm định ý nghĩa thống kê.
+- Không nên chỉ báo cáo p-value; cần diễn giải ý nghĩa lý thuyết và thực tiễn.
+- Với dữ liệu khảo sát cắt ngang, cần tránh diễn giải nhân quả quá mức.
+:::
+
+------------------------------------------------------------------------
+
+# What Next?
+
+::: {.callout-note title="What Next?"}
+Sau khi hoàn thành Module 5, học viên nên:
+
+1.  Lưu kết quả measurement model.
+2.  Lưu kết quả structural model.
+3.  Ghi chú các giả thuyết được hỗ trợ và không được hỗ trợ.
+4.  Viết phần PLS-SEM results.
+5.  Chuyển sang **Module 6. Trực quan hóa dữ liệu và viết kết quả nghiên cứu**.
+
+Trong Module 6, chúng ta sẽ biến các output từ Module 3, 4 và 5 thành:
+
+- Figures
+- Tables
+- Results section
+- Publication-ready report
+:::

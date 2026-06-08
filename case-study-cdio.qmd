@@ -1,0 +1,1212 @@
+---
+title: "Case Study 2: CDIO-Based Digital Assessment Adoption"
+subtitle: "Teacher–Student Comparative Analysis with Descriptive Analytics, Visualization, and PLS-SEM"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+execute:
+  warning: false
+  message: false
+---
+
+# Overview
+
+::: {.callout-note}
+## Case Purpose
+
+This case study demonstrates a complete research workflow using a synthetic CDIO digital assessment adoption dataset.
+
+The workflow is:
+
+```text
+Research problem
+→ Dataset inspection
+→ Descriptive analysis
+→ Teacher–student comparison
+→ Reliability analysis
+→ Correlation analysis
+→ PLS-SEM
+→ Results interpretation
+→ Practical implications
+```
+:::
+
+## Case Study Information
+
+| Item | Description |
+|---|---|
+| Research area | Digital assessment adoption |
+| Context | CDIO-based education |
+| Method | Descriptive analysis, visualization, reliability, PLS-SEM |
+| Comparison | Teachers vs Students |
+| Dataset | Synthetic teaching dataset |
+| File path | `data/case-studies/CDIO/cdio_adoption_dataset.xlsx` |
+| Main tool | R |
+
+::: {.callout-warning}
+## Important Note
+
+This dataset is synthetic. It was generated for teaching, training, and replication practice.
+
+It should **not** be treated as real survey evidence.
+:::
+
+# Research Problem
+
+CDIO-based digital assessment systems can improve feedback, learning alignment, and assessment transparency. However, teachers and students may adopt such systems for different reasons.
+
+This case study asks:
+
+> What factors influence teachers' and students' behavioral intention and actual use of a CDIO-based digital assessment system?
+
+## Conceptual Logic
+
+```{mermaid}
+flowchart LR
+
+PE[Performance Expectancy]
+EE[Effort Expectancy]
+SI[Social Influence]
+FC[Facilitating Conditions]
+DR[Digital Readiness]
+OS[Organizational Support]
+IN[System Integration]
+WC[Workload Concern]
+LE[Learning Effectiveness]
+AC[Accessibility]
+
+BI[Behavioral Intention]
+AU[Actual Use]
+
+PE --> BI
+EE --> BI
+SI --> BI
+FC --> BI
+DR --> BI
+OS --> BI
+IN --> BI
+WC --> BI
+LE --> BI
+AC --> BI
+
+BI --> AU
+FC --> AU
+DR --> AU
+```
+
+::: {.callout-tip}
+## Why This Model?
+
+The model combines technology acceptance logic with CDIO implementation concerns.
+
+- Teachers may care more about organizational support, system integration, and workload.
+- Students may care more about usefulness, ease of use, learning effectiveness, and accessibility.
+:::
+
+# Setup
+
+```{r}
+#| label: setup
+
+library(tidyverse)
+library(readxl)
+library(psych)
+library(corrplot)
+library(seminr)
+library(patchwork)
+library(scales)
+```
+
+# Step 1. Import and Inspect the Dataset
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+Before analysis, we must confirm that the dataset is available, readable, and structured correctly.
+
+This step answers:
+
+- How many respondents are included?
+- How many variables are included?
+- Are teachers and students both represented?
+- Are Likert indicators numeric?
+:::
+
+```{r}
+#| label: import-data
+
+cdio_data <- readxl::read_excel(
+  "data/case-studies/CDIO/cdio_adoption_dataset.xlsx",
+  sheet = "Data"
+)
+
+dplyr::glimpse(cdio_data)
+```
+
+::: {.callout-note}
+## What Should We Check?
+
+Check:
+
+- `group`: Teacher or Student
+- demographic variables: `campus`, `gender`, `age`
+- indicator variables: `PE1`, `EE1`, `BI1`, `AU1`, etc.
+- Likert items should be numeric from 1 to 7.
+:::
+
+::: {.callout-success}
+## If the Dataset Looks Correct
+
+Continue to sample description and data diagnostics.
+:::
+
+::: {.callout-warning}
+## If There Is an Error
+
+Common fixes:
+
+- Check file path and folder name: `CDIO` must match your folder name.
+- Check Excel sheet name: it should be `Data`.
+- Check whether the file is open in Excel.
+- Check whether the file name is exactly `cdio_adoption_dataset.xlsx`.
+:::
+
+# Step 2. Sample Description
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+A good empirical report must describe the sample.
+
+For this case, the key comparison is between teachers and students.
+:::
+
+```{r}
+#| label: sample-table
+
+sample_table <- cdio_data |>
+  dplyr::count(group, name = "n") |>
+  dplyr::mutate(percent = round(n / sum(n) * 100, 1))
+
+sample_table
+```
+
+## Figure 1. Teacher–Student Sample Distribution
+
+```{r}
+#| label: fig-sample-distribution
+#| fig-cap: "Figure 1. Teacher–student sample distribution."
+
+fig_sample <- sample_table |>
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = group,
+      y = n
+    )
+  ) +
+  ggplot2::geom_col(width = 0.65) +
+  ggplot2::geom_text(
+    ggplot2::aes(label = paste0(n, " (", percent, "%)")),
+    vjust = -0.4,
+    size = 4
+  ) +
+  ggplot2::labs(
+    x = NULL,
+    y = "Number of respondents",
+    title = "Teacher–Student Sample Distribution"
+  ) +
+  ggplot2::theme_minimal(base_size = 13)
+
+fig_sample
+```
+
+::: {.callout-important}
+## Reference
+
+For group comparison, each group should ideally have enough observations.
+
+A practical rule:
+
+| Group size | Interpretation |
+|---|---|
+| < 50 | Weak for group comparison |
+| 50–100 | Usable but limited |
+| > 100 | Better |
+| > 200 | Strong for teaching/demo analysis |
+:::
+
+# Step 3. Age and Respondent Profile
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+Age and role differences help learners understand whether teachers and students represent different respondent populations.
+:::
+
+```{r}
+#| label: age-summary
+
+cdio_data |>
+  dplyr::group_by(group) |>
+  dplyr::summarise(
+    n = dplyr::n(),
+    mean_age = round(mean(age, na.rm = TRUE), 2),
+    sd_age = round(sd(age, na.rm = TRUE), 2),
+    min_age = min(age, na.rm = TRUE),
+    max_age = max(age, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+## Figure 2. Age Distribution by Group
+
+```{r}
+#| label: fig-age-distribution
+#| fig-cap: "Figure 2. Age distribution by respondent group."
+
+fig_age <- cdio_data |>
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = age,
+      fill = group
+    )
+  ) +
+  ggplot2::geom_histogram(
+    bins = 25,
+    alpha = 0.75,
+    position = "identity"
+  ) +
+  ggplot2::facet_wrap(~group, scales = "free_y") +
+  ggplot2::labs(
+    x = "Age",
+    y = "Count",
+    title = "Age Distribution by Group"
+  ) +
+  ggplot2::theme_minimal(base_size = 13) +
+  ggplot2::theme(legend.position = "none")
+
+fig_age
+```
+
+::: {.callout-note}
+## What Should We Learn?
+
+Teachers and students are expected to differ in age and experience.
+
+This is not a problem. It is part of the research context.
+:::
+
+# Step 4. Missing Value Diagnostics
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+Missing values can distort descriptive statistics, reliability estimates, and SEM results.
+:::
+
+```{r}
+#| label: missing-check
+
+missing_table <- cdio_data |>
+  dplyr::summarise(
+    dplyr::across(
+      dplyr::everything(),
+      ~ sum(is.na(.x))
+    )
+  ) |>
+  tidyr::pivot_longer(
+    cols = dplyr::everything(),
+    names_to = "variable",
+    values_to = "missing_n"
+  ) |>
+  dplyr::mutate(
+    missing_percent = round(missing_n / nrow(cdio_data) * 100, 2)
+  ) |>
+  dplyr::arrange(desc(missing_percent))
+
+missing_table |>
+  dplyr::filter(missing_n > 0)
+```
+
+::: {.callout-important}
+## Missing Value Reference
+
+| Missing percentage | Interpretation |
+|---|---|
+| 0% | Ideal |
+| < 5% | Usually acceptable |
+| 5–10% | Requires attention |
+| > 10% | Serious issue |
+:::
+
+::: {.callout-success}
+## If Missing Values Are Low
+
+Continue to descriptive analysis.
+:::
+
+::: {.callout-warning}
+## If Missing Values Are High
+
+Possible actions:
+
+- Check raw data.
+- Identify whether missingness is random.
+- Use appropriate imputation.
+- Remove cases only when justified.
+:::
+
+# Step 5. Construct Scores
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+SEM uses latent constructs, but descriptive analysis often uses construct mean scores.
+
+Construct scores summarize multiple indicators into one interpretable score.
+:::
+
+```{r}
+#| label: construct-scores
+
+construct_map <- list(
+  PE = c("PE1", "PE2", "PE3", "PE4"),
+  EE = c("EE1", "EE2", "EE3", "EE4"),
+  SI = c("SI1", "SI2", "SI3"),
+  FC = c("FC1", "FC2", "FC3", "FC4"),
+  DR = c("DR1", "DR2", "DR3", "DR4"),
+  OS = c("OS1", "OS2", "OS3", "OS4"),
+  IN = c("IN1", "IN2", "IN3"),
+  WC = c("WC1", "WC2", "WC3"),
+  LE = c("LE1", "LE2", "LE3", "LE4"),
+  AC = c("AC1", "AC2", "AC3"),
+  BI = c("BI1", "BI2", "BI3", "BI4"),
+  AU = c("AU1", "AU2", "AU3")
+)
+
+cdio_scores <- cdio_data
+
+for (construct in names(construct_map)) {
+  cdio_scores[[construct]] <- rowMeans(
+    cdio_scores[, construct_map[[construct]]],
+    na.rm = TRUE
+  )
+}
+
+construct_scores_long <- cdio_scores |>
+  dplyr::select(group, dplyr::all_of(names(construct_map))) |>
+  tidyr::pivot_longer(
+    cols = -group,
+    names_to = "construct",
+    values_to = "score"
+  )
+
+construct_mean <- construct_scores_long |>
+  dplyr::group_by(group, construct) |>
+  dplyr::summarise(
+    mean = round(mean(score, na.rm = TRUE), 2),
+    sd = round(sd(score, na.rm = TRUE), 2),
+    .groups = "drop"
+  )
+
+construct_mean
+```
+
+::: {.callout-important}
+## Likert Mean Reference
+
+For 1–7 scales:
+
+| Mean score | Interpretation |
+|---|---|
+| 1.00–2.99 | Low |
+| 3.00–4.99 | Moderate |
+| 5.00–7.00 | High |
+:::
+
+# Step 6. Construct Ranking
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+Construct ranking helps identify the strongest and weakest perceived adoption factors.
+:::
+
+## Figure 3. Construct Mean Ranking
+
+```{r}
+#| label: fig-construct-ranking
+#| fig-cap: "Figure 3. Construct mean ranking by group."
+
+fig_construct_ranking <- construct_mean |>
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = reorder(construct, mean),
+      y = mean,
+      fill = group
+    )
+  ) +
+  ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.75), width = 0.65) +
+  ggplot2::coord_flip() +
+  ggplot2::geom_hline(yintercept = 5, linetype = "dashed") +
+  ggplot2::labs(
+    x = "Construct",
+    y = "Mean score",
+    title = "Construct Mean Ranking",
+    subtitle = "Dashed line indicates high agreement threshold around 5.0"
+  ) +
+  ggplot2::theme_minimal(base_size = 13)
+
+fig_construct_ranking
+```
+
+::: {.callout-success}
+## If Scores Are High
+
+High scores suggest favorable perceptions.
+
+For example:
+
+- High PE means respondents believe the system is useful.
+- High EE means respondents find the system easy to use.
+- High BI means respondents intend to use the system.
+:::
+
+::: {.callout-warning}
+## If Scores Are Low
+
+Low scores suggest possible implementation barriers.
+
+Possible actions:
+
+- Improve training.
+- Improve usability.
+- Improve infrastructure.
+- Reduce workload burden.
+- Strengthen institutional support.
+:::
+
+# Step 7. Teacher–Student Difference Plot
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+A key purpose of this case is to compare teachers and students.
+
+This helps identify whether the same system is perceived differently by different stakeholder groups.
+:::
+
+```{r}
+#| label: group-difference-table
+
+group_difference <- construct_mean |>
+  dplyr::select(group, construct, mean) |>
+  tidyr::pivot_wider(
+    names_from = group,
+    values_from = mean
+  ) |>
+  dplyr::mutate(
+    difference_teacher_minus_student = round(Teacher - Student, 2)
+  ) |>
+  dplyr::arrange(desc(abs(difference_teacher_minus_student)))
+
+group_difference
+```
+
+## Figure 4. Teacher–Student Mean Difference
+
+```{r}
+#| label: fig-group-difference
+#| fig-cap: "Figure 4. Teacher–student mean difference by construct."
+
+fig_group_difference <- group_difference |>
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = reorder(construct, difference_teacher_minus_student),
+      y = difference_teacher_minus_student
+    )
+  ) +
+  ggplot2::geom_col(width = 0.65) +
+  ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
+  ggplot2::coord_flip() +
+  ggplot2::labs(
+    x = "Construct",
+    y = "Teacher mean − Student mean",
+    title = "Teacher–Student Mean Difference"
+  ) +
+  ggplot2::theme_minimal(base_size = 13)
+
+fig_group_difference
+```
+
+::: {.callout-important}
+## Difference Reference
+
+| Mean difference | Interpretation |
+|---|---|
+| < 0.20 | Very small |
+| 0.20–0.50 | Small to moderate |
+| 0.50–1.00 | Meaningful |
+| > 1.00 | Large |
+:::
+
+# Step 8. Radar-Style Construct Profile
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+A construct profile helps learners compare many constructs at once.
+
+A radar-style line chart is easier to read in teaching contexts than a formal radar chart.
+:::
+
+## Figure 5. Construct Profile by Group
+
+```{r}
+#| label: fig-radar-style
+#| fig-cap: "Figure 5. Radar-style construct profile by group."
+
+construct_order <- c("PE", "EE", "SI", "FC", "DR", "OS", "IN", "WC", "LE", "AC", "BI", "AU")
+
+profile_data <- construct_mean |>
+  dplyr::mutate(
+    construct = factor(construct, levels = construct_order)
+  )
+
+fig_profile <- profile_data |>
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = construct,
+      y = mean,
+      group = group,
+      color = group
+    )
+  ) +
+  ggplot2::geom_line(linewidth = 1) +
+  ggplot2::geom_point(size = 2.5) +
+  ggplot2::ylim(1, 7) +
+  ggplot2::labs(
+    x = "Construct",
+    y = "Mean score",
+    title = "Construct Profile by Group"
+  ) +
+  ggplot2::theme_minimal(base_size = 13)
+
+fig_profile
+```
+
+# Step 9. Reliability Analysis
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+Before SEM, we must check whether items within each construct are internally consistent.
+:::
+
+```{r}
+#| label: reliability-table
+
+reliability_table <- purrr::map_dfr(
+  names(construct_map),
+  function(x) {
+    items <- construct_map[[x]]
+
+    alpha_result <- psych::alpha(
+      cdio_data[, items],
+      warnings = FALSE
+    )
+
+    tibble::tibble(
+      construct = x,
+      cronbach_alpha = round(alpha_result$total$raw_alpha, 3)
+    )
+  }
+)
+
+reliability_table
+```
+
+## Figure 6. Reliability Dashboard
+
+```{r}
+#| label: fig-reliability-dashboard
+#| fig-cap: "Figure 6. Reliability dashboard."
+
+fig_reliability <- reliability_table |>
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = reorder(construct, cronbach_alpha),
+      y = cronbach_alpha
+    )
+  ) +
+  ggplot2::geom_col(width = 0.65) +
+  ggplot2::geom_hline(yintercept = 0.70, linetype = "dashed") +
+  ggplot2::coord_flip() +
+  ggplot2::labs(
+    x = "Construct",
+    y = "Cronbach's Alpha",
+    title = "Reliability Dashboard",
+    subtitle = "Dashed line indicates the common 0.70 threshold"
+  ) +
+  ggplot2::theme_minimal(base_size = 13)
+
+fig_reliability
+```
+
+::: {.callout-important}
+## Cronbach's Alpha Reference
+
+| Alpha | Interpretation |
+|---|---|
+| < 0.60 | Poor |
+| 0.60–0.70 | Marginal |
+| 0.70–0.80 | Acceptable |
+| 0.80–0.90 | Good |
+| 0.90–0.95 | Very good |
+| > 0.95 | Possible redundancy |
+:::
+
+::: {.callout-success}
+## If Reliability Is Acceptable
+
+If alpha is at least 0.70:
+
+- Keep the construct.
+- Continue to SEM.
+:::
+
+::: {.callout-warning}
+## If Reliability Is Low
+
+If alpha is below 0.70:
+
+- Check item wording.
+- Check reverse coding.
+- Check item-total correlations.
+- Consider removing weak items only with theoretical justification.
+:::
+
+# Step 10. Correlation Analysis
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+Correlation analysis helps us understand relationships among construct scores before SEM.
+
+It also helps detect extremely high correlations that may indicate construct overlap.
+:::
+
+```{r}
+#| label: correlation-matrix
+
+score_matrix <- cdio_scores |>
+  dplyr::select(dplyr::all_of(names(construct_map)))
+
+cor_matrix <- cor(score_matrix, use = "pairwise.complete.obs")
+
+round(cor_matrix, 2)
+```
+
+## Figure 7. Correlation Heatmap
+
+```{r}
+#| label: fig-correlation-heatmap
+#| fig-cap: "Figure 7. Correlation heatmap among construct scores."
+
+corrplot::corrplot(
+  cor_matrix,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  tl.col = "black",
+  tl.srt = 45,
+  number.cex = 0.7
+)
+```
+
+::: {.callout-important}
+## Correlation Reference
+
+| Correlation | Interpretation |
+|---|---|
+| < 0.30 | Weak |
+| 0.30–0.50 | Moderate |
+| 0.50–0.70 | Strong |
+| > 0.85 | Potential multicollinearity or construct overlap |
+:::
+
+# Step 11. PLS-SEM Measurement and Structural Model
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+PLS-SEM allows us to test the full theoretical model with multiple latent constructs.
+
+We first define:
+
+- Measurement model: indicators for each construct
+- Structural model: paths between constructs
+:::
+
+```{r}
+#| label: pls-model
+
+measurement_model <- seminr::constructs(
+  seminr::composite("PE", seminr::multi_items("PE", 1:4)),
+  seminr::composite("EE", seminr::multi_items("EE", 1:4)),
+  seminr::composite("SI", seminr::multi_items("SI", 1:3)),
+  seminr::composite("FC", seminr::multi_items("FC", 1:4)),
+  seminr::composite("DR", seminr::multi_items("DR", 1:4)),
+  seminr::composite("OS", seminr::multi_items("OS", 1:4)),
+  seminr::composite("IN", seminr::multi_items("IN", 1:3)),
+  seminr::composite("WC", seminr::multi_items("WC", 1:3)),
+  seminr::composite("LE", seminr::multi_items("LE", 1:4)),
+  seminr::composite("AC", seminr::multi_items("AC", 1:3)),
+  seminr::composite("BI", seminr::multi_items("BI", 1:4)),
+  seminr::composite("AU", seminr::multi_items("AU", 1:3))
+)
+
+structural_model <- seminr::relationships(
+  seminr::paths(
+    from = c("PE", "EE", "SI", "FC", "DR", "OS", "IN", "WC", "LE", "AC"),
+    to = "BI"
+  ),
+  seminr::paths(
+    from = c("BI", "FC", "DR"),
+    to = "AU"
+  )
+)
+
+cdio_pls <- seminr::estimate_pls(
+  data = cdio_data,
+  measurement_model = measurement_model,
+  structural_model = structural_model
+)
+
+cdio_summary <- summary(cdio_pls)
+
+cdio_summary
+```
+
+# Step 12. Indicator Loadings
+
+::: {.callout-tip}
+## Why Are We Checking Loadings?
+
+Loadings show whether each item represents its intended construct.
+:::
+
+```{r}
+#| label: loading-table
+
+loading_table_raw <- as.data.frame(cdio_summary$loadings)
+
+loading_table <- loading_table_raw |>
+  tibble::rownames_to_column("indicator") |>
+  tidyr::pivot_longer(
+    cols = -indicator,
+    names_to = "construct",
+    values_to = "loading"
+  ) |>
+  dplyr::filter(!is.na(loading), abs(loading) > 0.001) |>
+  dplyr::mutate(
+    loading = round(loading, 3)
+  )
+
+loading_table
+```
+
+## Figure 8. Indicator Loading Plot
+
+```{r}
+#| label: fig-loading-plot
+#| fig-cap: "Figure 8. Indicator loadings by construct."
+
+fig_loadings <- loading_table |>
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = reorder(indicator, loading),
+      y = loading
+    )
+  ) +
+  ggplot2::geom_col(width = 0.65) +
+  ggplot2::geom_hline(yintercept = 0.70, linetype = "dashed") +
+  ggplot2::coord_flip() +
+  ggplot2::facet_wrap(~construct, scales = "free_y") +
+  ggplot2::labs(
+    x = "Indicator",
+    y = "Loading",
+    title = "Indicator Loadings",
+    subtitle = "Dashed line indicates the common 0.70 threshold"
+  ) +
+  ggplot2::theme_minimal(base_size = 12)
+
+fig_loadings
+```
+
+::: {.callout-important}
+## Loading Reference
+
+| Loading | Interpretation |
+|---|---|
+| ≥ 0.70 | Good |
+| 0.60–0.70 | Acceptable in exploratory research |
+| 0.40–0.60 | Weak; review carefully |
+| < 0.40 | Problematic |
+:::
+
+# Step 13. Reliability and AVE
+
+::: {.callout-tip}
+## Why Are We Checking Reliability and AVE?
+
+Reliability checks internal consistency.
+
+AVE checks convergent validity: whether indicators share enough variance with their construct.
+:::
+
+```{r}
+#| label: sem-reliability
+
+cdio_summary$reliability
+```
+
+::: {.callout-important}
+## Reference Values
+
+| Metric | Recommended threshold |
+|---|---|
+| Cronbach's Alpha | ≥ 0.70 |
+| Composite Reliability | ≥ 0.70 |
+| AVE | ≥ 0.50 |
+:::
+
+# Step 14. HTMT Discriminant Validity
+
+::: {.callout-tip}
+## Why Are We Checking HTMT?
+
+HTMT checks whether constructs are empirically distinct.
+:::
+
+```{r}
+#| label: htmt-table
+
+cdio_summary$validity$htmt
+```
+
+::: {.callout-important}
+## HTMT Reference
+
+| HTMT | Interpretation |
+|---|---|
+| < 0.85 | Strict threshold |
+| < 0.90 | Lenient threshold |
+| ≥ 0.90 | Potential discriminant validity problem |
+:::
+
+# Step 15. Bootstrapping
+
+::: {.callout-tip}
+## Why Are We Bootstrapping?
+
+Bootstrapping tests whether the structural paths are statistically significant.
+:::
+
+```{r}
+#| label: bootstrap-model
+#| cache: true
+
+cdio_boot <- seminr::bootstrap_model(
+  cdio_pls,
+  nboot = 2000
+)
+
+cdio_boot_summary <- summary(cdio_boot)
+
+cdio_boot_summary$bootstrapped_paths
+```
+
+::: {.callout-important}
+## Bootstrap Reference
+
+| Criterion | Interpretation |
+|---|---|
+| p < 0.05 | Significant path |
+| 95% CI excludes 0 | Significant path |
+| t > 1.96 | Significant at about 5% |
+:::
+
+# Step 16. Structural Path Visualization
+
+::: {.callout-tip}
+## Why Are We Plotting Path Coefficients?
+
+A coefficient plot makes it easier to identify which predictors have the strongest effects.
+:::
+
+```{r}
+#| label: path-table
+
+path_table <- as.data.frame(cdio_boot_summary$bootstrapped_paths) |>
+  tibble::rownames_to_column("path") |>
+  dplyr::rename(
+    estimate = `Original Est.`,
+    p_value = `Bootstrap P Val`
+  ) |>
+  dplyr::mutate(
+    estimate = round(estimate, 3),
+    p_value = round(p_value, 3),
+    significant = ifelse(p_value < 0.05, "Significant", "Not significant")
+  )
+
+path_table
+```
+
+## Figure 9. Structural Path Coefficients
+
+```{r}
+#| label: fig-path-coefficients
+#| fig-cap: "Figure 9. Structural path coefficients."
+
+fig_paths <- path_table |>
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = reorder(path, estimate),
+      y = estimate
+    )
+  ) +
+  ggplot2::geom_col(width = 0.65) +
+  ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
+  ggplot2::coord_flip() +
+  ggplot2::labs(
+    x = "Path",
+    y = "Path coefficient",
+    title = "Structural Path Coefficients"
+  ) +
+  ggplot2::theme_minimal(base_size = 13)
+
+fig_paths
+```
+
+::: {.callout-important}
+## Path Coefficient Reference
+
+| Absolute coefficient | Interpretation |
+|---|---|
+| < 0.10 | Very small |
+| 0.10–0.20 | Small |
+| 0.20–0.40 | Moderate |
+| > 0.40 | Strong |
+:::
+
+# Step 17. R-Squared
+
+::: {.callout-tip}
+## Why Are We Checking R-Squared?
+
+R-squared shows how much variance in the outcome constructs is explained by the predictors.
+:::
+
+```{r}
+#| label: r-squared
+
+cdio_summary$r_squared
+```
+
+::: {.callout-important}
+## R-Squared Reference
+
+| R² | Interpretation |
+|---|---|
+| 0.25 | Weak |
+| 0.50 | Moderate |
+| 0.75 | Substantial |
+:::
+
+# Step 18. Teacher vs Student Model Comparison
+
+::: {.callout-tip}
+## Why Are We Doing Group-Specific SEM?
+
+Teachers and students may adopt the same system for different reasons.
+
+Group-specific models help compare these differences.
+:::
+
+```{r}
+#| label: group-specific-sem
+
+run_group_sem <- function(data, group_name) {
+  group_data <- data |>
+    dplyr::filter(group == group_name)
+
+  model <- seminr::estimate_pls(
+    data = group_data,
+    measurement_model = measurement_model,
+    structural_model = structural_model
+  )
+
+  boot <- seminr::bootstrap_model(
+    model,
+    nboot = 1000
+  )
+
+  path_df <- as.data.frame(summary(boot)$bootstrapped_paths) |>
+    tibble::rownames_to_column("path") |>
+    dplyr::rename(
+      estimate = `Original Est.`,
+      p_value = `Bootstrap P Val`
+    ) |>
+    dplyr::mutate(
+      group = group_name,
+      estimate = round(estimate, 3),
+      p_value = round(p_value, 3)
+    )
+
+  path_df
+}
+
+teacher_paths <- run_group_sem(cdio_data, "Teacher")
+student_paths <- run_group_sem(cdio_data, "Student")
+
+group_path_table <- dplyr::bind_rows(
+  teacher_paths,
+  student_paths
+)
+
+group_path_table
+```
+
+## Figure 10. Teacher vs Student Path Comparison
+
+```{r}
+#| label: fig-group-path-comparison
+#| fig-cap: "Figure 10. Teacher vs student path coefficient comparison."
+
+fig_group_paths <- group_path_table |>
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = reorder(path, estimate),
+      y = estimate,
+      fill = group
+    )
+  ) +
+  ggplot2::geom_col(
+    position = ggplot2::position_dodge(width = 0.75),
+    width = 0.65
+  ) +
+  ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
+  ggplot2::coord_flip() +
+  ggplot2::labs(
+    x = "Path",
+    y = "Path coefficient",
+    title = "Teacher vs Student Path Comparison"
+  ) +
+  ggplot2::theme_minimal(base_size = 13)
+
+fig_group_paths
+```
+
+::: {.callout-note}
+## How to Interpret Group Differences
+
+A path may be stronger for one group than another.
+
+For example:
+
+- A stronger `OS → BI` path for teachers suggests institutional support matters more for teachers.
+- A stronger `LE → BI` path for students suggests learning value matters more for students.
+:::
+
+# Step 19. Academic Writing Template
+
+::: {.callout-note}
+## Results Writing Structure
+
+A strong results section should follow this order:
+
+1. Sample description
+2. Descriptive statistics
+3. Reliability and validity
+4. Structural model
+5. Group comparison
+6. Interpretation
+:::
+
+## Example Results Paragraph
+
+The descriptive results indicated meaningful differences between teachers and students in their perceptions of the CDIO-based digital assessment system. Teachers tended to report stronger perceptions of organizational support and system integration, whereas students showed stronger perceptions of learning effectiveness and accessibility. Reliability analysis indicated that the constructs achieved acceptable internal consistency. The PLS-SEM results suggested that behavioral intention was influenced by multiple adoption factors, while actual use was primarily explained by behavioral intention, facilitating conditions, and digital readiness. Group-specific analyses further suggested that the adoption mechanisms differed between teachers and students.
+
+::: {.callout-warning}
+## Writing Caution
+
+Do not overclaim causality.
+
+Use cautious language:
+
+- "The results suggest..."
+- "The findings indicate an association..."
+- "The model explains..."
+
+Avoid:
+
+- "This proves..."
+- "This causes..."
+:::
+
+# Step 20. Practical Implications
+
+## For School Leaders
+
+::: {.callout-success}
+## If Teacher Adoption Is the Priority
+
+Focus on:
+
+- Organizational support
+- Training
+- Workload reduction
+- System integration with current assessment workflow
+- Clear policy and technical support
+:::
+
+::: {.callout-success}
+## If Student Adoption Is the Priority
+
+Focus on:
+
+- Ease of use
+- Accessibility
+- Learning effectiveness
+- Feedback quality
+- Transparent assessment criteria
+:::
+
+# Mini Project
+
+Students can extend this case study by:
+
+1. Running separate descriptive reports for teachers and students.
+2. Testing whether workload concern weakens behavioral intention.
+3. Building a smaller SEM model with fewer predictors.
+4. Writing a 500-word results section.
+5. Creating a dashboard of adoption barriers.
+
+# Key Takeaways
+
+::: {.callout-important}
+## What You Have Learned
+
+After this case study, you should be able to:
+
+- Describe a CDIO digital assessment adoption dataset.
+- Compare teachers and students using visual analytics.
+- Check reliability and validity.
+- Estimate a PLS-SEM model.
+- Interpret path coefficients and R-squared.
+- Compare SEM paths across groups.
+- Translate statistical results into practical educational implications.
+:::

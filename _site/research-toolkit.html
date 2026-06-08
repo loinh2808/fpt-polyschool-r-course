@@ -1,0 +1,2796 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Research Toolkit – R for Research and Data Analytics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./roadmap.html" rel="next">
+<link href="./advanced/adv-15-reproducible.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-bb4a769157aaef605685c494e8ab9261.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-63063ebcd863433c756140ee81e42adf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-bb4a769157aaef605685c494e8ab9261.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<meta name="mermaid-theme" content="forest">
+<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    <img src="./images/LogoFPS.png" alt="" class="navbar-logo light-content">
+    <img src="./images/LogoFPS.png" alt="" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">R for Research and Data Analytics</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./index.html" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./research-toolkit.html"> 
+<span class="menu-text">Research Toolkit</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./roadmap.html"> 
+<span class="menu-text">Learning Roadmap</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./resources.html"> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./research-toolkit.html">Learning Support</a></li><li class="breadcrumb-item"><a href="./research-toolkit.html">Research Toolkit</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Course Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Foundation Modules</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 1. Nhập môn R (Introduction to R)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 2. Làm sạch dữ liệu (Data Cleaning and Wrangling)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 3. Thống kê mô tả (Descriptive Statistics)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 4. Tương quan và Hồi quy (Correlation and Regression)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 5. PLS-SEM</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 6. Trực quan hóa và Viết kết quả (Visualization and Reporting)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Advanced Analytics Modules</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/advanced-home.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Advanced Overview</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-01-descriptive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A1. Chẩn đoán Thống kê Mô tả (Descriptive Diagnostics)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-02-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A2. Hồi quy Nâng cao (Advanced Regression)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-03-regularized.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A3. Hồi quy Chính quy hóa (Regularized Regression)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-04-sem.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A4. SEM Nâng cao (Advanced SEM)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-05-bayesian.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A5. Thống kê Bayes (Bayesian Statistics)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-06-monte-carlo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A6. Mô phỏng Monte Carlo (Monte Carlo Simulation)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-07-simpson.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A7. Nghịch lý Simpson (Simpson’s Paradox)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-08-likert.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A8. Phân tích Likert Nâng cao (Advanced Likert Analysis)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-09-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A9. Thư viện Trực quan hóa (Visualization Gallery)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-10-toolkit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A10. Bộ Công cụ Nghiên cứu (Research Toolkit)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-11-meta-analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A11. Phân tích Tổng hợp (Meta-analysis)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-12-bibliometric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A12. Phân tích Trắc lượng Thư mục (Bibliometric Analysis)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-13-anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A13. Thiết kế Thí nghiệm và ANOVA (Experimental Design and ANOVA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-14-mixed-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc (Mixed Models)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-15-reproducible.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật (Reproducible Research)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Learning Support</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./research-toolkit.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Research Toolkit</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./roadmap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Roadmap</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Glossary</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./resources.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Resources</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Case Studies</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./case-study-utaut.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Case Study 1. UTAUT &amp; PLS-SEM</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#research-toolkit" id="toc-research-toolkit" class="nav-link active" data-scroll-target="#research-toolkit">Research Toolkit</a></li>
+  <li><a href="#ý-tưởng-nghiên-cứu-xuyên-suốt" id="toc-ý-tưởng-nghiên-cứu-xuyên-suốt" class="nav-link" data-scroll-target="#ý-tưởng-nghiên-cứu-xuyên-suốt">1. Ý tưởng nghiên cứu xuyên suốt</a>
+  <ul class="collapse">
+  <li><a href="#case-study-student-digital-learning-experience" id="toc-case-study-student-digital-learning-experience" class="nav-link" data-scroll-target="#case-study-student-digital-learning-experience">Case Study: Student Digital Learning Experience</a></li>
+  <li><a href="#dữ-liệu-minh-họa" id="toc-dữ-liệu-minh-họa" class="nav-link" data-scroll-target="#dữ-liệu-minh-họa">Dữ liệu minh họa</a></li>
+  <li><a href="#research-logic" id="toc-research-logic" class="nav-link" data-scroll-target="#research-logic">Research logic</a></li>
+  </ul></li>
+  <li><a href="#từ-ý-tưởng-đến-câu-hỏi-nghiên-cứu" id="toc-từ-ý-tưởng-đến-câu-hỏi-nghiên-cứu" class="nav-link" data-scroll-target="#từ-ý-tưởng-đến-câu-hỏi-nghiên-cứu">2. Từ ý tưởng đến câu hỏi nghiên cứu</a>
+  <ul class="collapse">
+  <li><a href="#ví-dụ-chuyển-hóa-ý-tưởng" id="toc-ví-dụ-chuyển-hóa-ý-tưởng" class="nav-link" data-scroll-target="#ví-dụ-chuyển-hóa-ý-tưởng">Ví dụ chuyển hóa ý tưởng</a></li>
+  <li><a href="#module-liên-quan" id="toc-module-liên-quan" class="nav-link" data-scroll-target="#module-liên-quan">Module liên quan</a></li>
+  </ul></li>
+  <li><a href="#bản-đồ-học-tập-từ-cơ-bản-đến-nâng-cao" id="toc-bản-đồ-học-tập-từ-cơ-bản-đến-nâng-cao" class="nav-link" data-scroll-target="#bản-đồ-học-tập-từ-cơ-bản-đến-nâng-cao">3. Bản đồ học tập từ cơ bản đến nâng cao</a>
+  <ul class="collapse">
+  <li><a href="#full-learning-pathway" id="toc-full-learning-pathway" class="nav-link" data-scroll-target="#full-learning-pathway">Full learning pathway</a></li>
+  </ul></li>
+  <li><a href="#giai-đoạn-1-chuẩn-bị-dữ-liệu" id="toc-giai-đoạn-1-chuẩn-bị-dữ-liệu" class="nav-link" data-scroll-target="#giai-đoạn-1-chuẩn-bị-dữ-liệu">4. Giai đoạn 1: Chuẩn bị dữ liệu</a>
+  <ul class="collapse">
+  <li><a href="#research-task" id="toc-research-task" class="nav-link" data-scroll-target="#research-task">Research task</a></li>
+  <li><a href="#questions-to-ask" id="toc-questions-to-ask" class="nav-link" data-scroll-target="#questions-to-ask">Questions to ask</a></li>
+  <li><a href="#recommended-modules" id="toc-recommended-modules" class="nav-link" data-scroll-target="#recommended-modules">Recommended modules</a></li>
+  <li><a href="#suggested-outputs" id="toc-suggested-outputs" class="nav-link" data-scroll-target="#suggested-outputs">Suggested outputs</a></li>
+  </ul></li>
+  <li><a href="#giai-đoạn-2-hiểu-dữ-liệu" id="toc-giai-đoạn-2-hiểu-dữ-liệu" class="nav-link" data-scroll-target="#giai-đoạn-2-hiểu-dữ-liệu">5. Giai đoạn 2: Hiểu dữ liệu</a>
+  <ul class="collapse">
+  <li><a href="#research-task-1" id="toc-research-task-1" class="nav-link" data-scroll-target="#research-task-1">Research task</a></li>
+  <li><a href="#example-questions" id="toc-example-questions" class="nav-link" data-scroll-target="#example-questions">Example questions</a></li>
+  <li><a href="#recommended-modules-1" id="toc-recommended-modules-1" class="nav-link" data-scroll-target="#recommended-modules-1">Recommended modules</a></li>
+  <li><a href="#suggested-figures" id="toc-suggested-figures" class="nav-link" data-scroll-target="#suggested-figures">Suggested figures</a></li>
+  </ul></li>
+  <li><a href="#giai-đoạn-3-kiểm-tra-quan-hệ-giữa-các-biến" id="toc-giai-đoạn-3-kiểm-tra-quan-hệ-giữa-các-biến" class="nav-link" data-scroll-target="#giai-đoạn-3-kiểm-tra-quan-hệ-giữa-các-biến">6. Giai đoạn 3: Kiểm tra quan hệ giữa các biến</a>
+  <ul class="collapse">
+  <li><a href="#research-task-2" id="toc-research-task-2" class="nav-link" data-scroll-target="#research-task-2">Research task</a></li>
+  <li><a href="#example-hypotheses" id="toc-example-hypotheses" class="nav-link" data-scroll-target="#example-hypotheses">Example hypotheses</a></li>
+  <li><a href="#recommended-modules-2" id="toc-recommended-modules-2" class="nav-link" data-scroll-target="#recommended-modules-2">Recommended modules</a></li>
+  <li><a href="#model-choice" id="toc-model-choice" class="nav-link" data-scroll-target="#model-choice">Model choice</a></li>
+  </ul></li>
+  <li><a href="#giai-đoạn-4-xây-dựng-mô-hình-lý-thuyết" id="toc-giai-đoạn-4-xây-dựng-mô-hình-lý-thuyết" class="nav-link" data-scroll-target="#giai-đoạn-4-xây-dựng-mô-hình-lý-thuyết">7. Giai đoạn 4: Xây dựng mô hình lý thuyết</a>
+  <ul class="collapse">
+  <li><a href="#conceptual-model" id="toc-conceptual-model" class="nav-link" data-scroll-target="#conceptual-model">Conceptual model</a></li>
+  <li><a href="#research-task-3" id="toc-research-task-3" class="nav-link" data-scroll-target="#research-task-3">Research task</a></li>
+  <li><a href="#recommended-modules-3" id="toc-recommended-modules-3" class="nav-link" data-scroll-target="#recommended-modules-3">Recommended modules</a></li>
+  <li><a href="#suggested-outputs-1" id="toc-suggested-outputs-1" class="nav-link" data-scroll-target="#suggested-outputs-1">Suggested outputs</a></li>
+  </ul></li>
+  <li><a href="#giai-đoạn-5-phân-tích-nâng-cao" id="toc-giai-đoạn-5-phân-tích-nâng-cao" class="nav-link" data-scroll-target="#giai-đoạn-5-phân-tích-nâng-cao">8. Giai đoạn 5: Phân tích nâng cao</a>
+  <ul class="collapse">
+  <li><a href="#khi-nào-cần-advanced-analytics" id="toc-khi-nào-cần-advanced-analytics" class="nav-link" data-scroll-target="#khi-nào-cần-advanced-analytics">Khi nào cần advanced analytics?</a></li>
+  <li><a href="#advanced-decision-tree" id="toc-advanced-decision-tree" class="nav-link" data-scroll-target="#advanced-decision-tree">Advanced decision tree</a></li>
+  </ul></li>
+  <li><a href="#giai-đoạn-6-literature-and-evidence-synthesis" id="toc-giai-đoạn-6-literature-and-evidence-synthesis" class="nav-link" data-scroll-target="#giai-đoạn-6-literature-and-evidence-synthesis">9. Giai đoạn 6: Literature and evidence synthesis</a>
+  <ul class="collapse">
+  <li><a href="#research-task-4" id="toc-research-task-4" class="nav-link" data-scroll-target="#research-task-4">Research task</a></li>
+  <li><a href="#khi-nào-dùng-bibliometric-analysis" id="toc-khi-nào-dùng-bibliometric-analysis" class="nav-link" data-scroll-target="#khi-nào-dùng-bibliometric-analysis">Khi nào dùng bibliometric analysis?</a></li>
+  <li><a href="#khi-nào-dùng-meta-analysis" id="toc-khi-nào-dùng-meta-analysis" class="nav-link" data-scroll-target="#khi-nào-dùng-meta-analysis">Khi nào dùng meta-analysis?</a></li>
+  <li><a href="#recommended-modules-4" id="toc-recommended-modules-4" class="nav-link" data-scroll-target="#recommended-modules-4">Recommended modules</a></li>
+  </ul></li>
+  <li><a href="#giai-đoạn-7-báo-cáo-và-công-bố" id="toc-giai-đoạn-7-báo-cáo-và-công-bố" class="nav-link" data-scroll-target="#giai-đoạn-7-báo-cáo-và-công-bố">10. Giai đoạn 7: Báo cáo và công bố</a>
+  <ul class="collapse">
+  <li><a href="#research-task-5" id="toc-research-task-5" class="nav-link" data-scroll-target="#research-task-5">Research task</a></li>
+  <li><a href="#recommended-modules-5" id="toc-recommended-modules-5" class="nav-link" data-scroll-target="#recommended-modules-5">Recommended modules</a></li>
+  <li><a href="#final-research-output" id="toc-final-research-output" class="nav-link" data-scroll-target="#final-research-output">Final research output</a></li>
+  </ul></li>
+  <li><a href="#method-selection-guide" id="toc-method-selection-guide" class="nav-link" data-scroll-target="#method-selection-guide">11. Method selection guide</a>
+  <ul class="collapse">
+  <li><a href="#choose-method-by-research-goal" id="toc-choose-method-by-research-goal" class="nav-link" data-scroll-target="#choose-method-by-research-goal">Choose method by research goal</a></li>
+  </ul></li>
+  <li><a href="#figure-selection-guide" id="toc-figure-selection-guide" class="nav-link" data-scroll-target="#figure-selection-guide">12. Figure selection guide</a></li>
+  <li><a href="#table-selection-guide" id="toc-table-selection-guide" class="nav-link" data-scroll-target="#table-selection-guide">13. Table selection guide</a></li>
+  <li><a href="#capstone-workflow" id="toc-capstone-workflow" class="nav-link" data-scroll-target="#capstone-workflow">14. Capstone workflow</a>
+  <ul class="collapse">
+  <li><a href="#capstone-project-structure" id="toc-capstone-project-structure" class="nav-link" data-scroll-target="#capstone-project-structure">Capstone project structure</a></li>
+  <li><a href="#required-outputs" id="toc-required-outputs" class="nav-link" data-scroll-target="#required-outputs">Required outputs</a></li>
+  </ul></li>
+  <li><a href="#recommended-resources" id="toc-recommended-resources" class="nav-link" data-scroll-target="#recommended-resources">15. Recommended resources</a>
+  <ul class="collapse">
+  <li><a href="#internal-resources" id="toc-internal-resources" class="nav-link" data-scroll-target="#internal-resources">Internal resources</a></li>
+  <li><a href="#recommended-books" id="toc-recommended-books" class="nav-link" data-scroll-target="#recommended-books">Recommended books</a></li>
+  </ul></li>
+  <li><a href="#final-research-checklist" id="toc-final-research-checklist" class="nav-link" data-scroll-target="#final-research-checklist">16. Final research checklist</a></li>
+  <li><a href="#what-next" id="toc-what-next" class="nav-link" data-scroll-target="#what-next">What Next?</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./research-toolkit.html">Learning Support</a></li><li class="breadcrumb-item"><a href="./research-toolkit.html">Research Toolkit</a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Research Toolkit</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">From Research Idea to Reproducible Report</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="research-toolkit" class="level1">
+<h1>Research Toolkit</h1>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Trang này là <strong>bản đồ vận hành nghiên cứu</strong> cho toàn bộ khóa học <strong>R for Research and Data Analytics</strong>.</p>
+<p>Mục tiêu không chỉ là biết chạy code, mà là biết:</p>
+<ul>
+<li>Bắt đầu từ một ý tưởng nghiên cứu</li>
+<li>Chuyển ý tưởng thành câu hỏi nghiên cứu</li>
+<li>Xác định dữ liệu cần thu thập</li>
+<li>Chọn phương pháp phân tích phù hợp</li>
+<li>Chọn module cần học</li>
+<li>Tạo bảng, hình và báo cáo</li>
+<li>Kết thúc bằng một sản phẩm nghiên cứu tái lập</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="ý-tưởng-nghiên-cứu-xuyên-suốt" class="level1">
+<h1>1. Ý tưởng nghiên cứu xuyên suốt</h1>
+<section id="case-study-student-digital-learning-experience" class="level2">
+<h2 class="anchored" data-anchor-id="case-study-student-digital-learning-experience">Case Study: Student Digital Learning Experience</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Trải nghiệm học tập số của sinh viên</strong></p>
+<p><strong>Research question</strong></p>
+<pre class="text"><code>What factors influence student satisfaction with digital learning platforms?</code></pre>
+<p><strong>Câu hỏi nghiên cứu</strong></p>
+<pre class="text"><code>Những yếu tố nào ảnh hưởng đến sự hài lòng của sinh viên đối với nền tảng học tập số?</code></pre>
+</div>
+</div>
+</section>
+<section id="dữ-liệu-minh-họa" class="level2">
+<h2 class="anchored" data-anchor-id="dữ-liệu-minh-họa">Dữ liệu minh họa</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>student_id</td>
+<td>ID</td>
+<td>Mã sinh viên</td>
+</tr>
+<tr class="even">
+<td>gender</td>
+<td>Categorical</td>
+<td>Giới tính</td>
+</tr>
+<tr class="odd">
+<td>faculty</td>
+<td>Categorical</td>
+<td>Khoa/ngành</td>
+</tr>
+<tr class="even">
+<td>digital_skill</td>
+<td>Numeric</td>
+<td>Kỹ năng số</td>
+</tr>
+<tr class="odd">
+<td>ease_of_use</td>
+<td>Likert</td>
+<td>Cảm nhận dễ sử dụng</td>
+</tr>
+<tr class="even">
+<td>usefulness</td>
+<td>Likert</td>
+<td>Cảm nhận hữu ích</td>
+</tr>
+<tr class="odd">
+<td>learning_value</td>
+<td>Likert</td>
+<td>Giá trị học tập</td>
+</tr>
+<tr class="even">
+<td>satisfaction</td>
+<td>Numeric/Likert</td>
+<td>Mức độ hài lòng</td>
+</tr>
+<tr class="odd">
+<td>recommendation</td>
+<td>Binary</td>
+<td>Có giới thiệu nền tảng hay không</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="research-logic" class="level2">
+<h2 class="anchored" data-anchor-id="research-logic">Research logic</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+
+A[Research Problem]
+--&gt; B[Research Question]
+
+B --&gt; C[Variables]
+
+C --&gt; D[Data Collection]
+
+D --&gt; E[Data Cleaning]
+
+E --&gt; F[Descriptive Analysis]
+
+F --&gt; G[Visualization]
+
+G --&gt; H[Regression / SEM]
+
+H --&gt; I[Advanced Analytics]
+
+I --&gt; J[Research Report]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="từ-ý-tưởng-đến-câu-hỏi-nghiên-cứu" class="level1">
+<h1>2. Từ ý tưởng đến câu hỏi nghiên cứu</h1>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Một nghiên cứu tốt bắt đầu từ vấn đề thực tế, không bắt đầu từ phần mềm hay mô hình thống kê.</p>
+</div>
+</div>
+<section id="ví-dụ-chuyển-hóa-ý-tưởng" class="level2">
+<h2 class="anchored" data-anchor-id="ví-dụ-chuyển-hóa-ý-tưởng">Ví dụ chuyển hóa ý tưởng</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Problem</td>
+<td>Sinh viên dùng nền tảng học tập số nhưng mức độ hài lòng khác nhau</td>
+</tr>
+<tr class="even">
+<td>Research Gap</td>
+<td>Chưa rõ yếu tố nào ảnh hưởng mạnh nhất</td>
+</tr>
+<tr class="odd">
+<td>Research Question</td>
+<td>Digital skill, ease of use và usefulness có ảnh hưởng đến satisfaction không?</td>
+</tr>
+<tr class="even">
+<td>Objective 1</td>
+<td>Mô tả trải nghiệm học tập số</td>
+</tr>
+<tr class="odd">
+<td>Objective 2</td>
+<td>Kiểm tra yếu tố ảnh hưởng đến satisfaction</td>
+</tr>
+<tr class="even">
+<td>Objective 3</td>
+<td>Đề xuất cải thiện trải nghiệm người học</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-liên-quan" class="level2">
+<h2 class="anchored" data-anchor-id="module-liên-quan">Module liên quan</h2>
+<ul>
+<li><a href="./module-1.html">Module 1. Nhập môn R</a></li>
+<li><a href="./module-2.html">Module 2. Làm sạch dữ liệu</a></li>
+<li><a href="./advanced/adv-10-toolkit.html">Module A10. Bộ Công cụ Nghiên cứu</a></li>
+</ul>
+</section>
+</section>
+<section id="bản-đồ-học-tập-từ-cơ-bản-đến-nâng-cao" class="level1">
+<h1>3. Bản đồ học tập từ cơ bản đến nâng cao</h1>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Người học có thể đi theo 3 lộ trình:</p>
+<ol type="1">
+<li>Học theo trình tự khóa học</li>
+<li>Học theo mục tiêu nghiên cứu</li>
+<li>Học theo case study</li>
+</ol>
+</div>
+</div>
+<section id="full-learning-pathway" class="level2">
+<h2 class="anchored" data-anchor-id="full-learning-pathway">Full learning pathway</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+
+M1[Module 1: Introduction to R]
+--&gt; M2[Module 2: Data Cleaning]
+
+M2 --&gt; M3[Module 3: Descriptive Statistics]
+
+M3 --&gt; M4[Module 4: Correlation and Regression]
+
+M4 --&gt; M5[Module 5: PLS-SEM]
+
+M5 --&gt; M6[Module 6: Visualization and Reporting]
+
+M6 --&gt; A1[Module A1: Descriptive Diagnostics]
+
+A1 --&gt; A2[Module A2: Advanced Regression]
+
+A2 --&gt; A3[Module A3: Regularized Regression]
+
+A3 --&gt; A4[Module A4: Advanced SEM]
+
+A4 --&gt; A5[Module A5: Bayesian Statistics]
+
+A5 --&gt; A6[Module A6: Monte Carlo Simulation]
+
+A6 --&gt; A7[Module A7: Simpson's Paradox]
+
+A7 --&gt; A8[Module A8: Advanced Likert Analysis]
+
+A8 --&gt; A9[Module A9: Visualization Gallery]
+
+A9 --&gt; A15[Module A15: Reproducible Research]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="giai-đoạn-1-chuẩn-bị-dữ-liệu" class="level1">
+<h1>4. Giai đoạn 1: Chuẩn bị dữ liệu</h1>
+<section id="research-task" class="level2">
+<h2 class="anchored" data-anchor-id="research-task">Research task</h2>
+<pre class="text"><code>Import survey data
+Clean variable names
+Check missing values
+Check variable types
+Create analysis-ready dataset</code></pre>
+</section>
+<section id="questions-to-ask" class="level2">
+<h2 class="anchored" data-anchor-id="questions-to-ask">Questions to ask</h2>
+<ul>
+<li>Dataset có bao nhiêu dòng?</li>
+<li>Có bao nhiêu biến?</li>
+<li>Biến nào là categorical?</li>
+<li>Biến nào là numeric?</li>
+<li>Có missing values không?</li>
+<li>Có outliers không?</li>
+<li>Dữ liệu có cần reshape không?</li>
+</ul>
+</section>
+<section id="recommended-modules" class="level2">
+<h2 class="anchored" data-anchor-id="recommended-modules">Recommended modules</h2>
+<ul>
+<li><a href="./module-1.html">Module 1. Nhập môn R</a></li>
+<li><a href="./module-2.html">Module 2. Làm sạch dữ liệu</a></li>
+<li><a href="./advanced/adv-01-descriptive.html">Module A1. Chẩn đoán Thống kê Mô tả</a></li>
+</ul>
+</section>
+<section id="suggested-outputs" class="level2">
+<h2 class="anchored" data-anchor-id="suggested-outputs">Suggested outputs</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Output</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Clean dataset</td>
+<td>Dữ liệu sẵn sàng phân tích</td>
+</tr>
+<tr class="even">
+<td>Data dictionary</td>
+<td>Mô tả biến</td>
+</tr>
+<tr class="odd">
+<td>Missing value table</td>
+<td>Kiểm tra chất lượng dữ liệu</td>
+</tr>
+<tr class="even">
+<td>Descriptive diagnostic report</td>
+<td>Báo cáo chẩn đoán ban đầu</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="giai-đoạn-2-hiểu-dữ-liệu" class="level1">
+<h1>5. Giai đoạn 2: Hiểu dữ liệu</h1>
+<section id="research-task-1" class="level2">
+<h2 class="anchored" data-anchor-id="research-task-1">Research task</h2>
+<pre class="text"><code>Describe respondents
+Summarize key variables
+Understand distributions
+Compare basic groups</code></pre>
+</section>
+<section id="example-questions" class="level2">
+<h2 class="anchored" data-anchor-id="example-questions">Example questions</h2>
+<ul>
+<li>Sinh viên có mức digital skill trung bình bao nhiêu?</li>
+<li>Satisfaction có phân phối lệch không?</li>
+<li>Faculty nào có satisfaction cao hơn?</li>
+<li>Có nhóm nào có số quan sát quá ít không?</li>
+</ul>
+</section>
+<section id="recommended-modules-1" class="level2">
+<h2 class="anchored" data-anchor-id="recommended-modules-1">Recommended modules</h2>
+<ul>
+<li><a href="./module-3.html">Module 3. Thống kê mô tả</a></li>
+<li><a href="./module-6.html">Module 6. Trực quan hóa dữ liệu và Viết kết quả</a></li>
+<li><a href="./advanced/adv-01-descriptive.html">Module A1. Chẩn đoán Thống kê Mô tả</a></li>
+<li><a href="./advanced/adv-09-visualization.html">Module A9. Thư viện Trực quan hóa</a></li>
+</ul>
+</section>
+<section id="suggested-figures" class="level2">
+<h2 class="anchored" data-anchor-id="suggested-figures">Suggested figures</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Figure</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Satisfaction phân phối ra sao?</td>
+<td>Histogram / Density</td>
+</tr>
+<tr class="even">
+<td>Satisfaction khác nhau theo faculty?</td>
+<td>Boxplot / Violin</td>
+</tr>
+<tr class="odd">
+<td>Likert items phân bố thế nào?</td>
+<td>Likert stacked bar</td>
+</tr>
+<tr class="even">
+<td>Missing values ở đâu?</td>
+<td>Missingness plot</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="giai-đoạn-3-kiểm-tra-quan-hệ-giữa-các-biến" class="level1">
+<h1>6. Giai đoạn 3: Kiểm tra quan hệ giữa các biến</h1>
+<section id="research-task-2" class="level2">
+<h2 class="anchored" data-anchor-id="research-task-2">Research task</h2>
+<pre class="text"><code>Explore correlations
+Build regression models
+Interpret predictors
+Check assumptions</code></pre>
+</section>
+<section id="example-hypotheses" class="level2">
+<h2 class="anchored" data-anchor-id="example-hypotheses">Example hypotheses</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Hypothesis</th>
+<th>Statement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>H1</td>
+<td>Digital skill positively affects satisfaction</td>
+</tr>
+<tr class="even">
+<td>H2</td>
+<td>Ease of use positively affects satisfaction</td>
+</tr>
+<tr class="odd">
+<td>H3</td>
+<td>Usefulness positively affects satisfaction</td>
+</tr>
+<tr class="even">
+<td>H4</td>
+<td>Satisfaction increases recommendation intention</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="recommended-modules-2" class="level2">
+<h2 class="anchored" data-anchor-id="recommended-modules-2">Recommended modules</h2>
+<ul>
+<li><a href="./module-4.html">Module 4. Tương quan và Hồi quy</a></li>
+<li><a href="./advanced/adv-02-regression.html">Module A2. Hồi quy Nâng cao</a></li>
+<li><a href="./advanced/adv-03-regularized.html">Module A3. Hồi quy Chính quy hóa</a></li>
+</ul>
+</section>
+<section id="model-choice" class="level2">
+<h2 class="anchored" data-anchor-id="model-choice">Model choice</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Outcome</th>
+<th>Recommended method</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Satisfaction as numeric</td>
+<td>Linear regression</td>
+</tr>
+<tr class="even">
+<td>Recommendation as yes/no</td>
+<td>Logistic regression</td>
+</tr>
+<tr class="odd">
+<td>Many predictors</td>
+<td>Ridge / LASSO / Elastic Net</td>
+</tr>
+<tr class="even">
+<td>Nonlinear prediction</td>
+<td>Machine learning</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="giai-đoạn-4-xây-dựng-mô-hình-lý-thuyết" class="level1">
+<h1>7. Giai đoạn 4: Xây dựng mô hình lý thuyết</h1>
+<section id="conceptual-model" class="level2">
+<h2 class="anchored" data-anchor-id="conceptual-model">Conceptual model</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+
+A[Ease of Use]
+--&gt; B[Usefulness]
+
+B --&gt; C[Satisfaction]
+
+A --&gt; C
+
+C --&gt; D[Recommendation Intention]
+
+E[Digital Skill] --&gt; A
+E --&gt; B
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="research-task-3" class="level2">
+<h2 class="anchored" data-anchor-id="research-task-3">Research task</h2>
+<pre class="text"><code>Define constructs
+Check reliability
+Check validity
+Estimate structural paths
+Report model results</code></pre>
+</section>
+<section id="recommended-modules-3" class="level2">
+<h2 class="anchored" data-anchor-id="recommended-modules-3">Recommended modules</h2>
+<ul>
+<li><a href="./module-5.html">Module 5. PLS-SEM</a></li>
+<li><a href="./advanced/adv-04-sem.html">Module A4. Mô hình Phương trình Cấu trúc Nâng cao</a></li>
+<li><a href="./advanced/adv-08-likert.html">Module A8. Phân tích Likert Nâng cao</a></li>
+</ul>
+</section>
+<section id="suggested-outputs-1" class="level2">
+<h2 class="anchored" data-anchor-id="suggested-outputs-1">Suggested outputs</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Output</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Reliability table</td>
+<td>Cronbach’s Alpha / Composite Reliability</td>
+</tr>
+<tr class="even">
+<td>Validity table</td>
+<td>AVE / discriminant validity</td>
+</tr>
+<tr class="odd">
+<td>Path coefficient table</td>
+<td>Hypothesis testing</td>
+</tr>
+<tr class="even">
+<td>SEM diagram</td>
+<td>Visual model presentation</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="giai-đoạn-5-phân-tích-nâng-cao" class="level1">
+<h1>8. Giai đoạn 5: Phân tích nâng cao</h1>
+<section id="khi-nào-cần-advanced-analytics" class="level2">
+<h2 class="anchored" data-anchor-id="khi-nào-cần-advanced-analytics">Khi nào cần advanced analytics?</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Problem</th>
+<th>Recommended method</th>
+<th>Module</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Có quá nhiều predictors</td>
+<td>Regularized regression</td>
+<td><a href="./advanced/adv-03-regularized.html">Module A3</a></td>
+</tr>
+<tr class="even">
+<td>Muốn diễn giải xác suất posterior</td>
+<td>Bayesian statistics</td>
+<td><a href="./advanced/adv-05-bayesian.html">Module A5</a></td>
+</tr>
+<tr class="odd">
+<td>Muốn kiểm tra độ ổn định kết quả</td>
+<td>Monte Carlo simulation</td>
+<td><a href="./advanced/adv-06-monte-carlo.html">Module A6</a></td>
+</tr>
+<tr class="even">
+<td>Kết quả tổng thể khác theo nhóm</td>
+<td>Simpson’s Paradox</td>
+<td><a href="./advanced/adv-07-simpson.html">Module A7</a></td>
+</tr>
+<tr class="odd">
+<td>Dữ liệu Likert nhiều item</td>
+<td>Advanced Likert analysis</td>
+<td><a href="./advanced/adv-08-likert.html">Module A8</a></td>
+</tr>
+<tr class="even">
+<td>Dữ liệu phân cấp/lặp lại</td>
+<td>Mixed models</td>
+<td><a href="./advanced/adv-14-mixed-models.html">Module A14</a></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="advanced-decision-tree" class="level2">
+<h2 class="anchored" data-anchor-id="advanced-decision-tree">Advanced decision tree</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+
+A[Do you need advanced analysis?]
+--&gt; B{Main challenge?}
+
+B --&gt;|Many predictors| C[Module A3: Regularized Regression]
+
+B --&gt;|Uncertainty| D[Module A5 or A6]
+
+B --&gt;|Grouped patterns| E[Module A7]
+
+B --&gt;|Likert survey| F[Module A8]
+
+B --&gt;|Nested or repeated data| G[Module A14]
+
+B --&gt;|Publication-ready figures| H[Module A9]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="giai-đoạn-6-literature-and-evidence-synthesis" class="level1">
+<h1>9. Giai đoạn 6: Literature and evidence synthesis</h1>
+<section id="research-task-4" class="level2">
+<h2 class="anchored" data-anchor-id="research-task-4">Research task</h2>
+<pre class="text"><code>Map the literature
+Identify key themes
+Synthesize prior evidence
+Position the study</code></pre>
+</section>
+<section id="khi-nào-dùng-bibliometric-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="khi-nào-dùng-bibliometric-analysis">Khi nào dùng bibliometric analysis?</h2>
+<p>Dùng khi muốn trả lời:</p>
+<ul>
+<li>Lĩnh vực phát triển ra sao?</li>
+<li>Tác giả nào nổi bật?</li>
+<li>Tạp chí nào quan trọng?</li>
+<li>Từ khóa nào đang nổi lên?</li>
+<li>Chủ đề nào là motor themes?</li>
+</ul>
+</section>
+<section id="khi-nào-dùng-meta-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="khi-nào-dùng-meta-analysis">Khi nào dùng meta-analysis?</h2>
+<p>Dùng khi muốn trả lời:</p>
+<ul>
+<li>Hiệu ứng trung bình từ nhiều nghiên cứu là bao nhiêu?</li>
+<li>Có heterogeneity không?</li>
+<li>Có publication bias không?</li>
+<li>Moderator nào giải thích khác biệt giữa nghiên cứu?</li>
+</ul>
+</section>
+<section id="recommended-modules-4" class="level2">
+<h2 class="anchored" data-anchor-id="recommended-modules-4">Recommended modules</h2>
+<ul>
+<li><a href="./advanced/adv-11-meta-analysis.html">Module A11. Phân tích Tổng hợp</a></li>
+<li><a href="./advanced/adv-12-bibliometric.html">Module A12. Phân tích Trắc lượng Thư mục</a></li>
+</ul>
+</section>
+</section>
+<section id="giai-đoạn-7-báo-cáo-và-công-bố" class="level1">
+<h1>10. Giai đoạn 7: Báo cáo và công bố</h1>
+<section id="research-task-5" class="level2">
+<h2 class="anchored" data-anchor-id="research-task-5">Research task</h2>
+<pre class="text"><code>Create tables
+Create figures
+Write interpretation
+Build Quarto report
+Render HTML/PDF/website</code></pre>
+</section>
+<section id="recommended-modules-5" class="level2">
+<h2 class="anchored" data-anchor-id="recommended-modules-5">Recommended modules</h2>
+<ul>
+<li><a href="./module-6.html">Module 6. Trực quan hóa dữ liệu và Viết kết quả</a></li>
+<li><a href="./advanced/adv-09-visualization.html">Module A9. Thư viện Trực quan hóa</a></li>
+<li><a href="./advanced/adv-15-reproducible.html">Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật</a></li>
+</ul>
+</section>
+<section id="final-research-output" class="level2">
+<h2 class="anchored" data-anchor-id="final-research-output">Final research output</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+
+A[Clean Data]
+--&gt; B[Tables]
+
+A --&gt; C[Figures]
+
+B --&gt; D[Quarto Report]
+
+C --&gt; D
+
+D --&gt; E[HTML Report]
+
+D --&gt; F[PDF Report]
+
+D --&gt; G[Website]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="method-selection-guide" class="level1">
+<h1>11. Method selection guide</h1>
+<section id="choose-method-by-research-goal" class="level2">
+<h2 class="anchored" data-anchor-id="choose-method-by-research-goal">Choose method by research goal</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Research goal</th>
+<th>Recommended method</th>
+<th>Module</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Describe data</td>
+<td>Descriptive statistics</td>
+<td><a href="./module-3.html">Module 3</a></td>
+</tr>
+<tr class="even">
+<td>Diagnose data quality</td>
+<td>Descriptive diagnostics</td>
+<td><a href="./advanced/adv-01-descriptive.html">Module A1</a></td>
+</tr>
+<tr class="odd">
+<td>Visualize patterns</td>
+<td>ggplot2</td>
+<td><a href="./module-6.html">Module 6</a>, <a href="./advanced/adv-09-visualization.html">Module A9</a></td>
+</tr>
+<tr class="even">
+<td>Test relationship</td>
+<td>Correlation / Regression</td>
+<td><a href="./module-4.html">Module 4</a>, <a href="./advanced/adv-02-regression.html">Module A2</a></td>
+</tr>
+<tr class="odd">
+<td>Predict outcome</td>
+<td>Regression / ML</td>
+<td><a href="./advanced/adv-03-regularized.html">Module A3</a></td>
+</tr>
+<tr class="even">
+<td>Model constructs</td>
+<td>PLS-SEM / SEM</td>
+<td><a href="./module-5.html">Module 5</a>, <a href="./advanced/adv-04-sem.html">Module A4</a></td>
+</tr>
+<tr class="odd">
+<td>Compare groups</td>
+<td>ANOVA</td>
+<td><a href="./advanced/adv-13-anova.html">Module A13</a></td>
+</tr>
+<tr class="even">
+<td>Analyze repeated data</td>
+<td>Mixed models</td>
+<td><a href="./advanced/adv-14-mixed-models.html">Module A14</a></td>
+</tr>
+<tr class="odd">
+<td>Analyze Likert items</td>
+<td>Likert analysis</td>
+<td><a href="./advanced/adv-08-likert.html">Module A8</a></td>
+</tr>
+<tr class="even">
+<td>Simulate uncertainty</td>
+<td>Monte Carlo</td>
+<td><a href="./advanced/adv-06-monte-carlo.html">Module A6</a></td>
+</tr>
+<tr class="odd">
+<td>Synthesize evidence</td>
+<td>Meta-analysis</td>
+<td><a href="./advanced/adv-11-meta-analysis.html">Module A11</a></td>
+</tr>
+<tr class="even">
+<td>Map literature</td>
+<td>Bibliometric analysis</td>
+<td><a href="./advanced/adv-12-bibliometric.html">Module A12</a></td>
+</tr>
+<tr class="odd">
+<td>Report reproducibly</td>
+<td>Quarto</td>
+<td><a href="./advanced/adv-15-reproducible.html">Module A15</a></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="figure-selection-guide" class="level1">
+<h1>12. Figure selection guide</h1>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Data question</th>
+<th>Recommended figure</th>
+<th>Module</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>One numeric variable</td>
+<td>Histogram / Density</td>
+<td><a href="./advanced/adv-09-visualization.html">Module A9</a></td>
+</tr>
+<tr class="even">
+<td>Numeric by group</td>
+<td>Boxplot / Violin</td>
+<td><a href="./advanced/adv-09-visualization.html">Module A9</a></td>
+</tr>
+<tr class="odd">
+<td>Two numeric variables</td>
+<td>Scatter plot</td>
+<td><a href="./advanced/adv-09-visualization.html">Module A9</a></td>
+</tr>
+<tr class="even">
+<td>Time trend</td>
+<td>Line plot</td>
+<td><a href="./advanced/adv-09-visualization.html">Module A9</a></td>
+</tr>
+<tr class="odd">
+<td>Likert items</td>
+<td>Likert stacked / Diverging</td>
+<td><a href="./advanced/adv-08-likert.html">Module A8</a></td>
+</tr>
+<tr class="even">
+<td>Many variables</td>
+<td>Heatmap / PCA</td>
+<td><a href="./advanced/adv-09-visualization.html">Module A9</a></td>
+</tr>
+<tr class="odd">
+<td>Meta-analysis</td>
+<td>Forest plot / Funnel plot</td>
+<td><a href="./advanced/adv-11-meta-analysis.html">Module A11</a></td>
+</tr>
+<tr class="even">
+<td>Bibliometric</td>
+<td>Keyword map / Thematic map</td>
+<td><a href="./advanced/adv-12-bibliometric.html">Module A12</a></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="table-selection-guide" class="level1">
+<h1>13. Table selection guide</h1>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Table</th>
+<th>Purpose</th>
+<th>Module</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Table 1</td>
+<td>Sample characteristics</td>
+<td><a href="./module-3.html">Module 3</a></td>
+</tr>
+<tr class="even">
+<td>Table 2</td>
+<td>Descriptive statistics</td>
+<td><a href="./module-3.html">Module 3</a></td>
+</tr>
+<tr class="odd">
+<td>Table 3</td>
+<td>Correlation matrix</td>
+<td><a href="./module-4.html">Module 4</a></td>
+</tr>
+<tr class="even">
+<td>Table 4</td>
+<td>Regression table</td>
+<td><a href="./advanced/adv-02-regression.html">Module A2</a></td>
+</tr>
+<tr class="odd">
+<td>Table 5</td>
+<td>Reliability and validity</td>
+<td><a href="./module-5.html">Module 5</a></td>
+</tr>
+<tr class="even">
+<td>Table 6</td>
+<td>SEM path coefficients</td>
+<td><a href="./advanced/adv-04-sem.html">Module A4</a></td>
+</tr>
+<tr class="odd">
+<td>Table 7</td>
+<td>ANOVA results</td>
+<td><a href="./advanced/adv-13-anova.html">Module A13</a></td>
+</tr>
+<tr class="even">
+<td>Table 8</td>
+<td>Mixed model results</td>
+<td><a href="./advanced/adv-14-mixed-models.html">Module A14</a></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="capstone-workflow" class="level1">
+<h1>14. Capstone workflow</h1>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Người học nên kết thúc khóa học bằng một <strong>Research Analytics Portfolio</strong>.</p>
+</div>
+</div>
+<section id="capstone-project-structure" class="level2">
+<h2 class="anchored" data-anchor-id="capstone-project-structure">Capstone project structure</h2>
+<pre class="text"><code>Research Question
+↓
+Dataset
+↓
+Data Cleaning
+↓
+Descriptive Analysis
+↓
+Visualization
+↓
+Main Model
+↓
+Advanced Analysis
+↓
+Tables and Figures
+↓
+Quarto Report
+↓
+Final Presentation</code></pre>
+</section>
+<section id="required-outputs" class="level2">
+<h2 class="anchored" data-anchor-id="required-outputs">Required outputs</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Output</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Clean dataset</td>
+<td>Dữ liệu đã xử lý</td>
+</tr>
+<tr class="even">
+<td>Data dictionary</td>
+<td>Mô tả biến</td>
+</tr>
+<tr class="odd">
+<td>Descriptive table</td>
+<td>Bảng thống kê mô tả</td>
+</tr>
+<tr class="even">
+<td>Main figure</td>
+<td>Hình chính</td>
+</tr>
+<tr class="odd">
+<td>Regression/SEM table</td>
+<td>Bảng mô hình</td>
+</tr>
+<tr class="even">
+<td>Interpretation</td>
+<td>Diễn giải học thuật</td>
+</tr>
+<tr class="odd">
+<td>Quarto report</td>
+<td>Báo cáo tái lập</td>
+</tr>
+<tr class="even">
+<td>Website page</td>
+<td>Trang báo cáo online</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="recommended-resources" class="level1">
+<h1>15. Recommended resources</h1>
+<section id="internal-resources" class="level2">
+<h2 class="anchored" data-anchor-id="internal-resources">Internal resources</h2>
+<ul>
+<li><a href="./resources.html">Resources</a></li>
+<li><a href="./glossary.html">Glossary</a></li>
+<li><a href="./roadmap.html">Learning Roadmap</a></li>
+</ul>
+</section>
+<section id="recommended-books" class="level2">
+<h2 class="anchored" data-anchor-id="recommended-books">Recommended books</h2>
+<ul>
+<li><a href="resources/Books/Statistics for Business and economics.pdf">Statistics for Business and Economics</a></li>
+<li><a href="resources/Books/Psychometrics.pdf">Psychometrics</a></li>
+<li><a href="resources/Books/R with ggplot2 Using Shiny App.pdf">R with ggplot2 Using Shiny App</a></li>
+<li><a href="resources/Books/R for Marketing.pdf">R for Marketing</a></li>
+<li><a href="resources/Books/R for random forest.pdf">R for Random Forest</a></li>
+</ul>
+</section>
+</section>
+<section id="final-research-checklist" class="level1">
+<h1>16. Final research checklist</h1>
+<div class="callout-success">
+<p>Trước khi hoàn thành một dự án nghiên cứu, hãy kiểm tra:</p>
+<ul>
+<li><p>Câu hỏi nghiên cứu rõ ràng.</p></li>
+<li><p>Bộ dữ liệu sạch.</p></li>
+<li><p>Các biến được ghi chép đầy đủ.</p></li>
+<li><p>Thống kê mô tả được báo cáo.</p></li>
+<li><p>Hình ảnh phù hợp.</p></li>
+<li><p>Mô hình chính phù hợp với câu hỏi nghiên cứu.</p></li>
+<li><p>Các giả định hoặc chẩn đoán được kiểm tra.</p></li>
+<li><p>Kết quả được diễn giải cẩn thận.</p></li>
+<li><p>Bảng và hình ảnh sẵn sàng để xuất bản.</p></li>
+<li><p>Báo cáo có thể tái tạo.</p></li>
+<li><p>Quarto hiển thị không có lỗi.</p></li>
+</ul>
+</div>
+</section>
+<section id="what-next" class="level1">
+<h1>What Next?</h1>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sau trang này, người học nên tiếp tục với:</p>
+<ul>
+<li><a href="./roadmap.html">Learning Roadmap</a></li>
+<li><a href="./glossary.html">Glossary</a></li>
+<li><a href="./resources.html">Resources</a></li>
+<li><a href="./advanced/adv-15-reproducible.html">Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật</a></li>
+</ul>
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./advanced/adv-15-reproducible.html" class="pagination-link" aria-label="Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật (Reproducible Research)">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật (Reproducible Research)</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./roadmap.html" class="pagination-link" aria-label="Learning Roadmap">
+        <span class="nav-page-text">Learning Roadmap</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Research Toolkit"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "From Research Idea to Reproducible Report"</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu"># Research Toolkit</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>::: callout-note</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>Trang này là **bản đồ vận hành nghiên cứu** cho toàn bộ khóa học **R for Research and Data Analytics**.</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>Mục tiêu không chỉ là biết chạy code, mà là biết:</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Bắt đầu từ một ý tưởng nghiên cứu</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Chuyển ý tưởng thành câu hỏi nghiên cứu</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Xác định dữ liệu cần thu thập</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Chọn phương pháp phân tích phù hợp</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Chọn module cần học</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Tạo bảng, hình và báo cáo</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Kết thúc bằng một sản phẩm nghiên cứu tái lập</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="fu"># 1. Ý tưởng nghiên cứu xuyên suốt</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Case Study: Student Digital Learning Experience</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>::: callout-tip</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>**Trải nghiệm học tập số của sinh viên**</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>**Research question**</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="in">``` text</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="in">What factors influence student satisfaction with digital learning platforms?</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>**Câu hỏi nghiên cứu**</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a><span class="in">``` text</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a><span class="in">Những yếu tố nào ảnh hưởng đến sự hài lòng của sinh viên đối với nền tảng học tập số?</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a><span class="fu">## Dữ liệu minh họa</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Variable       <span class="pp">|</span> Type           <span class="pp">|</span> Meaning                          <span class="pp">|</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a><span class="pp">|----------------|----------------|----------------------------------|</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> student_id     <span class="pp">|</span> ID             <span class="pp">|</span> Mã sinh viên                     <span class="pp">|</span></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> gender         <span class="pp">|</span> Categorical    <span class="pp">|</span> Giới tính                        <span class="pp">|</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> faculty        <span class="pp">|</span> Categorical    <span class="pp">|</span> Khoa/ngành                       <span class="pp">|</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> digital_skill  <span class="pp">|</span> Numeric        <span class="pp">|</span> Kỹ năng số                       <span class="pp">|</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> ease_of_use    <span class="pp">|</span> Likert         <span class="pp">|</span> Cảm nhận dễ sử dụng              <span class="pp">|</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> usefulness     <span class="pp">|</span> Likert         <span class="pp">|</span> Cảm nhận hữu ích                 <span class="pp">|</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> learning_value <span class="pp">|</span> Likert         <span class="pp">|</span> Giá trị học tập                  <span class="pp">|</span></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> satisfaction   <span class="pp">|</span> Numeric/Likert <span class="pp">|</span> Mức độ hài lòng                  <span class="pp">|</span></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> recommendation <span class="pp">|</span> Binary         <span class="pp">|</span> Có giới thiệu nền tảng hay không <span class="pp">|</span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research logic</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>flowchart TD</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>A[Research Problem]</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>--&gt; B[Research Question]</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>B --&gt; C[Variables]</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>C --&gt; D[Data Collection]</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>D --&gt; E[Data Cleaning]</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>E --&gt; F[Descriptive Analysis]</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>F --&gt; G[Visualization]</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>G --&gt; H[Regression / SEM]</span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>H --&gt; I[Advanced Analytics]</span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>I --&gt; J[Research Report]</span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a><span class="fu"># 2. Từ ý tưởng đến câu hỏi nghiên cứu</span></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>::: callout-note</span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>Một nghiên cứu tốt bắt đầu từ vấn đề thực tế, không bắt đầu từ phần mềm hay mô hình thống kê.</span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ví dụ chuyển hóa ý tưởng</span></span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Step <span class="pp">|</span> Example <span class="pp">|</span></span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------------------------------|------------------------------------|</span></span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Problem <span class="pp">|</span> Sinh viên dùng nền tảng học tập số nhưng mức độ hài lòng khác nhau <span class="pp">|</span></span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Research Gap <span class="pp">|</span> Chưa rõ yếu tố nào ảnh hưởng mạnh nhất <span class="pp">|</span></span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Research Question <span class="pp">|</span> Digital skill, ease of use và usefulness có ảnh hưởng đến satisfaction không? <span class="pp">|</span></span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Objective 1 <span class="pp">|</span> Mô tả trải nghiệm học tập số <span class="pp">|</span></span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Objective 2 <span class="pp">|</span> Kiểm tra yếu tố ảnh hưởng đến satisfaction <span class="pp">|</span></span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Objective 3 <span class="pp">|</span> Đề xuất cải thiện trải nghiệm người học <span class="pp">|</span></span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a><span class="fu">## Module liên quan</span></span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Module 1. Nhập môn R</span><span class="co">](module-1.qmd)</span></span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Module 2. Làm sạch dữ liệu</span><span class="co">](module-2.qmd)</span></span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Module A10. Bộ Công cụ Nghiên cứu</span><span class="co">](advanced/adv-10-toolkit.qmd)</span></span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a><span class="fu"># 3. Bản đồ học tập từ cơ bản đến nâng cao</span></span>
+<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>::: callout-tip</span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a>Người học có thể đi theo 3 lộ trình:</span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Học theo trình tự khóa học</span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Học theo mục tiêu nghiên cứu</span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Học theo case study</span>
+<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a><span class="fu">## Full learning pathway</span></span>
+<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a>flowchart TD</span>
+<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a>M1[Module <span class="dv">1</span>: Introduction to R]</span>
+<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a>--&gt; M2[Module <span class="dv">2</span>: Data Cleaning]</span>
+<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>M2 --&gt; M3[Module <span class="dv">3</span>: Descriptive Statistics]</span>
+<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a>M3 --&gt; M4[Module <span class="dv">4</span>: Correlation <span class="ot">and</span> Regression]</span>
+<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a>M4 --&gt; M5[Module <span class="dv">5</span>: PLS-SEM]</span>
+<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a>M5 --&gt; M6[Module <span class="dv">6</span>: Visualization <span class="ot">and</span> Reporting]</span>
+<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a>M6 --&gt; A1[Module A1: Descriptive Diagnostics]</span>
+<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a>A1 --&gt; A2[Module A2: Advanced Regression]</span>
+<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a>A2 --&gt; A3[Module A3: Regularized Regression]</span>
+<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a>A3 --&gt; A4[Module A4: Advanced SEM]</span>
+<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a>A4 --&gt; A5[Module A5: Bayesian Statistics]</span>
+<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a>A5 --&gt; A6[Module A6: Monte Carlo Simulation]</span>
+<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a>A6 --&gt; A7[Module A7: Simpson<span class="ot">'</span><span class="ss">s Paradox]</span></span>
+<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a><span class="ss">A7 --&gt; A8[Module A8: Advanced Likert Analysis]</span></span>
+<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a><span class="ss">A8 --&gt; A9[Module A9: Visualization Gallery]</span></span>
+<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a><span class="ss">A9 --&gt; A15[Module A15: Reproducible Research]</span></span>
+<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a><span class="ss"># 4. Giai đoạn 1: Chuẩn bị dữ liệu</span></span>
+<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a><span class="ss">## Research task</span></span>
+<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a><span class="ss">``` text</span></span>
+<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a><span class="ss">Import survey data</span></span>
+<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a><span class="ss">Clean variable names</span></span>
+<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a><span class="ss">Check missing values</span></span>
+<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a><span class="ss">Check variable types</span></span>
+<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a><span class="ss">Create analysis-ready dataset</span></span>
+<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a><span class="ss">## Questions to ask</span></span>
+<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a><span class="ss">- Dataset có bao nhiêu dòng?</span></span>
+<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a><span class="ss">- Có bao nhiêu biến?</span></span>
+<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a><span class="ss">- Biến nào là categorical?</span></span>
+<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a><span class="ss">- Biến nào là numeric?</span></span>
+<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a><span class="ss">- Có missing values không?</span></span>
+<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a><span class="ss">- Có outliers không?</span></span>
+<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a><span class="ss">- Dữ liệu có cần reshape không?</span></span>
+<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a><span class="ss">## Recommended modules</span></span>
+<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module 1. Nhập môn R](module-1.qmd)</span></span>
+<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module 2. Làm sạch dữ liệu](module-2.qmd)</span></span>
+<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A1. Chẩn đoán Thống kê Mô tả](advanced/adv-01-descriptive.qmd)</span></span>
+<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a><span class="ss">## Suggested outputs</span></span>
+<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a><span class="ss">| Output                        | Purpose                     |</span></span>
+<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a><span class="ss">|-------------------------------|-----------------------------|</span></span>
+<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a><span class="ss">| Clean dataset                 | Dữ liệu sẵn sàng phân tích  |</span></span>
+<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a><span class="ss">| Data dictionary               | Mô tả biến                  |</span></span>
+<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a><span class="ss">| Missing value table           | Kiểm tra chất lượng dữ liệu |</span></span>
+<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a><span class="ss">| Descriptive diagnostic report | Báo cáo chẩn đoán ban đầu   |</span></span>
+<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a><span class="ss"># 5. Giai đoạn 2: Hiểu dữ liệu</span></span>
+<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a><span class="ss">## Research task</span></span>
+<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a><span class="ss">``` text</span></span>
+<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a><span class="ss">Describe respondents</span></span>
+<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a><span class="ss">Summarize key variables</span></span>
+<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a><span class="ss">Understand distributions</span></span>
+<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a><span class="ss">Compare basic groups</span></span>
+<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a><span class="ss">## Example questions</span></span>
+<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a><span class="ss">- Sinh viên có mức digital skill trung bình bao nhiêu?</span></span>
+<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a><span class="ss">- Satisfaction có phân phối lệch không?</span></span>
+<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a><span class="ss">- Faculty nào có satisfaction cao hơn?</span></span>
+<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a><span class="ss">- Có nhóm nào có số quan sát quá ít không?</span></span>
+<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a><span class="ss">## Recommended modules</span></span>
+<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module 3. Thống kê mô tả](module-3.qmd)</span></span>
+<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module 6. Trực quan hóa dữ liệu và Viết kết quả](module-6.qmd)</span></span>
+<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A1. Chẩn đoán Thống kê Mô tả](advanced/adv-01-descriptive.qmd)</span></span>
+<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A9. Thư viện Trực quan hóa](advanced/adv-09-visualization.qmd)</span></span>
+<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a><span class="ss">## Suggested figures</span></span>
+<span id="cb10-218"><a href="#cb10-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a><span class="ss">| Question                             | Figure              |</span></span>
+<span id="cb10-220"><a href="#cb10-220" aria-hidden="true" tabindex="-1"></a><span class="ss">|--------------------------------------|---------------------|</span></span>
+<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a><span class="ss">| Satisfaction phân phối ra sao?       | Histogram / Density |</span></span>
+<span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a><span class="ss">| Satisfaction khác nhau theo faculty? | Boxplot / Violin    |</span></span>
+<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a><span class="ss">| Likert items phân bố thế nào?        | Likert stacked bar  |</span></span>
+<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a><span class="ss">| Missing values ở đâu?                | Missingness plot    |</span></span>
+<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a><span class="ss"># 6. Giai đoạn 3: Kiểm tra quan hệ giữa các biến</span></span>
+<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a><span class="ss">## Research task</span></span>
+<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a><span class="ss">``` text</span></span>
+<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a><span class="ss">Explore correlations</span></span>
+<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a><span class="ss">Build regression models</span></span>
+<span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a><span class="ss">Interpret predictors</span></span>
+<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a><span class="ss">Check assumptions</span></span>
+<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a><span class="ss">## Example hypotheses</span></span>
+<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a><span class="ss">| Hypothesis | Statement                                       |</span></span>
+<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a><span class="ss">|------------|-------------------------------------------------|</span></span>
+<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a><span class="ss">| H1         | Digital skill positively affects satisfaction   |</span></span>
+<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a><span class="ss">| H2         | Ease of use positively affects satisfaction     |</span></span>
+<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a><span class="ss">| H3         | Usefulness positively affects satisfaction      |</span></span>
+<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a><span class="ss">| H4         | Satisfaction increases recommendation intention |</span></span>
+<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a><span class="ss">## Recommended modules</span></span>
+<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module 4. Tương quan và Hồi quy](module-4.qmd)</span></span>
+<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A2. Hồi quy Nâng cao](advanced/adv-02-regression.qmd)</span></span>
+<span id="cb10-250"><a href="#cb10-250" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A3. Hồi quy Chính quy hóa](advanced/adv-03-regularized.qmd)</span></span>
+<span id="cb10-251"><a href="#cb10-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a><span class="ss">## Model choice</span></span>
+<span id="cb10-253"><a href="#cb10-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-254"><a href="#cb10-254" aria-hidden="true" tabindex="-1"></a><span class="ss">| Outcome                  | Recommended method          |</span></span>
+<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a><span class="ss">|--------------------------|-----------------------------|</span></span>
+<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a><span class="ss">| Satisfaction as numeric  | Linear regression           |</span></span>
+<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a><span class="ss">| Recommendation as yes/no | Logistic regression         |</span></span>
+<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a><span class="ss">| Many predictors          | Ridge / LASSO / Elastic Net |</span></span>
+<span id="cb10-259"><a href="#cb10-259" aria-hidden="true" tabindex="-1"></a><span class="ss">| Nonlinear prediction     | Machine learning            |</span></span>
+<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-261"><a href="#cb10-261" aria-hidden="true" tabindex="-1"></a><span class="ss"># 7. Giai đoạn 4: Xây dựng mô hình lý thuyết</span></span>
+<span id="cb10-262"><a href="#cb10-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-263"><a href="#cb10-263" aria-hidden="true" tabindex="-1"></a><span class="ss">## Conceptual model</span></span>
+<span id="cb10-264"><a href="#cb10-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-267"><a href="#cb10-267" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb10-268"><a href="#cb10-268" aria-hidden="true" tabindex="-1"></a><span class="ss">flowchart LR</span></span>
+<span id="cb10-269"><a href="#cb10-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-270"><a href="#cb10-270" aria-hidden="true" tabindex="-1"></a><span class="ss">A[Ease of Use]</span></span>
+<span id="cb10-271"><a href="#cb10-271" aria-hidden="true" tabindex="-1"></a><span class="ss">--&gt; B[Usefulness]</span></span>
+<span id="cb10-272"><a href="#cb10-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-273"><a href="#cb10-273" aria-hidden="true" tabindex="-1"></a><span class="ss">B --&gt; C[Satisfaction]</span></span>
+<span id="cb10-274"><a href="#cb10-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-275"><a href="#cb10-275" aria-hidden="true" tabindex="-1"></a><span class="ss">A --&gt; C</span></span>
+<span id="cb10-276"><a href="#cb10-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-277"><a href="#cb10-277" aria-hidden="true" tabindex="-1"></a><span class="ss">C --&gt; D[Recommendation Intention]</span></span>
+<span id="cb10-278"><a href="#cb10-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-279"><a href="#cb10-279" aria-hidden="true" tabindex="-1"></a><span class="ss">E[Digital Skill] --&gt; A</span></span>
+<span id="cb10-280"><a href="#cb10-280" aria-hidden="true" tabindex="-1"></a><span class="ss">E --&gt; B</span></span>
+<span id="cb10-281"><a href="#cb10-281" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-282"><a href="#cb10-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-283"><a href="#cb10-283" aria-hidden="true" tabindex="-1"></a><span class="ss">## Research task</span></span>
+<span id="cb10-284"><a href="#cb10-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-285"><a href="#cb10-285" aria-hidden="true" tabindex="-1"></a><span class="ss">``` text</span></span>
+<span id="cb10-286"><a href="#cb10-286" aria-hidden="true" tabindex="-1"></a><span class="ss">Define constructs</span></span>
+<span id="cb10-287"><a href="#cb10-287" aria-hidden="true" tabindex="-1"></a><span class="ss">Check reliability</span></span>
+<span id="cb10-288"><a href="#cb10-288" aria-hidden="true" tabindex="-1"></a><span class="ss">Check validity</span></span>
+<span id="cb10-289"><a href="#cb10-289" aria-hidden="true" tabindex="-1"></a><span class="ss">Estimate structural paths</span></span>
+<span id="cb10-290"><a href="#cb10-290" aria-hidden="true" tabindex="-1"></a><span class="ss">Report model results</span></span>
+<span id="cb10-291"><a href="#cb10-291" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-292"><a href="#cb10-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-293"><a href="#cb10-293" aria-hidden="true" tabindex="-1"></a><span class="ss">## Recommended modules</span></span>
+<span id="cb10-294"><a href="#cb10-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-295"><a href="#cb10-295" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module 5. PLS-SEM](module-5.qmd)</span></span>
+<span id="cb10-296"><a href="#cb10-296" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A4. Mô hình Phương trình Cấu trúc Nâng cao](advanced/adv-04-sem.qmd)</span></span>
+<span id="cb10-297"><a href="#cb10-297" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A8. Phân tích Likert Nâng cao](advanced/adv-08-likert.qmd)</span></span>
+<span id="cb10-298"><a href="#cb10-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-299"><a href="#cb10-299" aria-hidden="true" tabindex="-1"></a><span class="ss">## Suggested outputs</span></span>
+<span id="cb10-300"><a href="#cb10-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-301"><a href="#cb10-301" aria-hidden="true" tabindex="-1"></a><span class="ss">| Output                 | Purpose                                  |</span></span>
+<span id="cb10-302"><a href="#cb10-302" aria-hidden="true" tabindex="-1"></a><span class="ss">|------------------------|------------------------------------------|</span></span>
+<span id="cb10-303"><a href="#cb10-303" aria-hidden="true" tabindex="-1"></a><span class="ss">| Reliability table      | Cronbach</span><span class="ot">'</span>s Alpha / Composite Reliability |</span>
+<span id="cb10-304"><a href="#cb10-304" aria-hidden="true" tabindex="-1"></a>| Validity table         | AVE / discriminant validity              |</span>
+<span id="cb10-305"><a href="#cb10-305" aria-hidden="true" tabindex="-1"></a>| Path coefficient table | Hypothesis testing                       |</span>
+<span id="cb10-306"><a href="#cb10-306" aria-hidden="true" tabindex="-1"></a>| SEM diagram            | Visual model presentation                |</span>
+<span id="cb10-307"><a href="#cb10-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-308"><a href="#cb10-308" aria-hidden="true" tabindex="-1"></a><span class="co"># 8. Giai đoạn 5: Phân tích nâng cao</span></span>
+<span id="cb10-309"><a href="#cb10-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-310"><a href="#cb10-310" aria-hidden="true" tabindex="-1"></a><span class="co">## Khi nào cần advanced analytics?</span></span>
+<span id="cb10-311"><a href="#cb10-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-312"><a href="#cb10-312" aria-hidden="true" tabindex="-1"></a>| Problem | Recommended method | Module |</span>
+<span id="cb10-313"><a href="#cb10-313" aria-hidden="true" tabindex="-1"></a>|------------------------|------------------------|------------------------|</span>
+<span id="cb10-314"><a href="#cb10-314" aria-hidden="true" tabindex="-1"></a>| Có quá nhiều predictors | Regularized regression | [Module A3](advanced/adv<span class="bn">-03</span>-regularized.qmd) |</span>
+<span id="cb10-315"><a href="#cb10-315" aria-hidden="true" tabindex="-1"></a>| Muốn diễn giải xác suất posterior | Bayesian statistics | [Module A5](advanced/adv<span class="bn">-05</span>-bayesian.qmd) |</span>
+<span id="cb10-316"><a href="#cb10-316" aria-hidden="true" tabindex="-1"></a>| Muốn kiểm tra độ ổn định kết quả | Monte Carlo simulation | [Module A6](advanced/adv<span class="bn">-06</span>-monte-carlo.qmd) |</span>
+<span id="cb10-317"><a href="#cb10-317" aria-hidden="true" tabindex="-1"></a>| Kết quả tổng thể khác theo nhóm | Simpson<span class="ot">'</span><span class="ss">s Paradox | [Module A7](advanced/adv-07-simpson.qmd) |</span></span>
+<span id="cb10-318"><a href="#cb10-318" aria-hidden="true" tabindex="-1"></a><span class="ss">| Dữ liệu Likert nhiều item | Advanced Likert analysis | [Module A8](advanced/adv-08-likert.qmd) |</span></span>
+<span id="cb10-319"><a href="#cb10-319" aria-hidden="true" tabindex="-1"></a><span class="ss">| Dữ liệu phân cấp/lặp lại | Mixed models | [Module A14](advanced/adv-14-mixed-models.qmd) |</span></span>
+<span id="cb10-320"><a href="#cb10-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-321"><a href="#cb10-321" aria-hidden="true" tabindex="-1"></a><span class="ss">## Advanced decision tree</span></span>
+<span id="cb10-322"><a href="#cb10-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-325"><a href="#cb10-325" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb10-326"><a href="#cb10-326" aria-hidden="true" tabindex="-1"></a><span class="ss">flowchart TD</span></span>
+<span id="cb10-327"><a href="#cb10-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-328"><a href="#cb10-328" aria-hidden="true" tabindex="-1"></a><span class="ss">A[Do you need advanced analysis?]</span></span>
+<span id="cb10-329"><a href="#cb10-329" aria-hidden="true" tabindex="-1"></a><span class="ss">--&gt; B{Main challenge?}</span></span>
+<span id="cb10-330"><a href="#cb10-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-331"><a href="#cb10-331" aria-hidden="true" tabindex="-1"></a><span class="ss">B --&gt;|Many predictors| C[Module A3: Regularized Regression]</span></span>
+<span id="cb10-332"><a href="#cb10-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-333"><a href="#cb10-333" aria-hidden="true" tabindex="-1"></a><span class="ss">B --&gt;|Uncertainty| D[Module A5 or A6]</span></span>
+<span id="cb10-334"><a href="#cb10-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-335"><a href="#cb10-335" aria-hidden="true" tabindex="-1"></a><span class="ss">B --&gt;|Grouped patterns| E[Module A7]</span></span>
+<span id="cb10-336"><a href="#cb10-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-337"><a href="#cb10-337" aria-hidden="true" tabindex="-1"></a><span class="ss">B --&gt;|Likert survey| F[Module A8]</span></span>
+<span id="cb10-338"><a href="#cb10-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-339"><a href="#cb10-339" aria-hidden="true" tabindex="-1"></a><span class="ss">B --&gt;|Nested or repeated data| G[Module A14]</span></span>
+<span id="cb10-340"><a href="#cb10-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-341"><a href="#cb10-341" aria-hidden="true" tabindex="-1"></a><span class="ss">B --&gt;|Publication-ready figures| H[Module A9]</span></span>
+<span id="cb10-342"><a href="#cb10-342" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-343"><a href="#cb10-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-344"><a href="#cb10-344" aria-hidden="true" tabindex="-1"></a><span class="ss"># 9. Giai đoạn 6: Literature and evidence synthesis</span></span>
+<span id="cb10-345"><a href="#cb10-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-346"><a href="#cb10-346" aria-hidden="true" tabindex="-1"></a><span class="ss">## Research task</span></span>
+<span id="cb10-347"><a href="#cb10-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-348"><a href="#cb10-348" aria-hidden="true" tabindex="-1"></a><span class="ss">``` text</span></span>
+<span id="cb10-349"><a href="#cb10-349" aria-hidden="true" tabindex="-1"></a><span class="ss">Map the literature</span></span>
+<span id="cb10-350"><a href="#cb10-350" aria-hidden="true" tabindex="-1"></a><span class="ss">Identify key themes</span></span>
+<span id="cb10-351"><a href="#cb10-351" aria-hidden="true" tabindex="-1"></a><span class="ss">Synthesize prior evidence</span></span>
+<span id="cb10-352"><a href="#cb10-352" aria-hidden="true" tabindex="-1"></a><span class="ss">Position the study</span></span>
+<span id="cb10-353"><a href="#cb10-353" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-354"><a href="#cb10-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-355"><a href="#cb10-355" aria-hidden="true" tabindex="-1"></a><span class="ss">## Khi nào dùng bibliometric analysis?</span></span>
+<span id="cb10-356"><a href="#cb10-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-357"><a href="#cb10-357" aria-hidden="true" tabindex="-1"></a><span class="ss">Dùng khi muốn trả lời:</span></span>
+<span id="cb10-358"><a href="#cb10-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-359"><a href="#cb10-359" aria-hidden="true" tabindex="-1"></a><span class="ss">- Lĩnh vực phát triển ra sao?</span></span>
+<span id="cb10-360"><a href="#cb10-360" aria-hidden="true" tabindex="-1"></a><span class="ss">- Tác giả nào nổi bật?</span></span>
+<span id="cb10-361"><a href="#cb10-361" aria-hidden="true" tabindex="-1"></a><span class="ss">- Tạp chí nào quan trọng?</span></span>
+<span id="cb10-362"><a href="#cb10-362" aria-hidden="true" tabindex="-1"></a><span class="ss">- Từ khóa nào đang nổi lên?</span></span>
+<span id="cb10-363"><a href="#cb10-363" aria-hidden="true" tabindex="-1"></a><span class="ss">- Chủ đề nào là motor themes?</span></span>
+<span id="cb10-364"><a href="#cb10-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-365"><a href="#cb10-365" aria-hidden="true" tabindex="-1"></a><span class="ss">## Khi nào dùng meta-analysis?</span></span>
+<span id="cb10-366"><a href="#cb10-366" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-367"><a href="#cb10-367" aria-hidden="true" tabindex="-1"></a><span class="ss">Dùng khi muốn trả lời:</span></span>
+<span id="cb10-368"><a href="#cb10-368" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-369"><a href="#cb10-369" aria-hidden="true" tabindex="-1"></a><span class="ss">- Hiệu ứng trung bình từ nhiều nghiên cứu là bao nhiêu?</span></span>
+<span id="cb10-370"><a href="#cb10-370" aria-hidden="true" tabindex="-1"></a><span class="ss">- Có heterogeneity không?</span></span>
+<span id="cb10-371"><a href="#cb10-371" aria-hidden="true" tabindex="-1"></a><span class="ss">- Có publication bias không?</span></span>
+<span id="cb10-372"><a href="#cb10-372" aria-hidden="true" tabindex="-1"></a><span class="ss">- Moderator nào giải thích khác biệt giữa nghiên cứu?</span></span>
+<span id="cb10-373"><a href="#cb10-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-374"><a href="#cb10-374" aria-hidden="true" tabindex="-1"></a><span class="ss">## Recommended modules</span></span>
+<span id="cb10-375"><a href="#cb10-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-376"><a href="#cb10-376" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A11. Phân tích Tổng hợp](advanced/adv-11-meta-analysis.qmd)</span></span>
+<span id="cb10-377"><a href="#cb10-377" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A12. Phân tích Trắc lượng Thư mục](advanced/adv-12-bibliometric.qmd)</span></span>
+<span id="cb10-378"><a href="#cb10-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-379"><a href="#cb10-379" aria-hidden="true" tabindex="-1"></a><span class="ss"># 10. Giai đoạn 7: Báo cáo và công bố</span></span>
+<span id="cb10-380"><a href="#cb10-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-381"><a href="#cb10-381" aria-hidden="true" tabindex="-1"></a><span class="ss">## Research task</span></span>
+<span id="cb10-382"><a href="#cb10-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-383"><a href="#cb10-383" aria-hidden="true" tabindex="-1"></a><span class="ss">``` text</span></span>
+<span id="cb10-384"><a href="#cb10-384" aria-hidden="true" tabindex="-1"></a><span class="ss">Create tables</span></span>
+<span id="cb10-385"><a href="#cb10-385" aria-hidden="true" tabindex="-1"></a><span class="ss">Create figures</span></span>
+<span id="cb10-386"><a href="#cb10-386" aria-hidden="true" tabindex="-1"></a><span class="ss">Write interpretation</span></span>
+<span id="cb10-387"><a href="#cb10-387" aria-hidden="true" tabindex="-1"></a><span class="ss">Build Quarto report</span></span>
+<span id="cb10-388"><a href="#cb10-388" aria-hidden="true" tabindex="-1"></a><span class="ss">Render HTML/PDF/website</span></span>
+<span id="cb10-389"><a href="#cb10-389" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-390"><a href="#cb10-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-391"><a href="#cb10-391" aria-hidden="true" tabindex="-1"></a><span class="ss">## Recommended modules</span></span>
+<span id="cb10-392"><a href="#cb10-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-393"><a href="#cb10-393" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module 6. Trực quan hóa dữ liệu và Viết kết quả](module-6.qmd)</span></span>
+<span id="cb10-394"><a href="#cb10-394" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A9. Thư viện Trực quan hóa](advanced/adv-09-visualization.qmd)</span></span>
+<span id="cb10-395"><a href="#cb10-395" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật](advanced/adv-15-reproducible.qmd)</span></span>
+<span id="cb10-396"><a href="#cb10-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-397"><a href="#cb10-397" aria-hidden="true" tabindex="-1"></a><span class="ss">## Final research output</span></span>
+<span id="cb10-398"><a href="#cb10-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-401"><a href="#cb10-401" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb10-402"><a href="#cb10-402" aria-hidden="true" tabindex="-1"></a><span class="ss">flowchart LR</span></span>
+<span id="cb10-403"><a href="#cb10-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-404"><a href="#cb10-404" aria-hidden="true" tabindex="-1"></a><span class="ss">A[Clean Data]</span></span>
+<span id="cb10-405"><a href="#cb10-405" aria-hidden="true" tabindex="-1"></a><span class="ss">--&gt; B[Tables]</span></span>
+<span id="cb10-406"><a href="#cb10-406" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-407"><a href="#cb10-407" aria-hidden="true" tabindex="-1"></a><span class="ss">A --&gt; C[Figures]</span></span>
+<span id="cb10-408"><a href="#cb10-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-409"><a href="#cb10-409" aria-hidden="true" tabindex="-1"></a><span class="ss">B --&gt; D[Quarto Report]</span></span>
+<span id="cb10-410"><a href="#cb10-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-411"><a href="#cb10-411" aria-hidden="true" tabindex="-1"></a><span class="ss">C --&gt; D</span></span>
+<span id="cb10-412"><a href="#cb10-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-413"><a href="#cb10-413" aria-hidden="true" tabindex="-1"></a><span class="ss">D --&gt; E[HTML Report]</span></span>
+<span id="cb10-414"><a href="#cb10-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-415"><a href="#cb10-415" aria-hidden="true" tabindex="-1"></a><span class="ss">D --&gt; F[PDF Report]</span></span>
+<span id="cb10-416"><a href="#cb10-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-417"><a href="#cb10-417" aria-hidden="true" tabindex="-1"></a><span class="ss">D --&gt; G[Website]</span></span>
+<span id="cb10-418"><a href="#cb10-418" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-419"><a href="#cb10-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-420"><a href="#cb10-420" aria-hidden="true" tabindex="-1"></a><span class="ss"># 11. Method selection guide</span></span>
+<span id="cb10-421"><a href="#cb10-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-422"><a href="#cb10-422" aria-hidden="true" tabindex="-1"></a><span class="ss">## Choose method by research goal</span></span>
+<span id="cb10-423"><a href="#cb10-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-424"><a href="#cb10-424" aria-hidden="true" tabindex="-1"></a><span class="ss">| Research goal | Recommended method | Module |</span></span>
+<span id="cb10-425"><a href="#cb10-425" aria-hidden="true" tabindex="-1"></a><span class="ss">|------------------------|------------------------|------------------------|</span></span>
+<span id="cb10-426"><a href="#cb10-426" aria-hidden="true" tabindex="-1"></a><span class="ss">| Describe data | Descriptive statistics | [Module 3](module-3.qmd) |</span></span>
+<span id="cb10-427"><a href="#cb10-427" aria-hidden="true" tabindex="-1"></a><span class="ss">| Diagnose data quality | Descriptive diagnostics | [Module A1](advanced/adv-01-descriptive.qmd) |</span></span>
+<span id="cb10-428"><a href="#cb10-428" aria-hidden="true" tabindex="-1"></a><span class="ss">| Visualize patterns | ggplot2 | [Module 6](module-6.qmd), [Module A9](advanced/adv-09-visualization.qmd) |</span></span>
+<span id="cb10-429"><a href="#cb10-429" aria-hidden="true" tabindex="-1"></a><span class="ss">| Test relationship | Correlation / Regression | [Module 4](module-4.qmd), [Module A2](advanced/adv-02-regression.qmd) |</span></span>
+<span id="cb10-430"><a href="#cb10-430" aria-hidden="true" tabindex="-1"></a><span class="ss">| Predict outcome | Regression / ML | [Module A3](advanced/adv-03-regularized.qmd) |</span></span>
+<span id="cb10-431"><a href="#cb10-431" aria-hidden="true" tabindex="-1"></a><span class="ss">| Model constructs | PLS-SEM / SEM | [Module 5](module-5.qmd), [Module A4](advanced/adv-04-sem.qmd) |</span></span>
+<span id="cb10-432"><a href="#cb10-432" aria-hidden="true" tabindex="-1"></a><span class="ss">| Compare groups | ANOVA | [Module A13](advanced/adv-13-anova.qmd) |</span></span>
+<span id="cb10-433"><a href="#cb10-433" aria-hidden="true" tabindex="-1"></a><span class="ss">| Analyze repeated data | Mixed models | [Module A14](advanced/adv-14-mixed-models.qmd) |</span></span>
+<span id="cb10-434"><a href="#cb10-434" aria-hidden="true" tabindex="-1"></a><span class="ss">| Analyze Likert items | Likert analysis | [Module A8](advanced/adv-08-likert.qmd) |</span></span>
+<span id="cb10-435"><a href="#cb10-435" aria-hidden="true" tabindex="-1"></a><span class="ss">| Simulate uncertainty | Monte Carlo | [Module A6](advanced/adv-06-monte-carlo.qmd) |</span></span>
+<span id="cb10-436"><a href="#cb10-436" aria-hidden="true" tabindex="-1"></a><span class="ss">| Synthesize evidence | Meta-analysis | [Module A11](advanced/adv-11-meta-analysis.qmd) |</span></span>
+<span id="cb10-437"><a href="#cb10-437" aria-hidden="true" tabindex="-1"></a><span class="ss">| Map literature | Bibliometric analysis | [Module A12](advanced/adv-12-bibliometric.qmd) |</span></span>
+<span id="cb10-438"><a href="#cb10-438" aria-hidden="true" tabindex="-1"></a><span class="ss">| Report reproducibly | Quarto | [Module A15](advanced/adv-15-reproducible.qmd) |</span></span>
+<span id="cb10-439"><a href="#cb10-439" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-440"><a href="#cb10-440" aria-hidden="true" tabindex="-1"></a><span class="ss"># 12. Figure selection guide</span></span>
+<span id="cb10-441"><a href="#cb10-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-442"><a href="#cb10-442" aria-hidden="true" tabindex="-1"></a><span class="ss">| Data question | Recommended figure | Module |</span></span>
+<span id="cb10-443"><a href="#cb10-443" aria-hidden="true" tabindex="-1"></a><span class="ss">|------------------------|------------------------|------------------------|</span></span>
+<span id="cb10-444"><a href="#cb10-444" aria-hidden="true" tabindex="-1"></a><span class="ss">| One numeric variable | Histogram / Density | [Module A9](advanced/adv-09-visualization.qmd) |</span></span>
+<span id="cb10-445"><a href="#cb10-445" aria-hidden="true" tabindex="-1"></a><span class="ss">| Numeric by group | Boxplot / Violin | [Module A9](advanced/adv-09-visualization.qmd) |</span></span>
+<span id="cb10-446"><a href="#cb10-446" aria-hidden="true" tabindex="-1"></a><span class="ss">| Two numeric variables | Scatter plot | [Module A9](advanced/adv-09-visualization.qmd) |</span></span>
+<span id="cb10-447"><a href="#cb10-447" aria-hidden="true" tabindex="-1"></a><span class="ss">| Time trend | Line plot | [Module A9](advanced/adv-09-visualization.qmd) |</span></span>
+<span id="cb10-448"><a href="#cb10-448" aria-hidden="true" tabindex="-1"></a><span class="ss">| Likert items | Likert stacked / Diverging | [Module A8](advanced/adv-08-likert.qmd) |</span></span>
+<span id="cb10-449"><a href="#cb10-449" aria-hidden="true" tabindex="-1"></a><span class="ss">| Many variables | Heatmap / PCA | [Module A9](advanced/adv-09-visualization.qmd) |</span></span>
+<span id="cb10-450"><a href="#cb10-450" aria-hidden="true" tabindex="-1"></a><span class="ss">| Meta-analysis | Forest plot / Funnel plot | [Module A11](advanced/adv-11-meta-analysis.qmd) |</span></span>
+<span id="cb10-451"><a href="#cb10-451" aria-hidden="true" tabindex="-1"></a><span class="ss">| Bibliometric | Keyword map / Thematic map | [Module A12](advanced/adv-12-bibliometric.qmd) |</span></span>
+<span id="cb10-452"><a href="#cb10-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-453"><a href="#cb10-453" aria-hidden="true" tabindex="-1"></a><span class="ss"># 13. Table selection guide</span></span>
+<span id="cb10-454"><a href="#cb10-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-455"><a href="#cb10-455" aria-hidden="true" tabindex="-1"></a><span class="ss">| Table | Purpose | Module |</span></span>
+<span id="cb10-456"><a href="#cb10-456" aria-hidden="true" tabindex="-1"></a><span class="ss">|------------------------|------------------------|------------------------|</span></span>
+<span id="cb10-457"><a href="#cb10-457" aria-hidden="true" tabindex="-1"></a><span class="ss">| Table 1 | Sample characteristics | [Module 3](module-3.qmd) |</span></span>
+<span id="cb10-458"><a href="#cb10-458" aria-hidden="true" tabindex="-1"></a><span class="ss">| Table 2 | Descriptive statistics | [Module 3](module-3.qmd) |</span></span>
+<span id="cb10-459"><a href="#cb10-459" aria-hidden="true" tabindex="-1"></a><span class="ss">| Table 3 | Correlation matrix | [Module 4](module-4.qmd) |</span></span>
+<span id="cb10-460"><a href="#cb10-460" aria-hidden="true" tabindex="-1"></a><span class="ss">| Table 4 | Regression table | [Module A2](advanced/adv-02-regression.qmd) |</span></span>
+<span id="cb10-461"><a href="#cb10-461" aria-hidden="true" tabindex="-1"></a><span class="ss">| Table 5 | Reliability and validity | [Module 5](module-5.qmd) |</span></span>
+<span id="cb10-462"><a href="#cb10-462" aria-hidden="true" tabindex="-1"></a><span class="ss">| Table 6 | SEM path coefficients | [Module A4](advanced/adv-04-sem.qmd) |</span></span>
+<span id="cb10-463"><a href="#cb10-463" aria-hidden="true" tabindex="-1"></a><span class="ss">| Table 7 | ANOVA results | [Module A13](advanced/adv-13-anova.qmd) |</span></span>
+<span id="cb10-464"><a href="#cb10-464" aria-hidden="true" tabindex="-1"></a><span class="ss">| Table 8 | Mixed model results | [Module A14](advanced/adv-14-mixed-models.qmd) |</span></span>
+<span id="cb10-465"><a href="#cb10-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-466"><a href="#cb10-466" aria-hidden="true" tabindex="-1"></a><span class="ss"># 14. Capstone workflow</span></span>
+<span id="cb10-467"><a href="#cb10-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-468"><a href="#cb10-468" aria-hidden="true" tabindex="-1"></a><span class="ss">::: callout-important</span></span>
+<span id="cb10-469"><a href="#cb10-469" aria-hidden="true" tabindex="-1"></a><span class="ss">Người học nên kết thúc khóa học bằng một **Research Analytics Portfolio**.</span></span>
+<span id="cb10-470"><a href="#cb10-470" aria-hidden="true" tabindex="-1"></a><span class="ss">:::</span></span>
+<span id="cb10-471"><a href="#cb10-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-472"><a href="#cb10-472" aria-hidden="true" tabindex="-1"></a><span class="ss">## Capstone project structure</span></span>
+<span id="cb10-473"><a href="#cb10-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-474"><a href="#cb10-474" aria-hidden="true" tabindex="-1"></a><span class="ss">``` text</span></span>
+<span id="cb10-475"><a href="#cb10-475" aria-hidden="true" tabindex="-1"></a><span class="ss">Research Question</span></span>
+<span id="cb10-476"><a href="#cb10-476" aria-hidden="true" tabindex="-1"></a><span class="ss">↓</span></span>
+<span id="cb10-477"><a href="#cb10-477" aria-hidden="true" tabindex="-1"></a><span class="ss">Dataset</span></span>
+<span id="cb10-478"><a href="#cb10-478" aria-hidden="true" tabindex="-1"></a><span class="ss">↓</span></span>
+<span id="cb10-479"><a href="#cb10-479" aria-hidden="true" tabindex="-1"></a><span class="ss">Data Cleaning</span></span>
+<span id="cb10-480"><a href="#cb10-480" aria-hidden="true" tabindex="-1"></a><span class="ss">↓</span></span>
+<span id="cb10-481"><a href="#cb10-481" aria-hidden="true" tabindex="-1"></a><span class="ss">Descriptive Analysis</span></span>
+<span id="cb10-482"><a href="#cb10-482" aria-hidden="true" tabindex="-1"></a><span class="ss">↓</span></span>
+<span id="cb10-483"><a href="#cb10-483" aria-hidden="true" tabindex="-1"></a><span class="ss">Visualization</span></span>
+<span id="cb10-484"><a href="#cb10-484" aria-hidden="true" tabindex="-1"></a><span class="ss">↓</span></span>
+<span id="cb10-485"><a href="#cb10-485" aria-hidden="true" tabindex="-1"></a><span class="ss">Main Model</span></span>
+<span id="cb10-486"><a href="#cb10-486" aria-hidden="true" tabindex="-1"></a><span class="ss">↓</span></span>
+<span id="cb10-487"><a href="#cb10-487" aria-hidden="true" tabindex="-1"></a><span class="ss">Advanced Analysis</span></span>
+<span id="cb10-488"><a href="#cb10-488" aria-hidden="true" tabindex="-1"></a><span class="ss">↓</span></span>
+<span id="cb10-489"><a href="#cb10-489" aria-hidden="true" tabindex="-1"></a><span class="ss">Tables and Figures</span></span>
+<span id="cb10-490"><a href="#cb10-490" aria-hidden="true" tabindex="-1"></a><span class="ss">↓</span></span>
+<span id="cb10-491"><a href="#cb10-491" aria-hidden="true" tabindex="-1"></a><span class="ss">Quarto Report</span></span>
+<span id="cb10-492"><a href="#cb10-492" aria-hidden="true" tabindex="-1"></a><span class="ss">↓</span></span>
+<span id="cb10-493"><a href="#cb10-493" aria-hidden="true" tabindex="-1"></a><span class="ss">Final Presentation</span></span>
+<span id="cb10-494"><a href="#cb10-494" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span></span>
+<span id="cb10-495"><a href="#cb10-495" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-496"><a href="#cb10-496" aria-hidden="true" tabindex="-1"></a><span class="ss">## Required outputs</span></span>
+<span id="cb10-497"><a href="#cb10-497" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-498"><a href="#cb10-498" aria-hidden="true" tabindex="-1"></a><span class="ss">| Output               | Description          |</span></span>
+<span id="cb10-499"><a href="#cb10-499" aria-hidden="true" tabindex="-1"></a><span class="ss">|----------------------|----------------------|</span></span>
+<span id="cb10-500"><a href="#cb10-500" aria-hidden="true" tabindex="-1"></a><span class="ss">| Clean dataset        | Dữ liệu đã xử lý     |</span></span>
+<span id="cb10-501"><a href="#cb10-501" aria-hidden="true" tabindex="-1"></a><span class="ss">| Data dictionary      | Mô tả biến           |</span></span>
+<span id="cb10-502"><a href="#cb10-502" aria-hidden="true" tabindex="-1"></a><span class="ss">| Descriptive table    | Bảng thống kê mô tả  |</span></span>
+<span id="cb10-503"><a href="#cb10-503" aria-hidden="true" tabindex="-1"></a><span class="ss">| Main figure          | Hình chính           |</span></span>
+<span id="cb10-504"><a href="#cb10-504" aria-hidden="true" tabindex="-1"></a><span class="ss">| Regression/SEM table | Bảng mô hình         |</span></span>
+<span id="cb10-505"><a href="#cb10-505" aria-hidden="true" tabindex="-1"></a><span class="ss">| Interpretation       | Diễn giải học thuật  |</span></span>
+<span id="cb10-506"><a href="#cb10-506" aria-hidden="true" tabindex="-1"></a><span class="ss">| Quarto report        | Báo cáo tái lập      |</span></span>
+<span id="cb10-507"><a href="#cb10-507" aria-hidden="true" tabindex="-1"></a><span class="ss">| Website page         | Trang báo cáo online |</span></span>
+<span id="cb10-508"><a href="#cb10-508" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-509"><a href="#cb10-509" aria-hidden="true" tabindex="-1"></a><span class="ss"># 15. Recommended resources</span></span>
+<span id="cb10-510"><a href="#cb10-510" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-511"><a href="#cb10-511" aria-hidden="true" tabindex="-1"></a><span class="ss">## Internal resources</span></span>
+<span id="cb10-512"><a href="#cb10-512" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-513"><a href="#cb10-513" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Resources](resources.qmd)</span></span>
+<span id="cb10-514"><a href="#cb10-514" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Glossary](glossary.qmd)</span></span>
+<span id="cb10-515"><a href="#cb10-515" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Learning Roadmap](roadmap.qmd)</span></span>
+<span id="cb10-516"><a href="#cb10-516" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-517"><a href="#cb10-517" aria-hidden="true" tabindex="-1"></a><span class="ss">## Recommended books</span></span>
+<span id="cb10-518"><a href="#cb10-518" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-519"><a href="#cb10-519" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Statistics for Business and Economics](resources/Books/Statistics%20for%20Business%20and%20economics.pdf)</span></span>
+<span id="cb10-520"><a href="#cb10-520" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Psychometrics](resources/Books/Psychometrics.pdf)</span></span>
+<span id="cb10-521"><a href="#cb10-521" aria-hidden="true" tabindex="-1"></a><span class="ss">- [R with ggplot2 Using Shiny App](resources/Books/R%20with%20ggplot2%20Using%20Shiny%20App.pdf)</span></span>
+<span id="cb10-522"><a href="#cb10-522" aria-hidden="true" tabindex="-1"></a><span class="ss">- [R for Marketing](resources/Books/R%20for%20Marketing.pdf)</span></span>
+<span id="cb10-523"><a href="#cb10-523" aria-hidden="true" tabindex="-1"></a><span class="ss">- [R for Random Forest](resources/Books/R%20for%20random%20forest.pdf)</span></span>
+<span id="cb10-524"><a href="#cb10-524" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-525"><a href="#cb10-525" aria-hidden="true" tabindex="-1"></a><span class="ss"># 16. Final research checklist</span></span>
+<span id="cb10-526"><a href="#cb10-526" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-527"><a href="#cb10-527" aria-hidden="true" tabindex="-1"></a><span class="ss">::: callout-success</span></span>
+<span id="cb10-528"><a href="#cb10-528" aria-hidden="true" tabindex="-1"></a><span class="ss">Trước khi hoàn thành một dự án nghiên cứu, hãy kiểm tra:</span></span>
+<span id="cb10-529"><a href="#cb10-529" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-530"><a href="#cb10-530" aria-hidden="true" tabindex="-1"></a><span class="ss">- Câu hỏi nghiên cứu rõ ràng.</span></span>
+<span id="cb10-531"><a href="#cb10-531" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-532"><a href="#cb10-532" aria-hidden="true" tabindex="-1"></a><span class="ss">- Bộ dữ liệu sạch.</span></span>
+<span id="cb10-533"><a href="#cb10-533" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-534"><a href="#cb10-534" aria-hidden="true" tabindex="-1"></a><span class="ss">- Các biến được ghi chép đầy đủ.</span></span>
+<span id="cb10-535"><a href="#cb10-535" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-536"><a href="#cb10-536" aria-hidden="true" tabindex="-1"></a><span class="ss">- Thống kê mô tả được báo cáo.</span></span>
+<span id="cb10-537"><a href="#cb10-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-538"><a href="#cb10-538" aria-hidden="true" tabindex="-1"></a><span class="ss">- Hình ảnh phù hợp.</span></span>
+<span id="cb10-539"><a href="#cb10-539" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-540"><a href="#cb10-540" aria-hidden="true" tabindex="-1"></a><span class="ss">- Mô hình chính phù hợp với câu hỏi nghiên cứu.</span></span>
+<span id="cb10-541"><a href="#cb10-541" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-542"><a href="#cb10-542" aria-hidden="true" tabindex="-1"></a><span class="ss">- Các giả định hoặc chẩn đoán được kiểm tra.</span></span>
+<span id="cb10-543"><a href="#cb10-543" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-544"><a href="#cb10-544" aria-hidden="true" tabindex="-1"></a><span class="ss">- Kết quả được diễn giải cẩn thận.</span></span>
+<span id="cb10-545"><a href="#cb10-545" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-546"><a href="#cb10-546" aria-hidden="true" tabindex="-1"></a><span class="ss">- Bảng và hình ảnh sẵn sàng để xuất bản.</span></span>
+<span id="cb10-547"><a href="#cb10-547" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-548"><a href="#cb10-548" aria-hidden="true" tabindex="-1"></a><span class="ss">- Báo cáo có thể tái tạo.</span></span>
+<span id="cb10-549"><a href="#cb10-549" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-550"><a href="#cb10-550" aria-hidden="true" tabindex="-1"></a><span class="ss">- Quarto hiển thị không có lỗi.</span></span>
+<span id="cb10-551"><a href="#cb10-551" aria-hidden="true" tabindex="-1"></a><span class="ss">:::</span></span>
+<span id="cb10-552"><a href="#cb10-552" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-553"><a href="#cb10-553" aria-hidden="true" tabindex="-1"></a><span class="ss"># What Next?</span></span>
+<span id="cb10-554"><a href="#cb10-554" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-555"><a href="#cb10-555" aria-hidden="true" tabindex="-1"></a><span class="ss">::: callout-tip</span></span>
+<span id="cb10-556"><a href="#cb10-556" aria-hidden="true" tabindex="-1"></a><span class="ss">Sau trang này, người học nên tiếp tục với:</span></span>
+<span id="cb10-557"><a href="#cb10-557" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-558"><a href="#cb10-558" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Learning Roadmap](roadmap.qmd)</span></span>
+<span id="cb10-559"><a href="#cb10-559" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Glossary](glossary.qmd)</span></span>
+<span id="cb10-560"><a href="#cb10-560" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Resources](resources.qmd)</span></span>
+<span id="cb10-561"><a href="#cb10-561" aria-hidden="true" tabindex="-1"></a><span class="ss">- [Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật](advanced/adv-15-reproducible.qmd)</span></span>
+<span id="cb10-562"><a href="#cb10-562" aria-hidden="true" tabindex="-1"></a><span class="ss">:::</span></span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 FPT PolySchool</p>
+</div>   
+    <div class="nav-footer-center">
+<p>R for Research and Data Analytics</p>
+</div>
+    <div class="nav-footer-right">
+<p>Developed by Nguyen Huu Loi · Built with Quarto</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

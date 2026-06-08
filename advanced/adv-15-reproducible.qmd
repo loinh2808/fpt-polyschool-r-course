@@ -1,0 +1,1006 @@
+---
+title: "Advanced 15. Nghiên cứu Tái lập và Báo cáo Học thuật"
+subtitle: "Reproducible Research and Reporting with R and Quarto"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Hiểu nghiên cứu tái lập (Reproducible Research)
+- Tổ chức project R khoa học và dễ bảo trì
+- Xây dựng workflow từ dữ liệu thô đến báo cáo cuối cùng
+- Sử dụng Quarto để tạo báo cáo HTML, PDF hoặc website
+- Quản lý code chunks trong `.qmd`
+- Tạo bảng publication-ready
+- Tạo hình publication-ready
+- Lưu kết quả phân tích có hệ thống
+- Viết báo cáo động (Dynamic Report)
+- Kiểm tra lỗi render
+- Chuẩn bị project cho chia sẻ, giảng dạy hoặc công bố
+- Hiểu vai trò của Git/GitHub ở mức nhập môn
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Làm thế nào để biến toàn bộ quá trình phân tích dữ liệu thành một project rõ ràng, tái lập và có thể xuất bản?**
+
+Quy trình:
+
+```text
+Research Question
+↓
+Project Structure
+↓
+Raw Data
+↓
+Cleaning Script
+↓
+Analysis Script
+↓
+Tables and Figures
+↓
+Quarto Report
+↓
+Render
+↓
+Share / Publish
+```
+
+:::
+
+## Reproducible research workflow
+
+```{mermaid}
+flowchart TD
+
+A[Research Question]
+--> B[Project Folder]
+
+B --> C[Raw Data]
+
+C --> D[Data Cleaning]
+
+D --> E[Analysis]
+
+E --> F[Tables]
+
+E --> G[Figures]
+
+F --> H[Quarto Report]
+
+G --> H
+
+H --> I[Render Output]
+
+I --> J[HTML / PDF / Website]
+
+J --> K[Share or Publish]
+```
+
+# 1. Reproducible research là gì?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Nghiên cứu tái lập (Reproducible Research) là cách tổ chức dữ liệu, code, kết quả và báo cáo sao cho người khác hoặc chính bạn có thể chạy lại phân tích và tạo ra kết quả tương tự.
+
+**Tại sao cần? (Why?)**
+
+Reproducible research giúp:
+
+- Giảm lỗi phân tích
+- Dễ kiểm tra kết quả
+- Dễ cập nhật báo cáo
+- Tăng minh bạch nghiên cứu
+- Hỗ trợ công bố quốc tế
+- Dễ chia sẻ với đồng nghiệp và sinh viên
+- Tiết kiệm thời gian khi cần sửa dữ liệu
+
+**Khi nào dùng? (When?)**
+
+Nên dùng cho mọi project nghiên cứu:
+
+- Luận văn
+- Bài báo
+- Báo cáo nội bộ
+- Khóa học
+- Dự án dữ liệu
+- Phân tích khảo sát
+- Meta-analysis
+- Bibliometric analysis
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Một project tái lập tốt có thể trả lời:
+
+```text
+Dữ liệu đến từ đâu?
+Code làm gì?
+Kết quả nào được tạo từ code nào?
+Bảng và hình có thể tạo lại được không?
+Báo cáo có render lại được không?
+```
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Người học thường mắc lỗi:
+
+- Lưu tất cả file vào một thư mục
+- Đặt tên file không rõ ràng
+- Chỉnh số liệu thủ công trong Excel
+- Copy hình từ R rồi sửa bằng tay
+- Không lưu code tạo bảng/hình
+- Dùng đường dẫn tuyệt đối từ máy cá nhân
+- Không render lại toàn bộ báo cáo trước khi gửi
+
+:::
+
+# 2. Cấu trúc project chuẩn
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể tạo cấu trúc folder phù hợp cho một project nghiên cứu.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Một project tốt nên có cấu trúc rõ:
+
+```text
+project-folder/
+│
+├── _quarto.yml
+├── index.qmd
+├── README.md
+│
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   └── dictionary/
+│
+├── R/
+│   ├── 01_clean_data.R
+│   ├── 02_analysis.R
+│   └── 03_visualization.R
+│
+├── tables/
+├── figures/
+├── reports/
+├── outputs/
+└── advanced/
+```
+
+:::
+
+## Tạo folder bằng R
+
+```{r}
+#| eval: false
+
+dir.create("data/raw", recursive = TRUE, showWarnings = FALSE)
+dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
+dir.create("data/dictionary", recursive = TRUE, showWarnings = FALSE)
+dir.create("R", showWarnings = FALSE)
+dir.create("tables", showWarnings = FALSE)
+dir.create("figures", showWarnings = FALSE)
+dir.create("reports", showWarnings = FALSE)
+dir.create("outputs", showWarnings = FALSE)
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Không nên để dữ liệu thô, dữ liệu đã xử lý, hình, bảng và code lẫn lộn trong cùng một thư mục.
+
+:::
+
+# 3. Quy tắc đặt tên file
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên biết đặt tên file rõ, dễ đọc và dễ sắp xếp.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Tên file tốt nên:
+
+- Không có dấu tiếng Việt
+- Không có khoảng trắng
+- Có số thứ tự nếu cần
+- Có ngày nếu là version quan trọng
+- Mô tả đúng nội dung
+
+**Ví dụ tốt**
+
+```text
+01_clean_data.R
+02_descriptive_analysis.R
+03_regression_models.R
+table_1_sample_characteristics.csv
+figure_1_likert_distribution.png
+report_final.qmd
+```
+
+**Ví dụ không nên**
+
+```text
+data moi.xlsx
+final final final.docx
+phan tich lan cuoi.R
+hinh dep.png
+```
+
+:::
+
+# 4. Quarto là gì?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Quarto là hệ thống viết tài liệu khoa học động, cho phép kết hợp:
+
+- Text
+- R code
+- Output
+- Tables
+- Figures
+- Citations
+- Website
+- Slides
+- PDF
+
+**Tại sao cần? (Why?)**
+
+Quarto giúp báo cáo tự động cập nhật khi dữ liệu hoặc code thay đổi.
+
+**Khi nào dùng? (When?)**
+
+Dùng cho:
+
+- Báo cáo nghiên cứu
+- Website khóa học
+- Luận văn
+- Bài giảng
+- Tài liệu hướng dẫn
+- Dashboard tĩnh
+- Manuscript draft
+
+:::
+
+## Cấu trúc file `.qmd`
+
+````markdown
+---
+title: "My Research Report"
+format: html
+---
+
+# Introduction
+
+This report analyzes the dataset.
+
+```{r}
+summary(cars)
+```
+````
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không được trộn CSS vào `_quarto.yml`.
+
+CSS phải nằm trong file `.css`, còn YAML nằm trong `_quarto.yml`.
+
+:::
+
+# 5. YAML cơ bản trong Quarto
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên hiểu YAML header của `.qmd`.
+
+:::
+
+## YAML cho report
+
+````markdown
+---
+title: "Research Report"
+subtitle: "Data Analysis with R"
+author: "Your Name"
+format:
+  html:
+    toc: true
+    number-sections: true
+---
+````
+
+## YAML cho website
+
+```yaml
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "R for Research and Data Analytics"
+
+format:
+  html:
+    theme: flatly
+    toc: true
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+YAML rất nhạy với indentation.
+
+Sai:
+
+```yaml
+format:
+      html:
+      theme: flatly
+```
+
+Đúng:
+
+```yaml
+format:
+  html:
+    theme: flatly
+```
+
+:::
+
+# 6. Code chunks trong Quarto
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Code chunk là nơi chạy R code trong tài liệu.
+
+:::
+
+## Chunk cơ bản
+
+````markdown
+```{r}
+summary(mtcars)
+```
+````
+
+## Chunk options quan trọng
+
+| Option | Ý nghĩa |
+|---|---|
+| `eval: false` | Hiện code nhưng không chạy |
+| `echo: false` | Chạy code nhưng không hiện code |
+| `warning: false` | Ẩn warning |
+| `message: false` | Ẩn message |
+| `fig-width` | Chiều rộng hình |
+| `fig-height` | Chiều cao hình |
+| `out-width` | Chiều rộng output trên trang |
+
+## Ví dụ
+
+````markdown
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 6
+#| out-width: 100%
+
+plot(cars)
+```
+````
+
+# 7. Data pipeline
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể thiết kế pipeline từ raw data đến clean data.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Data pipeline tốt nên tách:
+
+```text
+Raw data
+↓
+Cleaning script
+↓
+Processed data
+↓
+Analysis script
+↓
+Outputs
+```
+
+:::
+
+## Ví dụ cleaning script
+
+```{r}
+#| eval: false
+
+library(tidyverse)
+library(readxl)
+library(janitor)
+
+raw_data <- read_excel("data/raw/survey_data.xlsx") |>
+  clean_names()
+
+clean_data <- raw_data |>
+  filter(!is.na(outcome)) |>
+  mutate(
+    group = factor(group),
+    outcome = as.numeric(outcome)
+  )
+
+write_csv(
+  clean_data,
+  "data/processed/clean_survey_data.csv"
+)
+```
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Không nên sửa dữ liệu thô trực tiếp.
+
+Luôn giữ dữ liệu gốc trong `data/raw/`.
+
+:::
+
+# 8. Bảng publication-ready
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể tạo bảng kết quả đẹp bằng R.
+
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("gt")
+install.packages("gtsummary")
+install.packages("modelsummary")
+```
+
+## Ví dụ bảng bằng gt
+
+```{r}
+library(tidyverse)
+library(gt)
+
+table_demo <- mtcars |>
+  group_by(cyl) |>
+  summarise(
+    n = n(),
+    mean_mpg = mean(mpg),
+    sd_mpg = sd(mpg),
+    .groups = "drop"
+  )
+
+table_demo |>
+  gt() |>
+  tab_header(
+    title = "Descriptive Statistics by Cylinder"
+  ) |>
+  fmt_number(
+    columns = c(mean_mpg, sd_mpg),
+    decimals = 2
+  )
+```
+
+## Xuất bảng
+
+```{r}
+#| eval: false
+
+table_demo |>
+  gt() |>
+  gtsave("tables/table_1_descriptive.html")
+```
+
+# 9. Hình publication-ready
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể lưu hình chất lượng cao.
+
+:::
+
+## Tạo hình
+
+```{r}
+library(ggplot2)
+
+fig_demo <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Relationship between Weight and MPG",
+    x = "Weight",
+    y = "Miles per gallon"
+  ) +
+  theme_minimal()
+
+fig_demo
+```
+
+## Lưu hình
+
+```{r}
+#| eval: false
+
+ggsave(
+  filename = "figures/figure_1_weight_mpg.png",
+  plot = fig_demo,
+  width = 8,
+  height = 5,
+  dpi = 300
+)
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Với bài báo hoặc báo cáo chính thức, nên lưu hình ở `dpi = 300`.
+
+:::
+
+# 10. Báo cáo động
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Báo cáo động (Dynamic Report) là báo cáo trong đó bảng, hình và kết quả được tạo trực tiếp từ code.
+
+Khi dữ liệu thay đổi, chỉ cần render lại báo cáo.
+
+:::
+
+## Inline R code
+
+Trong Quarto, có thể viết inline R:
+
+````markdown
+The dataset contains `r nrow(mtcars)` observations.
+````
+
+Kết quả sẽ tự động cập nhật khi dữ liệu thay đổi.
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Inline code giúp tránh lỗi copy-paste số liệu.
+
+:::
+
+# 11. Render Quarto
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên biết render báo cáo và website.
+
+:::
+
+## Render một file
+
+```bash
+quarto render report.qmd
+```
+
+## Render file trong thư mục
+
+```bash
+quarto render advanced/adv-15-reproducible.qmd
+```
+
+## Preview website
+
+```bash
+quarto preview
+```
+
+## Render toàn website
+
+```bash
+quarto render
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Nếu đang đứng trong thư mục `advanced`, không chạy:
+
+```bash
+quarto render advanced/adv-15-reproducible.qmd
+```
+
+vì Quarto sẽ tìm:
+
+```text
+advanced/advanced/adv-15-reproducible.qmd
+```
+
+:::
+
+# 12. Debug lỗi Quarto thường gặp
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Quarto thường báo lỗi theo chunk.
+
+Ví dụ:
+
+```text
+Quitting from adv-13-anova.qmd:526-551 [unnamed-chunk-17]
+```
+
+Nghĩa là lỗi nằm ở chunk gần dòng 526–551.
+
+:::
+
+## Lỗi YAML
+
+Nguyên nhân thường gặp:
+
+- Sai indentation
+- Thiếu dấu `---`
+- Dán CSS vào YAML
+- Dấu `:` không nằm trong dấu ngoặc kép
+
+## Lỗi đường dẫn
+
+Nguyên nhân thường gặp:
+
+- Render sai thư mục
+- File không nằm đúng folder
+- Dùng đường dẫn tuyệt đối
+
+## Lỗi package
+
+Nguyên nhân thường gặp:
+
+- Package chưa cài
+- Phiên bản package khác
+- Hàm không được export
+
+## Lỗi object not found
+
+Nguyên nhân thường gặp:
+
+- Chunk trước chưa chạy
+- Object chỉ được tạo trong `if()`
+- Tên biến sai
+- Dataset không có cột đó
+
+::: {.callout-success title="Checklist sửa lỗi render"}
+
+1. Đọc dòng báo lỗi cuối cùng.
+2. Xem file và dòng Quarto báo.
+3. Kiểm tra object hoặc biến bị thiếu.
+4. Kiểm tra package đã cài chưa.
+5. Chạy từng chunk từ trên xuống.
+6. Dùng `eval: false` cho phần code minh họa không bắt buộc.
+7. Render lại toàn file.
+
+:::
+
+# 13. Git và GitHub ở mức nhập môn
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Git là gì?**
+
+Git là hệ thống quản lý phiên bản.
+
+**GitHub là gì?**
+
+GitHub là nền tảng lưu trữ project Git online.
+
+**Tại sao cần?**
+
+Git/GitHub giúp:
+
+- Lưu lịch sử thay đổi
+- Khôi phục phiên bản cũ
+- Chia sẻ project
+- Hợp tác nhóm
+- Xuất bản website Quarto
+
+:::
+
+## Lệnh Git cơ bản
+
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+git status
+```
+
+## Push lên GitHub
+
+```bash
+git remote add origin https://github.com/username/project-name.git
+git branch -M main
+git push -u origin main
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên đưa dữ liệu nhạy cảm hoặc dữ liệu cá nhân lên GitHub public.
+
+:::
+
+# 14. README file
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên biết viết README cho project.
+
+:::
+
+## README template
+
+````markdown
+# Project Title
+
+## Description
+
+This project analyzes ...
+
+## Folder Structure
+
+- `data/raw/`: raw data
+- `data/processed/`: cleaned data
+- `R/`: scripts
+- `figures/`: exported figures
+- `tables/`: exported tables
+- `reports/`: final reports
+
+## How to Reproduce
+
+1. Open the R project.
+2. Run `R/01_clean_data.R`.
+3. Run `R/02_analysis.R`.
+4. Render `report.qmd`.
+
+## Required Packages
+
+- tidyverse
+- readxl
+- janitor
+- ggplot2
+- gt
+````
+
+# 15. Quarto website publishing
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Quarto website có thể publish bằng:
+
+- GitHub Pages
+- Netlify
+- Posit Connect
+- Local HTML folder
+
+:::
+
+## Render website
+
+```bash
+quarto render
+```
+
+Output thường nằm trong:
+
+```text
+_site/
+```
+
+## GitHub Pages logic
+
+```text
+Quarto project
+↓
+Render
+↓
+_site folder
+↓
+GitHub Pages
+↓
+Public website
+```
+
+::: {.callout-important title="Ứng dụng trong khóa học"}
+
+Với website khóa R, mỗi `.qmd` module là một trang.
+
+Sidebar trong `_quarto.yml` quyết định điều hướng.
+
+:::
+
+# 16. Final course project
+
+::: {.callout-important title="Dự án tổng kết (Final Capstone Project)"}
+
+## Chủ đề
+
+Reproducible Research Portfolio
+
+## Sản phẩm đầu ra
+
+Học viên tạo một project hoàn chỉnh gồm:
+
+```text
+Research_Portfolio/
+│
+├── data/
+├── R/
+├── figures/
+├── tables/
+├── reports/
+├── report.qmd
+├── README.md
+└── _quarto.yml
+```
+
+## Báo cáo cuối cùng
+
+```text
+final_research_report.html
+```
+
+## Nội dung báo cáo
+
+1. Research question
+2. Dataset description
+3. Data cleaning workflow
+4. Descriptive statistics
+5. Exploratory visualization
+6. Main analysis
+7. Tables
+8. Figures
+9. Interpretation
+10. Limitations
+11. Reproducibility statement
+
+:::
+
+# 17. Reproducibility statement
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Một báo cáo tốt nên có reproducibility statement.
+
+:::
+
+## Template
+
+```text
+All analyses were conducted in R using a reproducible Quarto workflow. The project folder contains raw data, cleaning scripts, analysis scripts, figures, tables, and the final report. The report can be regenerated by rendering the Quarto document from the project root directory.
+```
+
+# 18. Checklist cuối khóa
+
+::: {.callout-success title="Final Reproducibility Checklist"}
+
+Trước khi hoàn thành project, kiểm tra:
+
+- [ ] Có project folder rõ ràng
+- [ ] Dữ liệu thô nằm trong `data/raw`
+- [ ] Dữ liệu xử lý nằm trong `data/processed`
+- [ ] Code cleaning được lưu
+- [ ] Code analysis được lưu
+- [ ] Hình được tạo bằng code
+- [ ] Bảng được tạo bằng code
+- [ ] Không sửa kết quả thủ công
+- [ ] File `.qmd` render không lỗi
+- [ ] README giải thích cách tái lập
+- [ ] Không có dữ liệu nhạy cảm trong project public
+- [ ] Kết quả được diễn giải thận trọng
+
+:::
+
+# 19. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Hãy thực hiện:
+
+1. Tạo project folder mới.
+2. Tạo các thư mục `data`, `R`, `figures`, `tables`, `reports`.
+3. Tạo một file `README.md`.
+4. Tạo một file `report.qmd`.
+5. Viết YAML header.
+6. Import một dataset.
+7. Tạo bảng mô tả.
+8. Tạo ít nhất một hình.
+9. Viết kết quả bằng inline R.
+10. Render báo cáo thành HTML.
+
+:::
+
+# 20. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Bạn có một project nghiên cứu với:
+
+- Một file Excel dữ liệu khảo sát
+- Một script làm sạch
+- Một script phân tích
+- Nhiều hình được copy thủ công
+- Một báo cáo Word
+
+## Câu hỏi
+
+1. Làm thế nào để chuyển project này thành reproducible project?
+2. Cần tổ chức lại folder ra sao?
+3. Hình và bảng nên tạo thế nào?
+4. Báo cáo nên viết bằng gì?
+5. Cần chú ý gì nếu đưa project lên GitHub?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+Một câu trả lời tốt nên nêu:
+
+- Giữ dữ liệu gốc trong `data/raw`.
+- Viết script cleaning riêng.
+- Lưu dữ liệu đã xử lý trong `data/processed`.
+- Tạo bảng và hình bằng code.
+- Viết báo cáo bằng Quarto.
+- Thêm README.
+- Không đưa dữ liệu nhạy cảm lên GitHub public.
+
+:::
+
+# 21. Kết thúc khóa học
+
+::: {.callout-note title="What Next?"}
+
+Bạn đã hoàn thành toàn bộ chuỗi Advanced Analytics.
+
+Lộ trình đầy đủ:
+
+1. Descriptive Diagnostics
+2. Advanced Regression
+3. Regularized Regression
+4. Advanced SEM
+5. Bayesian Statistics
+6. Monte Carlo Simulation
+7. Simpson's Paradox
+8. Advanced Likert Analysis
+9. Advanced Visualization Gallery
+10. Research Toolkit
+11. Meta-analysis
+12. Bibliometric Analysis
+13. Experimental Design and ANOVA
+14. Mixed Models and Longitudinal Data
+15. Reproducible Research and Reporting
+
+:::

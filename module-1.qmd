@@ -1,0 +1,797 @@
+---
+title: "Module 1. Nhập môn R và Quản lý Dữ liệu Nghiên cứu"
+---
+
+# Tổng quan Module
+
+::: {.callout-tip title="Learning Outcomes"}
+Sau khi hoàn thành Module 1, học viên có thể:
+
+- Hiểu vai trò của R trong nghiên cứu khoa học
+- Sử dụng giao diện RStudio cơ bản
+- Tạo và quản lý R Project
+- Nhập dữ liệu từ Excel vào R
+- Kiểm tra cấu trúc dữ liệu ban đầu
+- Phân biệt các loại biến trong dữ liệu nghiên cứu
+- Tạo báo cáo chẩn đoán dữ liệu sơ bộ
+:::
+
+::: {.callout-note title="Module Logic"}
+Module này trả lời câu hỏi:
+
+``` text
+Tôi có một bộ dữ liệu nghiên cứu. Làm thế nào để đưa dữ liệu vào R và hiểu dữ liệu đó trước khi phân tích?
+```
+
+Quy trình chính:
+
+``` text
+Tạo dự án
+↓
+Nhập dữ liệu
+↓
+Kiểm tra cấu trúc
+↓
+Kiểm tra biến
+↓
+Làm sạch tên biến
+↓
+Tạo báo cáo
+```
+:::
+
+------------------------------------------------------------------------
+
+# 1.1 Giới thiệu về R và RStudio
+
+::: {.callout-note title="Knowledge Notes"}
+## What?
+
+**R** là ngôn ngữ lập trình mã nguồn mở được sử dụng rộng rãi trong thống kê, phân tích dữ liệu, trực quan hóa dữ liệu và nghiên cứu khoa học.
+
+**RStudio** là môi trường làm việc giúp người dùng viết code, quản lý dữ liệu, chạy phân tích và tạo báo cáo dễ dàng hơn.
+
+## When?
+
+Sử dụng R khi cần:
+
+- Phân tích dữ liệu khảo sát
+- Tạo bảng thống kê
+- Vẽ biểu đồ khoa học
+- Chạy hồi quy
+- Phân tích SEM
+- Tạo báo cáo tái lập bằng Quarto
+
+## How do we use it in research?
+
+R giúp nhà nghiên cứu tái lập toàn bộ quy trình phân tích:
+
+``` text
+Data
+↓
+Code
+↓
+Output
+↓
+Report
+```
+:::
+
+## R là gì?
+
+R là phần mền phân tích số liệu nguồn mở được sử dụng trong nhiều lĩnh vực:
+
+- Giáo dục
+- Kinh doanh
+- Khoa học xã hội
+- Nông nghiệp
+- Y tế
+- Marketing
+- Quản trị
+- Khoa học dữ liệu
+
+## Vì sao nên dùng R?
+
+- Miễn phí
+- Mạnh mẽ
+- Có cộng đồng lớn
+- Có nhiều package cho nghiên cứu
+- Hỗ trợ phân tích tái lập
+- Kết hợp tốt với Quarto, GitHub và AI
+
+::: {.callout-important title="Research Application"}
+Trong nghiên cứu giáo dục, kinh tế, quản lý và khoa học xã hội, R có thể dùng để:
+
+- **Xử lý và làm sạch dữ liệu:** Chuẩn hóa các bộ dữ liệu khảo sát, dữ liệu bảng (panel data) hoặc dữ liệu hành vi quy mô lớn.
+
+- **Phân tích thống kê từ cơ bản đến nâng cao:** Chạy các kiểm định giả thuyết, phân tích nhân tố (EFA/CFA), mô hình hồi quy (tuyến tính, logistic, đa biến) và mô hình cấu trúc tuyến tính (SEM).
+
+- **Trực quan hóa dữ liệu:** Vẽ các biểu đồ, đồ thị khoa học sắc nét, giàu thông tin.
+
+- **Tự động hóa báo cáo:** Kết hợp văn bản và mã nguồn qua R Markdown/Quarto để xuất trực tiếp ra các báo cáo định dạng Word, PDF hoặc Web HTML.
+:::
+
+::: {.callout-warning title="Common Mistakes"}
+Người mới học R thường mắc lỗi:
+
+- Chạy code trực tiếp trong Console mà không lưu Script
+- Không tạo Project
+- Lưu file dữ liệu ở nhiều nơi khác nhau
+- Không kiểm tra cấu trúc dữ liệu trước khi phân tích
+- Không lưu lại quá trình phân tích
+:::
+
+------------------------------------------------------------------------
+
+# 1.2 Giới thiệu giao diện RStudio
+
+RStudio thường có bốn khu vực chính:
+
+| Khu vực | Chức năng |
+|------------------------------------|------------------------------------|
+| Source / Script | Viết và lưu code |
+| Console | Chạy lệnh R |
+| Environment | Xem object và dữ liệu đang có |
+| Files / Plots / Packages / Help | Quản lý file, biểu đồ, package và trợ giúp |
+
+::: {.callout-note title="Knowledge Notes"}
+## What?
+
+RStudio giúp tổ chức toàn bộ quy trình làm việc với R.
+
+## When?
+
+Dùng RStudio mỗi khi cần thực hiện phân tích dữ liệu hoặc viết báo cáo bằng R.
+
+## How?
+
+Một workflow cơ bản:
+
+1.  Mở Project
+2.  Mở Script hoặc Quarto file
+3.  Viết code
+4.  Chạy code
+5.  Kiểm tra output
+6.  Lưu kết quả
+:::
+
+::: {.callout-success title="Key Points"}
+- Code nên được viết trong Script hoặc Quarto file, không nên chỉ chạy trong Console.
+- Mỗi dự án nghiên cứu nên có một R Project riêng.
+- RStudio giúp quản lý dữ liệu, code, output và báo cáo trong cùng một nơi.
+:::
+
+------------------------------------------------------------------------
+
+# 1.3 Tạo R Project
+
+::: {.callout-note title="Knowledge Notes"}
+## What?
+
+**R Project** là một thư mục làm việc được RStudio quản lý. Nó giúp lưu toàn bộ dữ liệu, script, kết quả và báo cáo trong cùng một project.
+
+## Why?
+
+Nếu không dùng Project, người học thường gặp lỗi đường dẫn file.
+
+## When?
+
+Tạo Project mới cho mỗi nghiên cứu, khóa học hoặc bài báo.
+:::
+
+## Cấu trúc thư mục nghiên cứu đề xuất
+
+``` text
+Research_Project/
+
+├── data/
+├── scripts/
+├── output/
+├── figures/
+├── reports/
+└── README.md
+```
+
+## Cấu trúc project khóa học này
+
+``` text
+fpt-polyschool-r-course/
+
+├── data/
+├── output/
+├── images/
+├── resources/
+├── index.qmd
+├── module-1.qmd
+├── module-2.qmd
+├── module-3.qmd
+├── module-4.qmd
+├── module-5.qmd
+├── module-6.qmd
+├── module-7.qmd
+├── _quarto.yml
+└── styles.css
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên để dữ liệu ở Desktop rồi dùng đường dẫn dài như:
+
+``` text
+C:/Users/Admin/Desktop/mydata.xlsx
+```
+
+Thay vào đó, hãy đặt dữ liệu trong thư mục `data/` của project:
+
+``` text
+data/FPT_PolySchool_R_Training_Demo_Dataset.xlsx
+```
+:::
+
+------------------------------------------------------------------------
+
+# 1.4 Cài đặt package
+
+::: {.callout-note title="Knowledge Notes"}
+## What?
+
+Package là các thư viện mở rộng chức năng của R.
+
+## When?
+
+Cài package khi cần dùng thêm chức năng ngoài R cơ bản.
+
+## How?
+
+Cài package một lần bằng `install.packages()`.
+
+Nạp package mỗi lần làm việc bằng `library()`.
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("skimr")
+install.packages("summarytools")
+```
+
+## Nạp package
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(skimr)
+library(summarytools)
+```
+
+::: {.callout-important title="Research Application"}
+Các package trong Module 1 dùng cho:
+
+- `tidyverse`: xử lý và trực quan hóa dữ liệu
+- `readxl`: nhập dữ liệu Excel
+- `janitor`: làm sạch tên biến
+- `skimr`: tạo báo cáo tổng quan dữ liệu
+- `summarytools`: tạo bảng mô tả nhanh
+:::
+
+::: {.callout-warning title="Common Mistakes"}
+Người học thường nhầm giữa:
+
+``` r
+install.packages("readxl")
+```
+
+và:
+
+``` r
+library(readxl)
+```
+
+`install.packages()` dùng để cài package.
+
+`library()` dùng để nạp package vào phiên làm việc hiện tại.
+:::
+
+------------------------------------------------------------------------
+
+# 1.5 Nhập dữ liệu từ Excel
+
+::: {.callout-note title="Knowledge Notes"}
+## What?
+
+Dữ liệu nghiên cứu thường được lưu dưới dạng Excel, CSV hoặc dữ liệu xuất từ Google Forms.
+
+## When?
+
+Dùng `read_excel()` khi dữ liệu ở dạng `.xlsx`.
+
+## How?
+
+Cú pháp cơ bản:
+
+``` r
+read_excel("path/to/file.xlsx")
+```
+:::
+
+## Đọc dữ liệu Excel
+
+```{r}
+data <- read_excel(
+  "data/FPT_PolySchool_R_Training_Demo_Dataset.xlsx",
+  sheet = "01_Raw_Data"
+)
+```
+
+## Xem dữ liệu
+
+```{r}
+head(data)
+```
+
+```{r}
+tail(data)
+```
+
+::: {.callout-important title="Research Application"}
+Đây là bước đầu tiên trong mọi nghiên cứu định lượng.
+
+Trước khi chạy thống kê mô tả, hồi quy hoặc SEM, cần đảm bảo dữ liệu được nhập đúng vào R.
+:::
+
+::: {.callout-warning title="Common Mistakes"}
+Một số lỗi thường gặp khi nhập dữ liệu:
+
+- Sai tên file
+- Sai tên thư mục
+- Sai tên sheet
+- File Excel đang mở nên R không đọc được
+- Dữ liệu có dòng tiêu đề không đúng vị trí
+:::
+
+------------------------------------------------------------------------
+
+# 1.6 Hiểu cấu trúc dữ liệu
+
+::: {.callout-note title="Knowledge Notes"}
+## What?
+
+Kiểm tra cấu trúc dữ liệu giúp hiểu:
+
+- Có bao nhiêu dòng?
+- Có bao nhiêu cột?
+- Tên biến là gì?
+- Kiểu dữ liệu của từng biến là gì?
+
+## When?
+
+Luôn thực hiện ngay sau khi nhập dữ liệu.
+
+## How?
+
+Dùng các hàm:
+
+``` r
+dim()
+names()
+str()
+glimpse()
+summary()
+```
+:::
+
+## Kích thước dữ liệu
+
+```{r}
+dim(data)
+```
+
+## Tên biến
+
+```{r}
+names(data)
+```
+
+## Kiểu dữ liệu
+
+```{r}
+str(data)
+```
+
+## Tổng quan dữ liệu
+
+```{r}
+glimpse(data)
+```
+
+::: {.callout-success title="Key Points"}
+- `dim()` cho biết số dòng và số cột.
+- `names()` liệt kê tên biến.
+- `str()` cho biết cấu trúc dữ liệu.
+- `glimpse()` là phiên bản dễ đọc hơn của `str()`.
+- `summary()` cho thống kê tổng quan ban đầu.
+:::
+
+------------------------------------------------------------------------
+
+# 1.7 Các loại biến trong nghiên cứu
+
+::: {.callout-note title="Knowledge Notes"}
+## What?
+
+Trong nghiên cứu định lượng, biến thường được chia thành:
+
+- Biến định tính
+- Biến định lượng
+- Biến thứ bậc
+- Biến nhị phân
+- Biến thang đo Likert
+
+## When?
+
+Cần phân loại biến trước khi chọn phương pháp phân tích.
+
+## How do we use it in research?
+
+Loại biến quyết định phương pháp phân tích:
+
+| Loại biến  | Phân tích phù hợp             |
+|------------|-------------------------------|
+| Định tính  | Tần suất, tỷ lệ, Chi-square   |
+| Định lượng | Mean, SD, t-test, ANOVA       |
+| Nhị phân   | Logistic regression           |
+| Likert     | Descriptive, reliability, SEM |
+:::
+
+## Xác định biến định lượng
+
+```{r}
+data |>
+  select(where(is.numeric))
+```
+
+## Xác định biến không phải numeric
+
+```{r}
+data |>
+  select(where(~ !is.numeric(.)))
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên giả định rằng biến nhìn giống số thì chắc chắn là numeric.
+
+Ví dụ, biến Likert có thể bị R đọc thành `character` nếu có lỗi nhập liệu như:
+
+``` text
+five
+missing
+NA
+99
+```
+:::
+
+------------------------------------------------------------------------
+
+# 1.8 Chuẩn hóa tên biến
+
+::: {.callout-note title="Knowledge Notes"}
+## What?
+
+Chuẩn hóa tên biến là quá trình chuyển tên biến về định dạng dễ dùng trong R.
+
+## Why?
+
+Tên biến không nên có:
+
+- Dấu cách
+- Dấu tiếng Việt
+- Ký tự đặc biệt
+- Chữ hoa không thống nhất
+
+## How?
+
+Dùng hàm `clean_names()` từ package `janitor`.
+:::
+
+## Tên biến trước khi làm sạch
+
+```{r}
+names(data)
+```
+
+## Làm sạch tên biến
+
+```{r}
+data <- data |>
+  clean_names()
+```
+
+## Tên biến sau khi làm sạch
+
+```{r}
+names(data)
+```
+
+::: {.callout-important title="Research Application"}
+Tên biến sạch giúp giảm lỗi trong các bước sau:
+
+- Data cleaning
+- Regression
+- SEM
+- Visualization
+- Quarto reporting
+:::
+
+------------------------------------------------------------------------
+
+# 1.9 Data Diagnostic Report
+
+::: {.callout-note title="Knowledge Notes"}
+## What?
+
+Data Diagnostic Report là báo cáo kiểm tra nhanh chất lượng dữ liệu trước khi phân tích.
+
+## When?
+
+Thực hiện sau khi nhập dữ liệu và trước khi làm sạch dữ liệu.
+
+## What should be included?
+
+Một báo cáo chẩn đoán dữ liệu nên có:
+
+- Số dòng
+- Số cột
+- Tên biến
+- Kiểu dữ liệu
+- Dữ liệu thiếu
+- Thống kê mô tả sơ bộ
+- Vấn đề cần xử lý
+:::
+
+## Tổng quan dữ liệu với `skim()`
+
+```{r}
+skim(data)
+```
+
+------------------------------------------------------------------------
+
+# 1.10 Missing Values
+
+::: {.callout-note title="Knowledge Notes"}
+## What?
+
+Missing values là các giá trị bị thiếu trong dữ liệu.
+
+## When?
+
+Luôn kiểm tra missing values trước khi phân tích.
+
+## Why?
+
+Dữ liệu thiếu có thể làm:
+
+- Giảm cỡ mẫu
+- Sai lệch kết quả
+- Gây lỗi khi chạy mô hình
+:::
+
+## Đếm dữ liệu thiếu
+
+```{r}
+data |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.))
+    )
+  )
+```
+
+## Tỷ lệ dữ liệu thiếu
+
+```{r}
+data |>
+  summarise(
+    across(
+      everything(),
+      ~ mean(is.na(.)) * 100
+    )
+  )
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên xóa dữ liệu thiếu ngay lập tức.
+
+Cần kiểm tra:
+
+- Thiếu ở biến nào?
+- Thiếu bao nhiêu phần trăm?
+- Thiếu ngẫu nhiên hay có hệ thống?
+- Biến đó có quan trọng trong nghiên cứu không?
+:::
+
+------------------------------------------------------------------------
+
+# 1.11 Thống kê mô tả sơ bộ
+
+## Các biến số
+
+```{r}
+data |>
+  select(where(is.numeric)) |>
+  summary()
+```
+
+## Trung bình và độ lệch chuẩn
+
+```{r}
+data |>
+  select(where(is.numeric)) |>
+  summarise(
+    across(
+      everything(),
+      list(
+        mean = ~ mean(., na.rm = TRUE),
+        sd = ~ sd(., na.rm = TRUE)
+      )
+    )
+  )
+```
+
+::: {.callout-important title="Research Application"}
+Thống kê mô tả sơ bộ giúp nhà nghiên cứu trả lời:
+
+- Dữ liệu có giá trị bất thường không?
+- Các biến có nằm trong khoảng hợp lý không?
+- Có biến nào cần làm sạch trước khi phân tích không?
+- Dữ liệu có phù hợp để chuyển sang Module 2 không?
+:::
+
+------------------------------------------------------------------------
+
+# 1.12 Xuất dữ liệu đã làm sạch tên biến
+
+Để tránh lỗi khi render website, đoạn xuất file được đặt `eval: false`.
+
+```{r}
+#| eval: false
+
+dir.create("output", showWarnings = FALSE)
+
+write_csv(
+  data,
+  "output/module1_import_check.csv"
+)
+```
+
+------------------------------------------------------------------------
+
+# Practice Exercise
+
+::: {.callout-important title="Practice Exercise"}
+Sử dụng file dữ liệu thực hành, hãy thực hiện:
+
+1.  Tạo R Project.
+2.  Nhập dữ liệu từ sheet `01_Raw_Data`.
+3.  Kiểm tra số dòng và số cột.
+4.  Liệt kê tên biến.
+5.  Kiểm tra kiểu dữ liệu.
+6.  Làm sạch tên biến.
+7.  Tạo báo cáo dữ liệu thiếu.
+8.  Tạo thống kê mô tả sơ bộ cho biến numeric.
+:::
+
+------------------------------------------------------------------------
+
+# Challenge
+
+::: {.callout-warning collapse="true" title="Challenge"}
+## Nhiệm vụ
+
+Hãy tạo một báo cáo ngắn trả lời các câu hỏi:
+
+1.  Dataset có bao nhiêu quan sát?
+2.  Dataset có bao nhiêu biến?
+3.  Có biến nào bị đọc sai kiểu dữ liệu không?
+4.  Có dữ liệu thiếu không?
+5.  Dữ liệu đã sẵn sàng để làm sạch ở Module 2 chưa?
+:::
+
+::: {.callout-tip collapse="true" title="Show me the solution"}
+```{r}
+data <- read_excel(
+  "data/FPT_PolySchool_R_Training_Demo_Dataset.xlsx",
+  sheet = "01_Raw_Data"
+) |>
+  clean_names()
+
+dim(data)
+names(data)
+glimpse(data)
+
+data |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.))
+    )
+  )
+
+data |>
+  select(where(is.numeric)) |>
+  summary()
+```
+:::
+
+------------------------------------------------------------------------
+
+# Mini Project 1
+
+::: {.callout-important title="Mini Project 1"}
+## Chủ đề
+
+Data Import and Initial Diagnostic Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+``` text
+Module1_Data_Diagnostic_Report.html
+```
+
+hoặc:
+
+``` text
+Module1_Data_Diagnostic_Report.docx
+```
+
+## Nội dung báo cáo
+
+Báo cáo cần có:
+
+1.  Dataset overview
+2.  Number of observations
+3.  Number of variables
+4.  Variable names
+5.  Variable types
+6.  Missing value summary
+7.  Numeric variable summary
+8.  Initial assessment of data quality
+9.  Recommendation for Module 2 data cleaning
+:::
+
+------------------------------------------------------------------------
+
+# Key Takeaways
+
+::: {.callout-success title="Key Points"}
+- R là công cụ mạnh cho nghiên cứu định lượng và phân tích dữ liệu.
+- RStudio giúp quản lý code, dữ liệu và output.
+- R Project giúp tránh lỗi đường dẫn.
+- `read_excel()` dùng để nhập dữ liệu Excel.
+- `glimpse()`, `dim()`, `names()` và `summary()` giúp hiểu cấu trúc dữ liệu.
+- `clean_names()` giúp chuẩn hóa tên biến.
+- `skim()` giúp tạo báo cáo dữ liệu nhanh.
+- Luôn kiểm tra dữ liệu trước khi phân tích.
+:::
+
+------------------------------------------------------------------------
+
+# What Next?
+
+::: {.callout-note title="What Next?"}
+Sau khi hoàn thành Module 1, học viên nên:
+
+1.  Lưu lại file `module-1.qmd`.
+2.  Kiểm tra dataset đã nhập đúng chưa.
+3.  Đảm bảo tên biến đã được chuẩn hóa.
+4.  Ghi chú các vấn đề dữ liệu phát hiện được.
+5.  Chuyển sang **Module 2. Làm sạch và chuẩn bị dữ liệu**.
+:::

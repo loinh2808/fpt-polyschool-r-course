@@ -1,0 +1,983 @@
+---
+title: "Case Study 1: UTAUT and PLS-SEM"
+subtitle: "Students' Acceptance of ChatGPT in Higher Education"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+execute:
+  warning: false
+  message: false
+---
+
+# Overview
+
+::: {.callout-note}
+## Case Purpose
+
+This case study teaches learners how to move from a published technology-acceptance paper to a reproducible PLS-SEM analysis in R.
+
+The learning logic is:
+
+```text
+Read the paper
+→ Understand the theory
+→ Inspect the dataset
+→ Check measurement quality
+→ Estimate the structural model
+→ Interpret results
+→ Write research conclusions
+```
+:::
+
+## Case Study Information
+
+| Item | Description |
+|---|---|
+| Research area | Technology Acceptance |
+| Method | PLS-SEM |
+| Theory | UTAUT2 |
+| Journal example | Innovative Higher Education |
+| Published sample size | 503 students |
+| Replication tool | R using `seminr` |
+| Dataset used here | Synthetic teaching dataset |
+
+::: {.callout-warning}
+## Important Note About the Dataset
+
+The dataset used in this case study is a **synthetic teaching dataset**.
+
+It is generated to resemble the structure of the published study, but it is **not the original raw data** from the article. Therefore, the results should be interpreted as a learning exercise, not as a direct reproduction of the published coefficients.
+:::
+
+## Learning Objectives
+
+After completing this case study, learners will be able to:
+
+- Understand the UTAUT2 framework.
+- Translate a theoretical model into a PLS-SEM model.
+- Identify latent constructs and measurement indicators.
+- Evaluate reliability and validity.
+- Interpret path coefficients, bootstrapping, and R-squared.
+- Decide what to do when results meet or fail reference thresholds.
+- Write a short academic-style interpretation.
+
+# Research Background
+
+Artificial Intelligence tools such as ChatGPT are rapidly transforming higher education.
+
+This case study asks:
+
+> What factors influence students' behavioral intention and use behavior toward ChatGPT in higher education?
+
+::: {.callout-tip}
+## Why This Case Matters
+
+This case is useful because it combines:
+
+- A real research theory: UTAUT2.
+- A real research design: survey-based SEM.
+- A real academic workflow: measurement model first, structural model second.
+- A practical R workflow: data import, diagnostics, reliability, SEM, bootstrapping, interpretation.
+:::
+
+# Conceptual Framework
+
+```{mermaid}
+flowchart LR
+
+PE[Performance Expectancy]
+EE[Effort Expectancy]
+SI[Social Influence]
+FC[Facilitating Conditions]
+HM[Hedonic Motivation]
+PV[Price Value]
+HT[Habit]
+PI[Personal Innovativeness]
+
+BI[Behavioral Intention]
+UB[Use Behavior]
+
+PE --> BI
+EE --> BI
+SI --> BI
+FC --> BI
+HM --> BI
+PV --> BI
+HT --> BI
+PI --> BI
+
+BI --> UB
+FC --> UB
+HT --> UB
+```
+
+::: {.callout-note}
+## What the Model Means
+
+The model assumes that students' intention to use ChatGPT is influenced by expected performance gains, perceived ease of use, social pressure, available support, enjoyment, price value, habit, and personal innovativeness.
+
+Behavioral intention then predicts actual use behavior.
+:::
+
+# Hypotheses
+
+| Hypothesis | Path | Expected direction |
+|---|---|---|
+| H1 | PE → BI | Positive |
+| H2 | EE → BI | Positive |
+| H3 | SI → BI | Positive |
+| H4 | FC → BI | Positive |
+| H5 | FC → UB | Positive |
+| H6 | HM → BI | Positive |
+| H7 | PV → BI | Positive |
+| H8 | HT → BI | Positive |
+| H9 | HT → UB | Positive |
+| H10 | PI → BI | Positive |
+| H11 | BI → UB | Positive |
+
+# Dataset Structure
+
+::: {.callout-tip}
+## Why Are We Checking the Dataset Structure?
+
+Before running SEM, we must confirm that the dataset contains the required indicators for each latent construct.
+
+If even one required variable is missing or has the wrong type, model estimation may fail.
+:::
+
+```{r}
+#| label: dataset-structure
+
+tibble::tibble(
+  PE1 = numeric(),
+  PE2 = numeric(),
+  PE3 = numeric(),
+  PE4 = numeric(),
+  EE1 = numeric(),
+  EE2 = numeric(),
+  EE3 = numeric(),
+  EE4 = numeric(),
+  SI1 = numeric(),
+  FC1 = numeric(),
+  HM1 = numeric(),
+  PV1 = numeric(),
+  HT1 = numeric(),
+  PI1 = numeric(),
+  BI1 = numeric(),
+  UB1 = numeric()
+)
+```
+
+::: {.callout-important}
+## What Should Be Present?
+
+The dataset should contain:
+
+- Demographic variables: `respondent_id`, `gender`, `age`, `study_level`
+- Indicator variables: `PE1` to `BI3`
+- Outcome use behavior variable: `UB1`
+
+All Likert indicators should be numeric, usually from 1 to 7.
+:::
+
+# Step 1. Import and Inspect Data
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+The first step is to import the dataset and inspect its structure.
+
+This answers:
+
+- How many observations are available?
+- How many variables are included?
+- Are variable names correct?
+- Are Likert items stored as numeric variables?
+:::
+
+```{r}
+#| label: import-data
+
+library(tidyverse)
+library(readxl)
+
+utaut_data <- readxl::read_excel(
+  "data/case-studies/utaut/utaut_dataset.xlsx"
+)
+
+dplyr::glimpse(utaut_data)
+```
+
+::: {.callout-note}
+## What Should We Check?
+
+Check the output carefully:
+
+- Number of rows should be close to the target sample size.
+- Number of columns should match the expected variables.
+- Likert items such as `PE1`, `EE1`, `BI1`, and `UB1` should be numeric.
+- Categorical variables such as `gender` and `study_level` should be character or factor.
+:::
+
+::: {.callout-success}
+## If the Data Import Is Correct
+
+If the file imports successfully and variable names are correct, continue to descriptive statistics.
+:::
+
+::: {.callout-warning}
+## If the Data Import Fails
+
+Common issues and fixes:
+
+- File not found: check the path `data/case-studies/utaut/utaut_dataset.xlsx`.
+- Wrong sheet: specify the correct sheet using `sheet =`.
+- Variables not found: check capitalization and spelling.
+- Likert variables imported as text: convert them using `as.numeric()`.
+:::
+
+# Step 2. Descriptive Statistics
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+Descriptive statistics help us understand the data before modeling.
+
+For Likert-scale SEM, this step helps detect:
+
+- Extremely low or high means
+- Very small standard deviations
+- Unusual response patterns
+- Variables with possible coding problems
+:::
+
+```{r}
+#| label: descriptive-statistics
+
+library(psych)
+
+item_data <- utaut_data |>
+  dplyr::select(
+    dplyr::matches("^(PE|EE|SI|FC|HM|PV|HT|PI|BI)[0-9]+$"),
+    UB1
+  )
+
+psych::describe(item_data)
+```
+
+::: {.callout-important}
+## Reference Values for Likert Items
+
+For 1–7 Likert items:
+
+| Indicator | Reference |
+|---|---|
+| Mean around 1–2 | Low agreement |
+| Mean around 3–5 | Moderate agreement |
+| Mean around 6–7 | High agreement |
+| SD below 0.50 | Responses may be too homogeneous |
+| SD around 0.70–1.50 | Usually acceptable |
+| SD above 1.50 | Strong dispersion; check item clarity |
+:::
+
+::: {.callout-success}
+## If Descriptive Results Are Acceptable
+
+Continue to reliability analysis when:
+
+- Means are within the expected Likert range.
+- SD values are not extremely small.
+- There are no impossible values such as 0, 8, 9, or 99.
+:::
+
+::: {.callout-warning}
+## If Descriptive Results Are Not Acceptable
+
+If results look unusual:
+
+- Check the questionnaire coding.
+- Check reverse-coded items.
+- Check missing-value codes such as 99 or 999.
+- Inspect the raw Excel file.
+- Consider recoding or removing invalid observations.
+:::
+
+# Step 3. Missing Value Check
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+PLS-SEM requires complete and valid data for indicators.
+
+Missing values can distort reliability, validity, and path estimates.
+:::
+
+```{r}
+#| label: missing-values
+
+missing_table <- utaut_data |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.x))
+    )
+  ) |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "missing_n"
+  ) |>
+  mutate(
+    missing_percent = round(missing_n / nrow(utaut_data) * 100, 2)
+  ) |>
+  arrange(desc(missing_percent))
+
+missing_table
+```
+
+::: {.callout-important}
+## Missing Value Reference
+
+| Missing percentage | Interpretation |
+|---|---|
+| 0% | Ideal |
+| < 5% | Usually acceptable |
+| 5–10% | Requires attention |
+| > 10% | Serious issue; inspect carefully |
+:::
+
+::: {.callout-success}
+## If Missing Values Are Low
+
+If missingness is below 5%, you can usually proceed.
+
+For teaching datasets, 0% missing is preferred.
+:::
+
+::: {.callout-warning}
+## If Missing Values Are High
+
+Possible actions:
+
+- Check whether missing values are random.
+- Use appropriate imputation.
+- Remove cases only when justified.
+- Report the missing-data treatment clearly.
+:::
+
+# Step 4. Reliability Analysis
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+Before testing structural relationships, we must check whether indicators within each construct measure the same concept.
+
+For example, `PE1` to `PE4` should consistently measure Performance Expectancy.
+:::
+
+```{r}
+#| label: reliability-pe
+
+psych::alpha(
+  utaut_data[, c("PE1", "PE2", "PE3", "PE4")]
+)
+```
+
+::: {.callout-important}
+## Cronbach's Alpha Reference
+
+| Cronbach's Alpha | Interpretation |
+|---|---|
+| < 0.60 | Poor |
+| 0.60–0.70 | Marginal / exploratory |
+| 0.70–0.80 | Acceptable |
+| 0.80–0.90 | Good |
+| 0.90–0.95 | Very good |
+| > 0.95 | Possible item redundancy |
+:::
+
+::: {.callout-success}
+## If Reliability Is Acceptable
+
+If alpha is at least 0.70:
+
+- Keep the construct.
+- Continue to SEM measurement model evaluation.
+:::
+
+::: {.callout-warning}
+## If Reliability Is Low
+
+If alpha is below 0.70:
+
+- Check item wording.
+- Check reverse-coded items.
+- Check item-total correlations.
+- Inspect "alpha if item deleted".
+- Consider removing problematic items only with theoretical justification.
+:::
+
+## Reliability for All Constructs
+
+```{r}
+#| label: reliability-all
+
+construct_items <- list(
+  PE = c("PE1", "PE2", "PE3", "PE4"),
+  EE = c("EE1", "EE2", "EE3", "EE4"),
+  SI = c("SI1", "SI2", "SI3"),
+  FC = c("FC1", "FC2", "FC3"),
+  HM = c("HM1", "HM2", "HM3"),
+  PV = c("PV1", "PV2", "PV3"),
+  HT = c("HT1", "HT2", "HT3", "HT4"),
+  PI = c("PI1", "PI2", "PI3", "PI4"),
+  BI = c("BI1", "BI2", "BI3")
+)
+
+reliability_table <- purrr::map_dfr(
+  names(construct_items),
+  function(x) {
+    alpha_result <- psych::alpha(
+      utaut_data[, construct_items[[x]]],
+      warnings = FALSE
+    )
+
+    tibble::tibble(
+      construct = x,
+      cronbach_alpha = round(alpha_result$total$raw_alpha, 3)
+    )
+  }
+)
+
+reliability_table
+```
+
+# Step 5. Build the PLS-SEM Model
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+PLS-SEM has two parts:
+
+1. **Measurement model**: defines how indicators measure latent constructs.
+2. **Structural model**: defines relationships among latent constructs.
+
+A clear separation between these two parts helps prevent model specification errors.
+:::
+
+```{r}
+#| label: build-pls-model
+
+library(seminr)
+
+measurement_model <- seminr::constructs(
+  seminr::composite("PE", seminr::multi_items("PE", 1:4)),
+  seminr::composite("EE", seminr::multi_items("EE", 1:4)),
+  seminr::composite("SI", seminr::multi_items("SI", 1:3)),
+  seminr::composite("FC", seminr::multi_items("FC", 1:3)),
+  seminr::composite("HM", seminr::multi_items("HM", 1:3)),
+  seminr::composite("PV", seminr::multi_items("PV", 1:3)),
+  seminr::composite("HT", seminr::multi_items("HT", 1:4)),
+  seminr::composite("PI", seminr::multi_items("PI", 1:4)),
+  seminr::composite("BI", seminr::multi_items("BI", 1:3)),
+  seminr::composite("UB", seminr::single_item("UB1"))
+)
+
+structural_model <- seminr::relationships(
+  seminr::paths(
+    from = c("PE", "EE", "SI", "FC", "HM", "PV", "HT", "PI"),
+    to = "BI"
+  ),
+  seminr::paths(
+    from = c("FC", "HT", "BI"),
+    to = "UB"
+  )
+)
+
+pls_model <- seminr::estimate_pls(
+  data = utaut_data,
+  measurement_model = measurement_model,
+  structural_model = structural_model
+)
+
+pls_summary <- summary(pls_model)
+pls_summary
+```
+
+::: {.callout-note}
+## What Should We Check First?
+
+After estimating the model, check:
+
+- Indicator loadings
+- Reliability
+- AVE
+- HTMT
+- Path coefficients
+- R-squared
+
+Do not interpret structural paths before checking the measurement model.
+:::
+
+# Step 6. Indicator Loadings
+
+::: {.callout-tip}
+## Why Are We Checking Loadings?
+
+Indicator loading shows how strongly each item represents its construct.
+
+A low loading means the item may not measure the intended latent variable well.
+:::
+
+```{r}
+#| label: loadings
+
+pls_summary$loadings
+```
+
+::: {.callout-important}
+## Loading Reference
+
+| Loading | Interpretation |
+|---|---|
+| ≥ 0.70 | Good |
+| 0.60–0.70 | Acceptable in exploratory research |
+| 0.40–0.60 | Consider carefully |
+| < 0.40 | Usually problematic |
+:::
+
+::: {.callout-success}
+## If Loadings Are Acceptable
+
+If most loadings are above 0.70:
+
+- Keep the indicators.
+- Continue to reliability and validity.
+:::
+
+::: {.callout-warning}
+## If Loadings Are Low
+
+If an item has low loading:
+
+- Check wording and coding.
+- Check whether it is reverse-coded.
+- Consider deleting the item only if theory supports deletion.
+- Re-estimate the model after any deletion.
+:::
+
+# Step 7. Internal Consistency and Convergent Validity
+
+::: {.callout-tip}
+## Why Are We Doing This?
+
+Reliability and convergent validity show whether each construct is measured consistently and whether its indicators share enough variance.
+:::
+
+```{r}
+#| label: reliability-validity
+
+pls_summary$reliability
+```
+
+::: {.callout-important}
+## Reference Values
+
+| Criterion | Recommended threshold |
+|---|---|
+| Cronbach's Alpha | ≥ 0.70 |
+| Composite Reliability | ≥ 0.70 |
+| AVE | ≥ 0.50 |
+:::
+
+::: {.callout-success}
+## If Results Meet the Thresholds
+
+If reliability is above 0.70 and AVE is above 0.50:
+
+- The measurement model is acceptable.
+- Continue to discriminant validity.
+:::
+
+::: {.callout-warning}
+## If Results Fail the Thresholds
+
+If reliability or AVE is low:
+
+- Inspect item loadings.
+- Identify weak indicators.
+- Check item wording and scale design.
+- Consider removing low-loading items.
+- Avoid deleting items only to improve statistics without theoretical justification.
+:::
+
+# Step 8. Discriminant Validity Using HTMT
+
+::: {.callout-tip}
+## Why Are We Checking HTMT?
+
+HTMT evaluates whether constructs are sufficiently distinct from each other.
+
+For example, Performance Expectancy and Effort Expectancy should be related but not identical.
+:::
+
+```{r}
+#| label: htmt
+
+pls_summary$validity$htmt
+```
+
+::: {.callout-important}
+## HTMT Reference
+
+| HTMT value | Interpretation |
+|---|---|
+| < 0.85 | Strict criterion; good discriminant validity |
+| < 0.90 | More lenient criterion |
+| ≥ 0.90 | Potential discriminant validity problem |
+:::
+
+::: {.callout-success}
+## If HTMT Is Acceptable
+
+If all HTMT values are below 0.85 or 0.90:
+
+- Constructs are sufficiently distinct.
+- Continue to the structural model.
+:::
+
+::: {.callout-warning}
+## If HTMT Is Too High
+
+If HTMT is above 0.90:
+
+- Check whether two constructs are conceptually overlapping.
+- Review item wording.
+- Consider combining constructs only if theoretically justified.
+- Consider removing problematic indicators.
+:::
+
+# Step 9. Bootstrap the Structural Model
+
+::: {.callout-tip}
+## Why Are We Bootstrapping?
+
+Bootstrapping estimates the stability and statistical significance of path coefficients.
+
+Because PLS-SEM does not rely on normality assumptions, bootstrapping is commonly used to test whether paths are statistically significant.
+:::
+
+```{r}
+#| label: bootstrap
+#| cache: true
+
+boot_model <- seminr::bootstrap_model(
+  pls_model,
+  nboot = 5000
+)
+
+boot_summary <- summary(boot_model)
+boot_summary
+```
+
+::: {.callout-important}
+## Bootstrap Reference
+
+| Indicator | Reference |
+|---|---|
+| p-value < 0.05 | Significant path |
+| 95% CI does not include 0 | Significant path |
+| t-value > 1.96 | Significant at approximately 5% |
+:::
+
+::: {.callout-success}
+## If a Path Is Significant
+
+If the path is significant and the sign is in the expected direction:
+
+- The hypothesis is supported.
+- Interpret the size and direction of the coefficient.
+- Compare with theory and previous studies.
+:::
+
+::: {.callout-warning}
+## If a Path Is Not Significant
+
+If the path is not significant:
+
+- Do not claim support for the hypothesis.
+- Discuss possible theoretical or contextual reasons.
+- Check sample size, measurement quality, and multicollinearity.
+- Do not delete paths only to make the model look better.
+:::
+
+# Step 10. Path Coefficients
+
+::: {.callout-tip}
+## Why Are We Interpreting Path Coefficients?
+
+Path coefficients show the direction and strength of relationships between constructs.
+
+For example, a positive coefficient from Habit to Behavioral Intention means students with stronger habits tend to have stronger intention to use ChatGPT.
+:::
+
+```{r}
+#| label: path-coefficients
+
+boot_summary$bootstrapped_paths
+```
+
+::: {.callout-important}
+## Path Coefficient Interpretation
+
+| Absolute coefficient | Interpretation |
+|---|---|
+| < 0.10 | Very small |
+| 0.10–0.20 | Small |
+| 0.20–0.40 | Moderate |
+| > 0.40 | Strong |
+:::
+
+::: {.callout-note}
+## How to Report
+
+A concise reporting sentence:
+
+> Habit had a positive and significant effect on Behavioral Intention, indicating that students who had developed stronger habits of using ChatGPT were more likely to intend to continue using it.
+:::
+
+# Step 11. R-Squared
+
+::: {.callout-tip}
+## Why Are We Checking R-Squared?
+
+R-squared shows how much variance in the outcome construct is explained by its predictors.
+
+In this case, we check:
+
+- How much of Behavioral Intention is explained.
+- How much of Use Behavior is explained.
+:::
+
+```{r}
+#| label: r-squared
+
+pls_summary$r_squared
+```
+
+::: {.callout-important}
+## R-Squared Reference in PLS-SEM
+
+| R² | Interpretation |
+|---|---|
+| 0.25 | Weak |
+| 0.50 | Moderate |
+| 0.75 | Substantial |
+:::
+
+::: {.callout-note}
+## Published Study Benchmark
+
+The published study reported:
+
+| Construct | Published R² |
+|---|---:|
+| Behavioral Intention | 0.728 |
+| Use Behavior | 0.547 |
+
+For this teaching dataset, the values do not need to be identical. The goal is to understand how to interpret model explanatory power.
+:::
+
+::: {.callout-success}
+## If R-Squared Is Acceptable
+
+If R² is moderate or substantial:
+
+- The model has useful explanatory power.
+- Continue to hypothesis interpretation and discussion.
+:::
+
+::: {.callout-warning}
+## If R-Squared Is Low
+
+If R² is low:
+
+- Check whether important predictors are missing.
+- Reconsider theory.
+- Check measurement quality.
+- Avoid adding predictors without theoretical justification.
+:::
+
+# Step 12. Effect Size
+
+::: {.callout-tip}
+## Why Are We Checking Effect Size?
+
+A path can be statistically significant but still practically small.
+
+Effect size helps evaluate whether a predictor has meaningful contribution to the explained variance.
+:::
+
+```{r}
+#| label: effect-size
+
+pls_summary$fSquare
+```
+
+::: {.callout-important}
+## f² Reference
+
+| f² | Interpretation |
+|---|---|
+| 0.02 | Small effect |
+| 0.15 | Medium effect |
+| 0.35 | Large effect |
+| < 0.02 | Negligible effect |
+:::
+
+::: {.callout-success}
+## If Effect Size Is Meaningful
+
+If a predictor has significant path and meaningful f²:
+
+- Emphasize it in the results and discussion.
+- Link the interpretation to theory.
+:::
+
+::: {.callout-warning}
+## If Effect Size Is Very Small
+
+If p-value is significant but f² is below 0.02:
+
+- Report the path carefully.
+- Avoid overstating importance.
+- Discuss practical relevance, not only statistical significance.
+:::
+
+# Step 13. Results Interpretation
+
+::: {.callout-note}
+## Suggested Interpretation Structure
+
+When writing SEM results, follow this sequence:
+
+1. Measurement model
+2. Discriminant validity
+3. Structural model
+4. R-squared
+5. Hypothesis testing
+6. Theoretical interpretation
+:::
+
+## Example Results Text
+
+The measurement model showed acceptable indicator reliability, as most item loadings exceeded the recommended threshold of 0.70. Internal consistency was also acceptable, with reliability estimates above the commonly used threshold of 0.70. The HTMT values indicated adequate discriminant validity among constructs.
+
+The structural model results suggested that several UTAUT2 predictors were positively associated with Behavioral Intention. Habit and Performance Expectancy were particularly important predictors. Behavioral Intention, Habit, and Facilitating Conditions contributed to Use Behavior. These findings support the usefulness of UTAUT2 for explaining students' acceptance and use of ChatGPT in higher education.
+
+::: {.callout-warning}
+## Writing Caution
+
+Do not write:
+
+> This proves that Habit causes ChatGPT use.
+
+Instead, write:
+
+> The results suggest a positive association between Habit and Use Behavior within the specified model.
+
+Survey-based SEM supports theoretical relationships, but causal claims require stronger research designs.
+:::
+
+# Step 14. Comparison With the Published Study
+
+::: {.callout-tip}
+## Why Compare With the Published Study?
+
+Comparison helps learners understand what it means to replicate or approximate a published analysis.
+
+However, because this is synthetic data, exact numerical replication is not expected.
+:::
+
+| Result component | Published study | Teaching dataset |
+|---|---|---|
+| Sample size | 503 | 503 |
+| Main method | PLS-SEM | PLS-SEM in R |
+| Main outcome 1 | Behavioral Intention | Behavioral Intention |
+| Main outcome 2 | Use Behavior | Use Behavior |
+| Expected strongest predictor | Habit | Should be checked in output |
+| R² for BI | 0.728 | Check `pls_summary$r_squared` |
+| R² for UB | 0.547 | Check `pls_summary$r_squared` |
+
+::: {.callout-important}
+## Key Learning Point
+
+A teaching dataset should reproduce the **logic of the research design**, not necessarily the exact numerical results.
+
+The important learning outcome is that students can explain:
+
+- What was modeled
+- Why it was modeled
+- What was checked
+- What the thresholds mean
+- What to do when results pass or fail
+:::
+
+# Step 15. Discussion Questions
+
+1. Why might Habit be a strong predictor of Behavioral Intention?
+2. Why might Facilitating Conditions affect Use Behavior more than Behavioral Intention?
+3. Why might Price Value be weak when ChatGPT is free or low-cost?
+4. How might the model differ for teachers rather than students?
+5. How might adoption differ across countries, disciplines, or educational levels?
+
+# Mini Project
+
+Replicate this study using a new population:
+
+- Faculty members
+- High school teachers
+- University lecturers
+- Vocational education students
+- Online learners
+
+::: {.callout-note}
+## Mini Project Output
+
+Students should submit:
+
+- Research question
+- Conceptual framework
+- Questionnaire items
+- Synthetic or real dataset
+- Measurement model results
+- Structural model results
+- Academic-style results paragraph
+:::
+
+# Extension Activities
+
+Continue to:
+
+- [Module 5. PLS-SEM](module-5.qmd)
+- [Module A4. Advanced SEM](advanced/adv-04-sem.qmd)
+- [Module A10. Research Toolkit](advanced/adv-10-toolkit.qmd)
+- [Research Toolkit](research-toolkit.qmd)
+- [Glossary](glossary.qmd)
+
+# Key Takeaways
+
+::: {.callout-success}
+## What You Have Learned
+
+After completing this case, you should be able to:
+
+- Understand the UTAUT2 framework.
+- Specify a PLS-SEM model in R.
+- Evaluate reliability and validity.
+- Interpret loadings, HTMT, path coefficients, R², and f².
+- Decide what to do when results pass or fail reference thresholds.
+- Write cautious and publication-style SEM interpretations.
+:::

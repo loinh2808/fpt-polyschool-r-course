@@ -1,0 +1,314 @@
+---
+title: "Learning Resources"
+subtitle: "Books, References, and Self-Study Materials"
+---
+
+# Learning Resources
+
+::: callout-note
+Trang này tập hợp các tài liệu học tập, sách tham khảo và nguồn học liệu được khuyến nghị cho khóa học **R for Research and Data Analytics**.
+
+Các tài liệu được liên kết trực tiếp với từng module trong chương trình học.
+:::
+
+# Learning Strategy
+
+::: callout-tip
+Không cần đọc toàn bộ các quyển sách.
+
+Nên học theo quy trình:
+
+1.  Học module.
+2.  Thực hành code.
+3.  Làm bài tập.
+4.  Đọc chương liên quan.
+5.  Áp dụng vào dữ liệu thực tế.
+:::
+
+# Book Library
+
+## Core Statistics
+
+### Statistics for Business and Economics
+
+[📖 Open Book](resources/Books/Statistics%20for%20Business%20and%20economics.pdf){.btn .btn-primary}
+
+**Topics**
+
+- Descriptive Statistics
+- Probability
+- Hypothesis Testing
+- Regression
+- ANOVA
+
+**Related Modules**
+
+- Module 3. Thống kê mô tả (Descriptive Statistics)
+- Module 4. Tương quan và Hồi quy (Correlation and Regression Analysis)
+- Module A13. Thiết kế Thí nghiệm và ANOVA (Experimental Design and Analysis of Variance)
+
+------------------------------------------------------------------------
+
+## Data Visualization
+
+### R with ggplot2 Using Shiny App
+
+[📖 Open Book](resources/Books/R%20with%20ggplot2%20Using%20Shiny%20App.pdf){.btn .btn-primary}
+
+**Topics**
+
+- Grammar of Graphics
+- ggplot2
+- Interactive Visualization
+- Shiny
+
+**Related Modules**
+
+- Module 6. Trực quan hóa dữ liệu và Viết kết quả (Data Visualization and Research Reporting)
+- Module A9. Thư viện Trực quan hóa (Advanced Visualization Gallery)
+- Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật (Reproducible Research and Academic Reporting)
+
+------------------------------------------------------------------------
+
+## Psychometrics and SEM
+
+### Psychometrics
+
+[📖 Open Book](resources/Books/Psychometrics.pdf){.btn .btn-primary}
+
+**Topics**
+
+- Reliability
+- Validity
+- Scale Development
+- Measurement Models
+- SEM
+
+**Related Modules**
+
+- Module 5. PLS-SEM (Partial Least Squares Structural Equation Modeling)
+- Module A4. Mô hình Phương trình Cấu trúc Nâng cao (Advanced Structural Equation Modeling)
+
+------------------------------------------------------------------------
+
+## Marketing Analytics
+
+### R for Marketing
+
+[📖 Open Book](resources/Books/R%20for%20Marketing.pdf){.btn .btn-primary}
+
+**Topics**
+
+- Customer Segmentation
+- Cluster Analysis
+- PCA
+- Marketing Analytics
+
+**Related Modules**
+
+- Module 4. Tương quan và Hồi quy (Correlation and Regression Analysis)
+- Module A2. Hồi quy Nâng cao (Advanced Regression Analysis)
+- Module A9. Thư viện Trực quan hóa (Advanced Visualization Gallery)
+
+------------------------------------------------------------------------
+
+## Machine Learning
+
+### R for Random Forest
+
+[📖 Open Book](resources/Books/R%20for%20random%20forest.pdf){.btn .btn-primary}
+
+**Topics**
+
+- Decision Trees
+- Random Forest
+- Variable Importance
+- Prediction
+
+**Related Modules**
+
+- Module A3. Hồi quy Chính quy hóa (Regularized Regression)
+- Module A10. Bộ Công cụ Nghiên cứu (Research Toolkit)
+
+------------------------------------------------------------------------
+
+## Choice Modelling
+
+### R for Discrete Choice
+
+[📖 Open Book](resources/Books/R%20for%20discrete%20choice.pdf){.btn .btn-primary}
+
+**Topics**
+
+- Logit Models
+- Probit Models
+- Discrete Choice Experiments
+- Willingness to Pay
+
+**Related Modules**
+
+- Module A2. Hồi quy Nâng cao (Advanced Regression Analysis)
+- Module A10. Bộ Công cụ Nghiên cứu (Research Toolkit)
+
+------------------------------------------------------------------------
+
+## Spatial Analytics
+
+### R for Spatial Data
+
+[📖 Open Book](resources/Books/R%20for%20Spatial%20Data.pdf){.btn .btn-primary}
+
+**Topics**
+
+- GIS
+- Spatial Analysis
+- Mapping
+- Geospatial Visualization
+
+**Related Modules**
+
+- Module A9. Thư viện Trực quan hóa (Advanced Visualization Gallery)
+- Module A10. Bộ Công cụ Nghiên cứu (Research Toolkit)
+
+------------------------------------------------------------------------
+
+## Genomics and Bioinformatics
+
+### R for Genomic
+
+[📖 Open Book](resources/Books/R%20for%20Genomic.pdf){.btn .btn-primary}
+
+**Topics**
+
+- Genomics
+- Bioinformatics
+- PCA
+- Clustering
+- Heatmaps
+
+**Related Modules**
+
+- Module A9. Thư viện Trực quan hóa (Advanced Visualization Gallery)
+- Module A10. Bộ Công cụ Nghiên cứu (Research Toolkit)
+
+------------------------------------------------------------------------
+
+## Epidemiology
+
+### R for Epidemics
+
+[📖 Open Book](resources/Books/R%20for%20epidemics.pdf){.btn .btn-primary}
+
+**Topics**
+
+- Disease Modelling
+- Forecasting
+- Time Series
+- Spatial Epidemics
+
+**Related Modules**
+
+- Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc (Mixed Models and Longitudinal Data)
+- Module A10. Bộ Công cụ Nghiên cứu (Research Toolkit)
+
+# Recommended Reading by Module
+
+| Module | Recommended Reading |
+|----|----|
+| Module 1. Nhập môn R (Introduction to R) | Statistics for Business and Economics |
+| Module 2. Làm sạch dữ liệu (Data Cleaning and Wrangling) | Statistics for Business and Economics |
+| Module 3. Thống kê mô tả (Descriptive Statistics) | Statistics for Business and Economics |
+| Module 4. Tương quan và Hồi quy (Correlation and Regression Analysis) | Statistics for Business and Economics |
+| Module 5. PLS-SEM (Partial Least Squares Structural Equation Modeling) | Psychometrics |
+| Module 6. Trực quan hóa dữ liệu và Viết kết quả (Data Visualization and Research Reporting) | R with ggplot2 Using Shiny App |
+| Module A1. Chẩn đoán Thống kê Mô tả (Descriptive Diagnostics) | Statistics for Business and Economics |
+| Module A2. Hồi quy Nâng cao (Advanced Regression Analysis) | Statistics for Business and Economics + R for Marketing |
+| Module A3. Hồi quy Chính quy hóa (Regularized Regression) | R for Random Forest |
+| Module A4. Mô hình Phương trình Cấu trúc Nâng cao (Advanced Structural Equation Modeling) | Psychometrics |
+| Module A5. Thống kê Bayes (Bayesian Statistics) | Statistics for Business and Economics |
+| Module A6. Mô phỏng Monte Carlo (Monte Carlo Simulation) | Statistics for Business and Economics |
+| Module A7. Nghịch lý Simpson (Simpson's Paradox) | Statistics for Business and Economics |
+| Module A8. Phân tích Likert Nâng cao (Advanced Likert Scale Analysis) | Psychometrics |
+| Module A9. Thư viện Trực quan hóa (Advanced Visualization Gallery) | R with ggplot2 Using Shiny App + R for Spatial Data |
+| Module A10. Bộ Công cụ Nghiên cứu (Research Toolkit) | All Resources |
+| Module A11. Phân tích Tổng hợp (Meta-analysis) | Statistics for Business and Economics |
+| Module A12. Phân tích Trắc lượng Thư mục (Bibliometric Analysis) | Statistics for Business and Economics |
+| Module A13. Thiết kế Thí nghiệm và ANOVA (Experimental Design and Analysis of Variance) | Statistics for Business and Economics |
+| Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc (Mixed Models and Longitudinal Data) | R for Epidemics |
+| Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật (Reproducible Research and Academic Reporting) | R with ggplot2 Using Shiny App |
+
+# Self-Study Pathways
+
+## Academic Researcher
+
+``` text
+Module 1
+→ Module 2
+→ Module 3
+→ Module 4
+→ Module 5
+→ Module A4
+→ Module A11
+→ Module A12
+→ Module A13
+→ Module A14
+→ Module A15
+```
+
+## Data Analyst
+
+``` text
+Module 1
+→ Module 2
+→ Module 3
+→ Module 4
+→ Module 6
+→ Module A2
+→ Module A9
+→ Module A15
+```
+
+## Data Scientist
+
+``` text
+Module 1
+→ Module 2
+→ Module 3
+→ Module 4
+→ Module A3
+→ Module A6
+→ Module A9
+→ Module A10
+→ Module A15
+```
+
+# External Resources
+
+## Official Documentation
+
+- CRAN
+- Posit
+- Tidyverse
+- ggplot2
+- Quarto
+
+## Communities
+
+- Stack Overflow
+- Posit Community
+- R Bloggers
+
+# Final Advice
+
+::: callout-important
+Không cần đọc tất cả các tài liệu.
+
+Hãy:
+
+- Học module.
+- Thực hành code.
+- Làm dự án.
+- Đọc đúng tài liệu liên quan.
+
+Việc áp dụng kiến thức vào dữ liệu thực tế quan trọng hơn việc đọc nhiều sách.
+:::

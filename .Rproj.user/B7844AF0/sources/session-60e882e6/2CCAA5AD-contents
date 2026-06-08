@@ -1,0 +1,837 @@
+---
+title: "Advanced 10. Bộ công cụ Nghiên cứu"
+subtitle: "Research Toolkit and Decision Framework"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Chọn phương pháp phân tích phù hợp với câu hỏi nghiên cứu
+- Chọn biểu đồ phù hợp với loại dữ liệu
+- Sử dụng checklist trước khi phân tích
+- Sử dụng checklist cho mô hình hồi quy, SEM, Bayesian, Monte Carlo và Likert
+- Chuẩn bị bảng kết quả học thuật
+- Chuẩn bị hình publication-ready
+- Viết kết quả nghiên cứu theo template
+- Thiết kế workflow nghiên cứu tái lập bằng R và Quarto
+- Tạo kế hoạch capstone project cuối khóa
+- Kết nối toàn bộ Advanced Analytics thành một quy trình nghiên cứu hoàn chỉnh
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Tôi có dữ liệu và câu hỏi nghiên cứu. Vậy nên chọn phương pháp nào, vẽ hình nào, tạo bảng nào và viết kết quả ra sao?**
+
+Quy trình:
+
+```text
+Research Question
+↓
+Data Type
+↓
+Method Selection
+↓
+Diagnostics
+↓
+Analysis
+↓
+Tables
+↓
+Figures
+↓
+Interpretation
+↓
+Quarto Report
+```
+
+:::
+
+## Research workflow tổng quát
+
+```{mermaid}
+flowchart TD
+
+A[Research Question]
+--> B[Data Collection]
+
+B --> C[Data Cleaning]
+
+C --> D[Exploratory Data Analysis]
+
+D --> E[Method Selection]
+
+E --> F[Statistical Analysis]
+
+F --> G[Tables and Figures]
+
+G --> H[Interpretation]
+
+H --> I[Quarto Report]
+
+I --> J[Publication-ready Output]
+```
+
+# 1. Cách dùng Research Toolkit
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Research Toolkit là bộ công cụ giúp người học ra quyết định phân tích dữ liệu một cách có hệ thống.
+
+**Tại sao cần? (Why?)**
+
+Sau khi học nhiều kỹ thuật, người học thường gặp câu hỏi:
+
+```text
+Nên dùng phương pháp nào cho dữ liệu này?
+```
+
+Toolkit này giúp giảm nhầm lẫn giữa:
+
+- Descriptive statistics
+- Regression
+- SEM
+- Bayesian analysis
+- Monte Carlo simulation
+- Likert visualization
+- Advanced visualization
+
+**Khi nào dùng? (When?)**
+
+Dùng khi:
+
+- Bắt đầu một nghiên cứu mới
+- Chuẩn bị phân tích dữ liệu
+- Viết phương pháp
+- Viết kết quả
+- Chọn hình và bảng
+- Chuẩn bị báo cáo Quarto
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên chọn phương pháp chỉ vì:
+
+- Phương pháp đó đang phổ biến
+- Phương pháp đó trông phức tạp
+- Người khác dùng phương pháp đó
+- Package đó có biểu đồ đẹp
+
+Nên chọn phương pháp dựa trên:
+
+- Câu hỏi nghiên cứu
+- Loại biến
+- Thiết kế nghiên cứu
+- Giả định thống kê
+- Mục tiêu giải thích hay dự đoán
+
+:::
+
+# 2. Chọn phương pháp theo câu hỏi nghiên cứu
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể chọn phương pháp phân tích dựa trên câu hỏi nghiên cứu.
+
+:::
+
+## Bảng quyết định nhanh
+
+| Câu hỏi nghiên cứu | Loại dữ liệu | Phương pháp gợi ý |
+|---|---|---|
+| Dữ liệu có đặc điểm gì? | Numeric / categorical | Descriptive Statistics |
+| Hai biến có liên hệ không? | Numeric + numeric | Correlation |
+| Một biến dự đoán outcome liên tục không? | Continuous outcome | Linear Regression |
+| Outcome là 0/1 thì sao? | Binary outcome | Logistic Regression |
+| Outcome là dữ liệu đếm? | Count outcome | Poisson Regression |
+| Outcome là thứ bậc? | Ordinal outcome | Ordinal Regression |
+| Có nhiều predictors tương quan? | Many predictors | Ridge / LASSO / Elastic Net |
+| Có construct tiềm ẩn? | Likert scale items | SEM |
+| Cần kiểm tra thang đo? | Multiple items | CFA |
+| Cần mô phỏng uncertainty? | Simulation problem | Monte Carlo |
+| Cần prior/posterior? | Bayesian question | Bayesian Statistics |
+| Dữ liệu Likert cần trình bày? | Survey items | Likert Analysis |
+| Dữ liệu gộp có thể gây sai? | Grouped data | Simpson's Paradox check |
+| Cần tổng hợp nhiều nghiên cứu? | Effect sizes | Meta-analysis |
+| Cần phân tích tài liệu khoa học? | Bibliographic records | Bibliometric Analysis |
+
+## Decision tree
+
+```{mermaid}
+flowchart TD
+
+A[Start with Research Question]
+--> B{Outcome variable?}
+
+B -->|Continuous| C[Linear Regression / Regularized Regression]
+
+B -->|Binary| D[Logistic Regression]
+
+B -->|Count| E[Poisson Regression]
+
+B -->|Ordinal| F[Ordinal Regression]
+
+B -->|Latent Construct| G[SEM / CFA]
+
+B -->|No Outcome| H{Main Goal?}
+
+H -->|Describe| I[Descriptive Statistics]
+
+H -->|Explore Pattern| J[Visualization / PCA]
+
+H -->|Compare Literature| K[Meta-analysis / Bibliometric]
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Phương pháp phân tích phải bắt đầu từ câu hỏi nghiên cứu, không bắt đầu từ package R.
+
+:::
+
+# 3. Chọn biểu đồ theo loại dữ liệu
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Biểu đồ tốt phải phù hợp với loại biến và thông điệp cần truyền đạt.
+
+:::
+
+## Figure decision table
+
+| Câu hỏi | Dữ liệu | Biểu đồ phù hợp |
+|---|---|---|
+| Một biến numeric phân phối ra sao? | Numeric | Histogram / Density |
+| So sánh numeric giữa nhóm? | Numeric + category | Boxplot / Violin |
+| Hai biến numeric liên hệ thế nào? | Numeric + numeric | Scatter plot |
+| Có xu hướng theo thời gian? | Date + numeric | Line plot |
+| Tỷ lệ theo nhóm? | Category | Bar / Stacked bar |
+| Likert responses? | Ordinal survey | Likert stacked / Diverging |
+| Nhiều biến tương quan? | Numeric matrix | Correlation heatmap |
+| Nhiều biến cần giảm chiều? | Multivariate | PCA plot |
+| Effect size + p-value? | Scientific output | Volcano plot |
+| Dòng chuyển nhóm? | Categorical flow | Alluvial plot |
+
+## Figure decision tree
+
+```{mermaid}
+flowchart TD
+
+A[Choose Figure]
+--> B{Variable Type}
+
+B -->|One Numeric| C[Histogram / Density]
+
+B -->|Numeric by Group| D[Boxplot / Violin]
+
+B -->|Two Numeric| E[Scatter / Regression Line]
+
+B -->|Time| F[Line / Area]
+
+B -->|Likert| G[Likert Plot]
+
+B -->|Matrix| H[Heatmap]
+
+B -->|Many Variables| I[PCA]
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên dùng biểu đồ quá phức tạp nếu một biểu đồ đơn giản đã trả lời được câu hỏi.
+
+:::
+
+# 4. Checklist trước khi phân tích
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể kiểm tra dữ liệu trước khi chạy mô hình.
+
+:::
+
+## Data diagnostic checklist
+
+| Câu hỏi kiểm tra | Cần làm |
+|---|---|
+| Dữ liệu có missing values không? | Kiểm tra `NA` |
+| Biến có đúng kiểu dữ liệu không? | `glimpse()` |
+| Có outliers không? | Boxplot / z-score / IQR |
+| Phân phối có lệch không? | Histogram / skewness |
+| Nhóm có mất cân bằng không? | Frequency table |
+| Biến numeric có scale khác nhau không? | Standardization |
+| Predictors có tương quan mạnh không? | Correlation matrix |
+| Outcome phù hợp mô hình không? | Kiểm tra loại biến |
+| Có biến nhóm quan trọng không? | Grouped analysis |
+| Có cần kiểm tra robustness không? | Sensitivity analysis |
+
+## Diagnostic workflow
+
+```{mermaid}
+flowchart TD
+
+A[Raw Data]
+--> B[Check Missing Values]
+
+B --> C[Check Variable Types]
+
+C --> D[Check Outliers]
+
+D --> E[Check Distribution]
+
+E --> F[Check Group Balance]
+
+F --> G[Check Collinearity]
+
+G --> H[Choose Model]
+
+H --> I[Run Analysis]
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Một mô hình tốt bắt đầu từ dữ liệu được kiểm tra kỹ.
+
+:::
+
+# 5. Toolkit cho thống kê mô tả
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Thống kê mô tả không chỉ là mean và SD.
+
+:::
+
+## Khi nào dùng?
+
+Dùng ở đầu mọi nghiên cứu để hiểu dữ liệu.
+
+## Nên báo cáo
+
+| Thành phần | Khi nào dùng |
+|---|---|
+| Mean | Dữ liệu gần chuẩn |
+| Median | Dữ liệu lệch |
+| SD | Độ phân tán |
+| IQR | Dữ liệu lệch hoặc có outliers |
+| Min / Max | Kiểm tra range |
+| Skewness | Kiểm tra độ lệch |
+| Missing % | Đánh giá chất lượng dữ liệu |
+
+## Template viết kết quả
+
+```text
+Descriptive analysis showed that the mean score was [M] (SD = [SD]), while the median was [Median] (IQR = [IQR]). The distribution was [approximately symmetric / positively skewed], suggesting that [interpretation].
+```
+
+# 6. Toolkit cho hồi quy
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Hồi quy dùng để kiểm tra mối quan hệ giữa predictors và outcome.
+
+:::
+
+## Chọn mô hình hồi quy
+
+| Outcome | Mô hình |
+|---|---|
+| Continuous | Linear Regression |
+| Binary | Logistic Regression |
+| Count | Poisson Regression |
+| Ordinal | Ordinal Regression |
+| Many correlated predictors | Ridge / LASSO / Elastic Net |
+
+## Checklist hồi quy
+
+| Kiểm tra | Ý nghĩa |
+|---|---|
+| Outcome type | Chọn mô hình |
+| Linearity | Với linear regression |
+| Outliers | Ảnh hưởng hệ số |
+| Collinearity | Predictors tương quan mạnh |
+| Residuals | Kiểm tra mô hình |
+| Model comparison | So sánh mô hình |
+
+## Template viết kết quả
+
+```text
+Regression results indicated that [predictor] was significantly associated with [outcome], controlling for [covariates]. The coefficient was [estimate], suggesting that a one-unit increase in [predictor] was associated with [interpretation].
+```
+
+# 7. Toolkit cho SEM
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+SEM phù hợp khi nghiên cứu có nhiều construct tiềm ẩn và nhiều item đo lường.
+
+:::
+
+## SEM workflow
+
+```{mermaid}
+flowchart TD
+
+A[Theory]
+--> B[Measurement Model]
+
+B --> C[CFA]
+
+C --> D[Reliability]
+
+D --> E[Validity]
+
+E --> F[Structural Model]
+
+F --> G[Path Coefficients]
+
+G --> H[Reporting]
+```
+
+## Checklist SEM
+
+| Thành phần | Cần kiểm tra |
+|---|---|
+| Item loading | > .50 hoặc > .70 |
+| Cronbach's Alpha | > .70 |
+| AVE | > .50 |
+| CFI/TLI | > .90 |
+| RMSEA/SRMR | < .08 |
+| Path coefficients | Estimate, p-value |
+| R-squared | Variance explained |
+
+## Template SEM
+
+```text
+The measurement model showed acceptable fit to the data, with CFI = [value], TLI = [value], RMSEA = [value], and SRMR = [value]. The structural model indicated that [predictor] was positively associated with [outcome].
+```
+
+# 8. Toolkit cho Bayesian Analysis
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Bayesian analysis dùng prior và dữ liệu để tạo posterior distribution.
+
+:::
+
+## Bayesian checklist
+
+| Thành phần | Cần báo cáo |
+|---|---|
+| Model | Mô hình dùng |
+| Prior | Loại prior |
+| Posterior mean | Ước lượng |
+| Credible interval | Uncertainty |
+| Probability statement | Nếu phù hợp |
+| Diagnostics | Rhat, trace plot |
+| Sensitivity | Nếu prior quan trọng |
+
+## Template Bayesian
+
+```text
+A Bayesian regression model was estimated using [prior type]. The posterior mean for [predictor] was [estimate], with a 95% credible interval of [lower, upper]. The posterior probability that the effect was positive was [probability].
+```
+
+# 9. Toolkit cho Monte Carlo
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Monte Carlo dùng mô phỏng lặp lại để hiểu uncertainty hoặc power.
+
+:::
+
+## Monte Carlo checklist
+
+| Thành phần | Cần nêu |
+|---|---|
+| Mục tiêu mô phỏng | Vì sao mô phỏng |
+| Giả định | Mean, SD, effect size |
+| Số lần lặp | Repetitions |
+| Statistic | Mean, beta, power |
+| Kết quả | Estimate / interval |
+| Sensitivity | Kịch bản khác |
+
+## Template Monte Carlo
+
+```text
+A Monte Carlo simulation with [number] replications was conducted under the assumed effect size of [value]. The results indicated that [main finding], suggesting that [interpretation].
+```
+
+# 10. Toolkit cho Likert Analysis
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Dữ liệu Likert cần báo cáo phân bố phản hồi, không chỉ mean.
+
+:::
+
+## Likert checklist
+
+| Thành phần | Nên có |
+|---|---|
+| Response distribution | Có |
+| Mean score | Nếu phù hợp |
+| Top-box score | Có thể dùng |
+| Group comparison | Nếu có nhóm |
+| Reliability | Nếu gộp item |
+| Visualization | Likert plot |
+
+## Template Likert
+
+```text
+The Likert response distribution showed that most respondents selected Agree or Strongly agree for [item], suggesting generally positive perceptions. However, the proportion of Neutral responses indicates that some respondents may not have formed a clear opinion.
+```
+
+# 11. Toolkit cho bảng học thuật
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể chọn bảng phù hợp cho báo cáo nghiên cứu.
+
+:::
+
+## Academic table map
+
+| Bảng | Nội dung |
+|---|---|
+| Table 1 | Sample characteristics |
+| Table 2 | Descriptive statistics |
+| Table 3 | Correlation matrix |
+| Table 4 | Regression results |
+| Table 5 | Reliability and validity |
+| Table 6 | Model fit indices |
+| Table 7 | Hypothesis testing |
+| Table 8 | Robustness checks |
+
+## Checklist bảng
+
+| Thành phần | Nên có |
+|---|---|
+| Tiêu đề rõ | Có |
+| N rõ ràng | Có |
+| Đơn vị đo | Có |
+| Số thập phân nhất quán | Có |
+| Ghi chú bảng | Có |
+| Giải thích abbreviation | Có |
+| Không copy raw R output | Có |
+
+## Table note template
+
+```text
+Note. Values are reported as standardized coefficients unless otherwise stated. CI = confidence interval; SE = standard error. Statistical significance is indicated as follows: * p < .05, ** p < .01, *** p < .001.
+```
+
+# 12. Toolkit cho hình học thuật
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Một hình học thuật tốt cần rõ, tối giản và phục vụ thông điệp chính.
+
+:::
+
+## Figure checklist
+
+| Thành phần | Nên có |
+|---|---|
+| Figure title | Có |
+| Axis labels | Có |
+| Unit | Nếu có |
+| Legend rõ | Có |
+| Font dễ đọc | Có |
+| Không quá nhiều màu | Có |
+| Caption giải thích | Có |
+| Không gây hiểu sai | Có |
+
+## Figure caption template
+
+```text
+Figure X. Distribution of [variable] by [group]. The plot shows [main pattern], suggesting [interpretation].
+```
+
+# 13. Reporting phrasebank
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Phần này cung cấp các mẫu câu có thể chỉnh sửa cho báo cáo học thuật.
+
+:::
+
+## Descriptive phrase
+
+```text
+The descriptive results indicate that [variable] had a mean of [M] and a standard deviation of [SD].
+```
+
+## Correlation phrase
+
+```text
+Pearson's correlation analysis showed a positive association between [X] and [Y].
+```
+
+## Regression phrase
+
+```text
+The regression model explained [R2]% of the variance in [outcome].
+```
+
+## Logistic phrase
+
+```text
+The odds of [outcome] were higher among respondents with higher levels of [predictor].
+```
+
+## SEM phrase
+
+```text
+The hypothesized structural model was partially supported by the data.
+```
+
+## Bayesian phrase
+
+```text
+The posterior distribution provided evidence consistent with a positive association.
+```
+
+## Caution phrase
+
+```text
+These findings should be interpreted cautiously because the study design does not establish causal relationships.
+```
+
+# 14. R package cheat sheet
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Package nên chọn theo mục tiêu phân tích.
+
+:::
+
+| Mục tiêu | Packages |
+|---|---|
+| Data cleaning | `tidyverse`, `janitor`, `readxl` |
+| Descriptive statistics | `psych`, `skimr`, `gtsummary` |
+| Regression | `broom`, `car`, `performance` |
+| SEM | `lavaan`, `semTools`, `semPlot` |
+| Regularized regression | `glmnet` |
+| Bayesian | `rstanarm`, `brms`, `bayesplot` |
+| Visualization | `ggplot2`, `patchwork`, `GGally` |
+| Tables | `gt`, `gtsummary`, `flextable` |
+| Reports | `quarto`, `rmarkdown`, `knitr` |
+
+# 15. Project folder checklist
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Một project R tốt cần có cấu trúc rõ ràng.
+
+:::
+
+## Suggested project structure
+
+```text
+project-folder/
+│
+├── _quarto.yml
+├── index.qmd
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   └── output/
+│
+├── R/
+│   ├── 01_cleaning.R
+│   ├── 02_analysis.R
+│   └── 03_visualization.R
+│
+├── advanced/
+│   ├── adv-01-descriptive.qmd
+│   ├── adv-02-regression.qmd
+│   └── ...
+│
+├── figures/
+├── tables/
+└── reports/
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Một project tốt giúp người khác tái lập phân tích của bạn.
+
+:::
+
+# 16. Capstone Project Guide
+
+::: {.callout-important title="Dự án tổng hợp (Capstone Project)"}
+
+## Chủ đề
+
+Research Analytics Portfolio
+
+## Mục tiêu
+
+Học viên xây dựng một báo cáo nghiên cứu hoàn chỉnh bằng R và Quarto.
+
+## Sản phẩm đầu ra
+
+```text
+Research_Analytics_Portfolio.html
+```
+
+## Nội dung tối thiểu
+
+1. Research question
+2. Dataset description
+3. Data cleaning
+4. Descriptive analysis
+5. Visualization
+6. Regression or SEM model
+7. Advanced analysis
+8. Academic tables
+9. Publication-ready figures
+10. Interpretation
+11. Limitations
+12. Reproducible project folder
+
+:::
+
+## Capstone workflow
+
+```{mermaid}
+flowchart TD
+
+A[Choose Topic]
+--> B[Prepare Dataset]
+
+B --> C[Clean Data]
+
+C --> D[Describe Data]
+
+D --> E[Visualize Data]
+
+E --> F[Select Model]
+
+F --> G[Run Analysis]
+
+G --> H[Create Tables]
+
+H --> I[Create Figures]
+
+I --> J[Write Report]
+
+J --> K[Publish Quarto Website]
+```
+
+# 17. Final checklist trước khi nộp báo cáo
+
+::: {.callout-success title="Final Research Report Checklist"}
+
+Trước khi nộp báo cáo, kiểm tra:
+
+- [ ] Câu hỏi nghiên cứu rõ ràng
+- [ ] Dữ liệu được mô tả đầy đủ
+- [ ] Missing values được xử lý hoặc báo cáo
+- [ ] Phương pháp phù hợp với loại biến
+- [ ] Có bảng mô tả dữ liệu
+- [ ] Có hình minh họa chính
+- [ ] Có mô hình hoặc phân tích chính
+- [ ] Có diễn giải kết quả
+- [ ] Không diễn giải quá mức
+- [ ] Có hạn chế nghiên cứu
+- [ ] Code chạy lại được
+- [ ] Quarto render không lỗi
+- [ ] File và folder được tổ chức rõ ràng
+
+:::
+
+# 18. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Hãy chọn một dataset bất kỳ và thực hiện:
+
+1. Viết một câu hỏi nghiên cứu.
+2. Xác định loại biến outcome.
+3. Chọn phương pháp phân tích.
+4. Chọn ít nhất 3 biểu đồ phù hợp.
+5. Tạo một bảng mô tả.
+6. Tạo một bảng mô hình.
+7. Viết một đoạn diễn giải kết quả.
+8. Viết một đoạn hạn chế.
+9. Đưa toàn bộ vào một file Quarto.
+10. Render thành HTML.
+
+:::
+
+# 19. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Bạn có một bộ dữ liệu khảo sát gồm:
+
+- 500 respondents
+- 20 Likert items
+- Một outcome nhị phân
+- Một outcome liên tục
+- Một biến nhóm
+- Một số missing values
+
+## Câu hỏi
+
+1. Bạn sẽ bắt đầu từ đâu?
+2. Cần kiểm tra dữ liệu gì?
+3. Phương pháp nào phù hợp với outcome nhị phân?
+4. Phương pháp nào phù hợp với outcome liên tục?
+5. Biểu đồ nào nên dùng cho Likert items?
+6. Bảng nào nên đưa vào báo cáo?
+7. Cần lưu ý gì khi diễn giải?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+Một câu trả lời tốt nên nêu:
+
+- Bắt đầu từ data cleaning và descriptive diagnostics.
+- Kiểm tra missing values, outliers và phân phối.
+- Outcome nhị phân dùng logistic regression.
+- Outcome liên tục dùng linear regression hoặc regularized regression nếu nhiều predictors.
+- Likert items dùng stacked Likert plot, diverging plot hoặc heatmap.
+- Báo cáo cần Table 1, descriptive table, regression table và figure chính.
+- Diễn giải thận trọng, tránh causal language nếu dữ liệu cắt ngang.
+
+:::
+
+# 20. Kết thúc Advanced Analytics
+
+::: {.callout-note title="Bước tiếp theo (What Next?)"}
+
+Bạn đã hoàn thành lõi của Advanced Analytics:
+
+1. Descriptive Diagnostics
+2. Advanced Regression
+3. Regularized Regression
+4. Advanced SEM
+5. Bayesian Statistics
+6. Monte Carlo Simulation
+7. Simpson's Paradox
+8. Advanced Likert Analysis
+9. Advanced Visualization Gallery
+10. Research Toolkit
+
+Bước tiếp theo có thể là mở rộng sang:
+
+- Meta-analysis
+- Bibliometric analysis
+- Experimental design
+- Mixed models
+- Reproducible research
+
+:::

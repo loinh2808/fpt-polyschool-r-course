@@ -1,0 +1,1238 @@
+---
+title: "Advanced 04. SEM Nâng cao"
+subtitle: "Advanced Structural Equation Modeling"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Hiểu SEM nâng cao (Advanced SEM)
+- Phân biệt PLS-SEM và CB-SEM
+- Hiểu mô hình đo lường (Measurement Model)
+- Thực hiện phân tích nhân tố khẳng định (Confirmatory Factor Analysis - CFA)
+- Đọc các chỉ số độ phù hợp mô hình (Model Fit Indices)
+- Đánh giá độ tin cậy (Reliability)
+- Đánh giá giá trị hội tụ (Convergent Validity)
+- Đánh giá giá trị phân biệt (Discriminant Validity)
+- Xây dựng mô hình cấu trúc (Structural Model)
+- Hiểu logic phân tích đa nhóm (Multi-group Analysis)
+- Hiểu logic bất biến đo lường (Measurement Invariance)
+- Viết kết quả SEM theo chuẩn học thuật
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Làm thế nào để kiểm tra một mô hình lý thuyết có nhiều biến tiềm ẩn và nhiều chỉ báo đo lường?**
+
+Quy trình:
+
+```text
+Theory
+↓
+Measurement Model
+↓
+Confirmatory Factor Analysis
+↓
+Reliability and Validity
+↓
+Structural Model
+↓
+Model Fit
+↓
+Path Coefficients
+↓
+Reporting
+```
+
+:::
+
+# 1. SEM nâng cao là gì?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Mô hình phương trình cấu trúc (Structural Equation Modeling - SEM) là phương pháp phân tích cho phép kiểm tra mối quan hệ giữa các biến tiềm ẩn (Latent Variables) và các biến quan sát (Observed Indicators).
+
+**Tại sao cần? (Why?)**
+
+SEM hữu ích khi nghiên cứu có:
+
+- Nhiều construct lý thuyết
+- Nhiều thang đo Likert
+- Nhiều mối quan hệ đồng thời
+- Mô hình trung gian hoặc điều tiết phức tạp
+- Nhu cầu kiểm tra chất lượng thang đo
+
+**Khi nào dùng? (When?)**
+
+Dùng SEM khi câu hỏi nghiên cứu liên quan đến mô hình lý thuyết, thang đo và quan hệ giữa các construct.
+
+**Thực hiện thế nào? (How?)**
+
+SEM thường gồm hai phần:
+
+1. Mô hình đo lường (Measurement Model)
+2. Mô hình cấu trúc (Structural Model)
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+SEM thường được dùng trong:
+
+- Nghiên cứu giáo dục
+- Nghiên cứu hành vi người học
+- Nghiên cứu chấp nhận công nghệ
+- Nghiên cứu marketing
+- Nghiên cứu quản trị
+- Nghiên cứu tâm lý học
+- Nghiên cứu sử dụng thang đo Likert
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Người học thường mắc lỗi:
+
+- Chạy structural model khi chưa kiểm tra measurement model
+- Chỉ báo cáo path coefficients mà bỏ qua model fit
+- Dùng SEM khi không có cơ sở lý thuyết
+- Không kiểm tra reliability và validity
+- Diễn giải SEM cắt ngang như bằng chứng nhân quả mạnh
+
+:::
+
+## SEM Framework
+
+```{mermaid}
+flowchart TD
+
+A[Observed Indicators]
+--> B[Latent Constructs]
+
+B --> C[Measurement Model]
+
+C --> D[Structural Model]
+
+D --> E[Theory Testing]
+```
+
+# 2. Chuẩn bị dữ liệu
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Dữ liệu sử dụng**
+
+```text
+data/advance/module7_advanced_data.xlsx
+```
+
+Sheet sử dụng:
+
+```text
+04_SEM_Advanced
+```
+
+Sheet này mô phỏng dữ liệu khảo sát với nhiều construct và nhiều item Likert.
+
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("lavaan")
+install.packages("semTools")
+install.packages("psych")
+install.packages("gt")
+install.packages("broom")
+install.packages("semPlot")
+```
+
+## Nạp package
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(lavaan)
+library(psych)
+library(gt)
+library(broom)
+```
+
+## Thiết lập đường dẫn dữ liệu
+
+```{r}
+advanced_file <- if (file.exists("../data/advance/module7_advanced_data.xlsx")) {
+  "../data/advance/module7_advanced_data.xlsx"
+} else if (file.exists("../data/advanced/module7_advanced_data.xlsx")) {
+  "../data/advanced/module7_advanced_data.xlsx"
+} else if (file.exists("data/advance/module7_advanced_data.xlsx")) {
+  "data/advance/module7_advanced_data.xlsx"
+} else {
+  "data/advanced/module7_advanced_data.xlsx"
+}
+```
+
+## Nhập dữ liệu
+
+```{r}
+sem_data <- read_excel(
+  advanced_file,
+  sheet = "04_SEM_Advanced"
+) |>
+  clean_names()
+```
+
+## Kiểm tra dữ liệu
+
+```{r}
+glimpse(sem_data)
+```
+
+```{r}
+names(sem_data)
+```
+
+# 3. PLS-SEM và CB-SEM
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Phân biệt PLS-SEM và CB-SEM
+- Biết khi nào dùng từng hướng tiếp cận
+- Hiểu vì sao CFA thường gắn với CB-SEM
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**PLS-SEM là gì?**
+
+PLS-SEM (Partial Least Squares SEM) thường được dùng khi mục tiêu là dự đoán, khám phá hoặc khi mô hình phức tạp với yêu cầu phân phối linh hoạt hơn.
+
+**CB-SEM là gì?**
+
+CB-SEM (Covariance-Based SEM) tập trung vào việc kiểm tra mô hình lý thuyết và độ phù hợp giữa ma trận hiệp phương sai quan sát và mô hình giả định.
+
+**Khi nào dùng?**
+
+| Mục tiêu | Gợi ý |
+|---|---|
+| Kiểm định lý thuyết mạnh | CB-SEM |
+| Dự đoán construct phụ thuộc | PLS-SEM |
+| Tập trung model fit | CB-SEM |
+| Mô hình khám phá hoặc prediction | PLS-SEM |
+| CFA nghiêm ngặt | CB-SEM |
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên nói PLS-SEM luôn tốt hơn hoặc CB-SEM luôn tốt hơn.
+
+Lựa chọn phụ thuộc vào:
+
+- Câu hỏi nghiên cứu
+- Mục tiêu phân tích
+- Lý thuyết
+- Dữ liệu
+- Yêu cầu công bố
+
+:::
+
+# 4. Mô hình đo lường
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu biến tiềm ẩn (Latent Variable)
+- Hiểu biến quan sát (Observed Indicator)
+- Xác định item thuộc construct nào
+- Viết mô hình đo lường bằng cú pháp `lavaan`
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Biến tiềm ẩn là gì? (What is a Latent Variable?)**
+
+Biến tiềm ẩn là construct không quan sát trực tiếp được, ví dụ:
+
+- Performance Expectancy
+- Effort Expectancy
+- Social Influence
+- Trust
+- Behavioral Intention
+
+**Biến quan sát là gì? (What is an Observed Indicator?)**
+
+Biến quan sát là các câu hỏi hoặc item dùng để đo construct.
+
+Ví dụ:
+
+```text
+PE =~ pe1 + pe2 + pe3 + pe4
+```
+
+nghĩa là construct `PE` được đo bằng 4 item.
+
+:::
+
+## Cú pháp mô hình đo lường
+
+```{r}
+measurement_model <- '
+  PE =~ pe1 + pe2 + pe3 + pe4
+  EE =~ ee1 + ee2 + ee3 + ee4
+  SI =~ si1 + si2 + si3 + si4
+  FC =~ fc1 + fc2 + fc3 + fc4
+  DR =~ dr1 + dr2 + dr3 + dr4
+  TR =~ tr1 + tr2 + tr3 + tr4
+  BI =~ bi1 + bi2 + bi3
+  AU =~ au1 + au2 + au3
+'
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Trong `lavaan`:
+
+```text
+=~
+```
+
+dùng để khai báo biến tiềm ẩn được đo bởi các item.
+
+:::
+
+## Ví dụ mô hình đo lường
+
+```{mermaid}
+flowchart LR
+
+PE((PE))
+
+PE --> PE1[pe1]
+PE --> PE2[pe2]
+PE --> PE3[pe3]
+PE --> PE4[pe4]
+```
+
+**Diễn giải**
+
+Trong lavaan:
+
+```text
+PE =~ pe1 + pe2 + pe3 + pe4
+```
+
+nghĩa là construct PE được đo lường bởi 4 chỉ báo quan sát.
+
+
+# 5. Phân tích nhân tố khẳng định
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Chạy CFA bằng `lavaan`
+- Đọc standardized loadings
+- Đọc model fit
+- Biết item nào có tải nhân tố thấp
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**CFA là gì? (What is CFA?)**
+
+Phân tích nhân tố khẳng định (Confirmatory Factor Analysis - CFA) kiểm tra liệu dữ liệu có phù hợp với cấu trúc thang đo dựa trên lý thuyết hay không.
+
+**Tại sao cần? (Why?)**
+
+Trước khi kiểm tra mối quan hệ giữa các construct, cần xác nhận rằng các construct được đo lường đáng tin cậy.
+
+**Khi nào dùng? (When?)**
+
+Dùng trước structural model trong CB-SEM.
+
+:::
+
+## Chạy CFA
+
+```{r}
+cfa_fit <- cfa(
+  measurement_model,
+  data = sem_data,
+  std.lv = TRUE
+)
+
+summary(
+  cfa_fit,
+  fit.measures = TRUE,
+  standardized = TRUE
+)
+```
+
+## Tải nhân tố chuẩn hóa
+
+```{r}
+standardized_solution <- standardizedSolution(cfa_fit)
+
+loadings_table <- standardized_solution |>
+  filter(op == "=~") |>
+  select(
+    construct = lhs,
+    item = rhs,
+    loading = est.std,
+    pvalue = pvalue
+  )
+
+loadings_table
+```
+
+## Bảng tải nhân tố
+
+```{r}
+loadings_table |>
+  gt() |>
+  tab_header(
+    title = "Standardized Factor Loadings",
+    subtitle = "Confirmatory Factor Analysis"
+  ) |>
+  fmt_number(
+    columns = c(loading, pvalue),
+    decimals = 3
+  )
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Quy tắc thường dùng:
+
+| Loading | Diễn giải |
+|---:|---|
+| < 0.50 | Cần xem xét |
+| 0.50–0.70 | Chấp nhận được trong nhiều trường hợp |
+| > 0.70 | Tốt |
+
+Tuy nhiên, quyết định giữ hoặc loại item cần dựa trên cả lý thuyết, nội dung item và độ phù hợp mô hình.
+
+:::
+
+# 6. Chỉ số độ phù hợp mô hình
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Đọc CFI
+- Đọc TLI
+- Đọc RMSEA
+- Đọc SRMR
+- Hiểu rằng fit indices là hướng dẫn, không phải luật tuyệt đối
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Model fit là gì? (What is Model Fit?)**
+
+Model fit cho biết mô hình giả định phù hợp với dữ liệu quan sát ở mức nào.
+
+**Các chỉ số thường dùng**
+
+| Chỉ số | Tên đầy đủ | Quy tắc thường dùng |
+|---|---|---|
+| CFI | Comparative Fit Index | > .90 hoặc > .95 |
+| TLI | Tucker-Lewis Index | > .90 hoặc > .95 |
+| RMSEA | Root Mean Square Error of Approximation | < .08 hoặc < .06 |
+| SRMR | Standardized Root Mean Square Residual | < .08 |
+
+:::
+
+## Trích xuất fit indices
+
+```{r}
+fit_indices <- fitMeasures(
+  cfa_fit,
+  c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
+)
+
+fit_indices
+```
+
+## Bảng fit indices
+
+```{r}
+fit_table <- tibble(
+  index = names(fit_indices),
+  value = as.numeric(fit_indices)
+)
+
+fit_table |>
+  gt() |>
+  tab_header(
+    title = "CFA Model Fit Indices"
+  ) |>
+  fmt_number(
+    columns = value,
+    decimals = 3
+  )
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên dùng một chỉ số duy nhất để kết luận mô hình tốt hay xấu.
+
+Cần xem tổng thể:
+
+- Model fit
+- Factor loadings
+- Reliability
+- Validity
+- Lý thuyết
+- Modification có hợp lý về nội dung không
+
+:::
+
+# 7. Độ tin cậy thang đo
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Tính Cronbach's Alpha
+- Hiểu Composite Reliability ở mức cơ bản
+- Đánh giá độ tin cậy thang đo
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Độ tin cậy là gì? (What is Reliability?)**
+
+Độ tin cậy cho biết các item trong cùng một construct có nhất quán với nhau hay không.
+
+**Cronbach's Alpha**
+
+Quy tắc thường dùng:
+
+| Alpha | Diễn giải |
+|---:|---|
+| < .60 | Thấp |
+| .60–.70 | Tạm chấp nhận |
+| .70–.80 | Tốt |
+| > .80 | Rất tốt |
+
+:::
+
+## Tính Cronbach's Alpha cho từng construct
+
+```{r}
+alpha_pe <- psych::alpha(sem_data |> select(pe1, pe2, pe3, pe4))
+alpha_ee <- psych::alpha(sem_data |> select(ee1, ee2, ee3, ee4))
+alpha_si <- psych::alpha(sem_data |> select(si1, si2, si3, si4))
+alpha_fc <- psych::alpha(sem_data |> select(fc1, fc2, fc3, fc4))
+alpha_dr <- psych::alpha(sem_data |> select(dr1, dr2, dr3, dr4))
+alpha_tr <- psych::alpha(sem_data |> select(tr1, tr2, tr3, tr4))
+alpha_bi <- psych::alpha(sem_data |> select(bi1, bi2, bi3))
+alpha_au <- psych::alpha(sem_data |> select(au1, au2, au3))
+```
+
+## Bảng Alpha
+
+```{r}
+alpha_table <- tibble(
+  construct = c("PE", "EE", "SI", "FC", "DR", "TR", "BI", "AU"),
+  cronbach_alpha = c(
+    alpha_pe$total$raw_alpha,
+    alpha_ee$total$raw_alpha,
+    alpha_si$total$raw_alpha,
+    alpha_fc$total$raw_alpha,
+    alpha_dr$total$raw_alpha,
+    alpha_tr$total$raw_alpha,
+    alpha_bi$total$raw_alpha,
+    alpha_au$total$raw_alpha
+  )
+)
+
+alpha_table |>
+  gt() |>
+  tab_header(
+    title = "Reliability Assessment",
+    subtitle = "Cronbach's Alpha"
+  ) |>
+  fmt_number(
+    columns = cronbach_alpha,
+    decimals = 3
+  )
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu Cronbach's Alpha lớn hơn .70, thang đo thường được xem là có độ tin cậy chấp nhận được.
+
+Tuy nhiên, alpha quá cao cũng có thể gợi ý các item quá trùng lặp về nội dung.
+
+:::
+
+# 8. Giá trị hội tụ và giá trị phân biệt
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu giá trị hội tụ (Convergent Validity)
+- Hiểu giá trị phân biệt (Discriminant Validity)
+- Tính AVE ở mức thực hành
+- Hiểu logic Fornell-Larcker
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Giá trị hội tụ là gì? (Convergent Validity)**
+
+Các item đo cùng một construct nên hội tụ với nhau.
+
+Chỉ số thường dùng:
+
+```text
+AVE > .50
+```
+
+**Giá trị phân biệt là gì? (Discriminant Validity)**
+
+Các construct khác nhau nên đủ khác biệt với nhau.
+
+Logic Fornell-Larcker:
+
+```text
+sqrt(AVE) của một construct nên lớn hơn tương quan của construct đó với construct khác.
+```
+
+:::
+
+## Tính AVE đơn giản từ standardized loadings
+
+```{r}
+ave_table <- loadings_table |>
+  group_by(construct) |>
+  summarise(
+    ave = mean(loading^2, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+ave_table
+```
+
+## Bảng AVE
+
+```{r}
+ave_table |>
+  gt() |>
+  tab_header(
+    title = "Convergent Validity",
+    subtitle = "Average Variance Extracted"
+  ) |>
+  fmt_number(
+    columns = ave,
+    decimals = 3
+  )
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu AVE > .50, construct thường được xem là đạt giá trị hội tụ ở mức chấp nhận được.
+
+Nếu AVE thấp, cần kiểm tra:
+
+- Item loading thấp
+- Nội dung item chưa nhất quán
+- Construct có thể chưa được đo tốt
+
+:::
+
+## Ví dụ mô hình SEM hoàn chỉnh
+
+```{mermaid}
+flowchart LR
+
+PE((PE))
+EE((EE))
+SI((SI))
+FC((FC))
+DR((DR))
+TR((TR))
+
+BI((BI))
+AU((AU))
+
+PE --> BI
+EE --> BI
+SI --> BI
+FC --> BI
+DR --> BI
+TR --> BI
+
+BI --> AU
+FC --> AU
+```
+
+# 9. Mô hình cấu trúc
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Viết mô hình cấu trúc bằng `lavaan`
+- Kết hợp measurement model và structural paths
+- Đọc path coefficients
+- Đọc R-squared
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Mô hình cấu trúc là gì? (What is a Structural Model?)**
+
+Mô hình cấu trúc kiểm tra quan hệ giữa các construct.
+
+Ví dụ:
+
+```text
+PE, EE, SI, FC, DR, TR → BI → AU
+```
+
+**Tại sao cần? (Why?)**
+
+Sau khi measurement model đạt chất lượng chấp nhận được, ta mới kiểm tra các giả thuyết về quan hệ giữa construct.
+
+:::
+
+## Khai báo structural model
+
+```{r}
+structural_model <- '
+  PE =~ pe1 + pe2 + pe3 + pe4
+  EE =~ ee1 + ee2 + ee3 + ee4
+  SI =~ si1 + si2 + si3 + si4
+  FC =~ fc1 + fc2 + fc3 + fc4
+  DR =~ dr1 + dr2 + dr3 + dr4
+  TR =~ tr1 + tr2 + tr3 + tr4
+  BI =~ bi1 + bi2 + bi3
+  AU =~ au1 + au2 + au3
+
+  BI ~ PE + EE + SI + FC + DR + TR
+  AU ~ BI + FC
+'
+```
+
+## Ước lượng mô hình cấu trúc
+
+```{r}
+sem_fit <- sem(
+  structural_model,
+  data = sem_data,
+  std.lv = TRUE
+)
+
+summary(
+  sem_fit,
+  fit.measures = TRUE,
+  standardized = TRUE,
+  rsquare = TRUE
+)
+```
+
+## Path coefficients
+
+```{r}
+path_table <- standardizedSolution(sem_fit) |>
+  filter(op == "~") |>
+  select(
+    outcome = lhs,
+    predictor = rhs,
+    estimate = est.std,
+    pvalue = pvalue
+  )
+
+path_table
+```
+
+## Bảng path coefficients
+
+```{r}
+path_table |>
+  gt() |>
+  tab_header(
+    title = "Structural Path Coefficients",
+    subtitle = "Standardized Estimates"
+  ) |>
+  fmt_number(
+    columns = c(estimate, pvalue),
+    decimals = 3
+  )
+```
+
+## CFA và SEM khác nhau như thế nào?
+
+```{mermaid}
+flowchart LR
+
+A[CFA]
+
+A --> B[Measurement Model Only]
+
+C[SEM]
+
+C --> D[Measurement Model]
+
+D --> E[Structural Model]
+```
+
+## R-squared
+
+```{r}
+inspect(sem_fit, "r2")
+```
+
+## Quy trình đánh giá Model Fit
+
+```{mermaid}
+flowchart TD
+
+A[Run CFA]
+
+A --> B{CFI > .90?}
+
+B -->|Yes| C{RMSEA < .08?}
+
+B -->|No| D[Review Model]
+
+C -->|Yes| E[Proceed to SEM]
+
+C -->|No| D
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên bỏ qua measurement model và đi thẳng vào structural paths.
+
+SEM tốt cần cả:
+
+- Measurement model hợp lý
+- Reliability tốt
+- Validity chấp nhận được
+- Structural paths phù hợp lý thuyết
+
+:::
+
+# 10. Vẽ sơ đồ SEM
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Biết package vẽ sơ đồ SEM
+- Hiểu vì sao hình SEM cần được tối giản
+- Biết cách xuất sơ đồ cho báo cáo
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Sơ đồ SEM giúp người đọc hình dung mô hình lý thuyết.
+
+Tuy nhiên, sơ đồ quá nhiều item có thể rất rối. Trong bài báo, có thể dùng sơ đồ construct-level thay vì full item-level nếu cần.
+
+:::
+
+## Vẽ sơ đồ bằng semPlot
+
+```{r}
+#| eval: false
+
+library(semPlot)
+
+semPaths(
+  sem_fit,
+  what = "std",
+  layout = "tree",
+  edge.label.cex = 0.8,
+  sizeMan = 4,
+  sizeLat = 6
+)
+```
+
+#| eval: false
+#| fig-width: 12
+#| fig-height: 8
+
+library(semPlot)
+
+semPaths(
+  sem_fit,
+  what = "std",
+  whatLabels = "std",
+  layout = "tree",
+  edge.label.cex = 0.9,
+  sizeLat = 8,
+  sizeMan = 5,
+  residuals = FALSE,
+  intercepts = FALSE,
+  curvePivot = TRUE
+)
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên đưa sơ đồ quá chồng chéo vào bài báo.
+
+Nếu hình quá rối:
+
+- Tăng kích thước hình
+- Chỉ trình bày structural paths
+- Tách measurement model và structural model
+- Dùng bảng path coefficients thay thế
+
+:::
+
+# 11. Phân tích đa nhóm
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu phân tích đa nhóm (Multi-group Analysis)
+- Biết khi nào dùng multi-group SEM
+- Hiểu logic so sánh nhóm
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Phân tích đa nhóm là gì? (What is Multi-group Analysis?)**
+
+Phân tích đa nhóm kiểm tra xem mô hình có hoạt động giống nhau giữa các nhóm hay không.
+
+Ví dụ:
+
+- Nam và nữ
+- Nhóm kinh nghiệm thấp và cao
+- Nhóm ngành học khác nhau
+- Nhóm vùng khác nhau
+
+**Khi nào dùng? (When?)**
+
+Dùng khi nghiên cứu có giả thuyết rằng quan hệ giữa construct khác nhau theo nhóm.
+
+:::
+
+## Kiểm tra biến nhóm
+
+```{r}
+if ("gender" %in% names(sem_data)) {
+  table(sem_data$gender)
+}
+```
+
+## Ví dụ multi-group CFA
+
+```{r}
+if ("gender" %in% names(sem_data)) {
+  cfa_group_fit <- cfa(
+    measurement_model,
+    data = sem_data,
+    group = "gender",
+    std.lv = TRUE
+  )
+
+  fitMeasures(
+    cfa_group_fit,
+    c("cfi", "tli", "rmsea", "srmr")
+  )
+}
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Multi-group SEM không chỉ là chạy mô hình riêng cho từng nhóm.
+
+Cần kiểm tra mô hình đo lường có tương đương giữa các nhóm hay không trước khi so sánh path coefficients.
+
+:::
+
+# 12. Bất biến đo lường
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu bất biến đo lường (Measurement Invariance)
+- Phân biệt configural, metric và scalar invariance
+- Biết vì sao cần kiểm tra invariance trước khi so sánh nhóm
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Bất biến đo lường là gì? (What is Measurement Invariance?)**
+
+Bất biến đo lường kiểm tra xem thang đo có cùng ý nghĩa giữa các nhóm hay không.
+
+**Ba mức cơ bản**
+
+| Mức | Ý nghĩa |
+|---|---|
+| Configural | Cấu trúc nhân tố giống nhau |
+| Metric | Factor loadings giống nhau |
+| Scalar | Intercepts giống nhau |
+
+**Tại sao cần? (Why?)**
+
+Nếu thang đo không tương đương giữa các nhóm, việc so sánh mean hoặc path coefficients có thể sai.
+
+:::
+
+## Ví dụ logic invariance
+
+```{r}
+if ("gender" %in% names(sem_data)) {
+  fit_configural <- cfa(
+    measurement_model,
+    data = sem_data,
+    group = "gender",
+    std.lv = TRUE
+  )
+
+  fit_metric <- cfa(
+    measurement_model,
+    data = sem_data,
+    group = "gender",
+    group.equal = "loadings",
+    std.lv = TRUE
+  )
+
+  fit_scalar <- cfa(
+    measurement_model,
+    data = sem_data,
+    group = "gender",
+    group.equal = c("loadings", "intercepts"),
+    std.lv = TRUE
+  )
+
+  invariance_table <- tibble(
+    model = c("Configural", "Metric", "Scalar"),
+    cfi = c(
+      fitMeasures(fit_configural, "cfi"),
+      fitMeasures(fit_metric, "cfi"),
+      fitMeasures(fit_scalar, "cfi")
+    ),
+    rmsea = c(
+      fitMeasures(fit_configural, "rmsea"),
+      fitMeasures(fit_metric, "rmsea"),
+      fitMeasures(fit_scalar, "rmsea")
+    )
+  )
+
+  invariance_table
+}
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên so sánh nhóm trực tiếp nếu chưa kiểm tra measurement invariance.
+
+:::
+
+# 13. Viết kết quả học thuật
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Viết kết quả SEM cần trình bày rõ:
+
+- Measurement model
+- Model fit
+- Reliability
+- Validity
+- Structural paths
+- R-squared
+- Interpretation
+
+:::
+
+## Template CFA
+
+```text
+A confirmatory factor analysis was conducted to assess the measurement model. The model showed acceptable fit to the data, with CFI = [value], TLI = [value], RMSEA = [value], and SRMR = [value]. Standardized factor loadings were generally above [threshold], suggesting that the items adequately represented their intended constructs.
+```
+
+## Template reliability and validity
+
+```text
+Reliability analysis indicated that Cronbach's alpha values ranged from [min] to [max], exceeding the commonly recommended threshold of .70. Convergent validity was assessed using average variance extracted (AVE), with most constructs meeting the recommended threshold of .50.
+```
+
+## Template structural model
+
+```text
+The structural model was estimated to examine the hypothesized relationships among the latent constructs. The results showed that [predictor] significantly predicted [outcome], while [predictor] was not statistically significant. The model explained [R2]% of the variance in [outcome].
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên viết:
+
+```text
+SEM proved that X causes Y.
+```
+
+Nên viết:
+
+```text
+The SEM results suggest that X was positively associated with Y in the proposed model.
+```
+
+:::
+
+# 14. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Sử dụng sheet `04_SEM_Advanced`, hãy thực hiện:
+
+1. Nhập dữ liệu SEM.
+2. Khai báo measurement model.
+3. Chạy CFA.
+4. Trích xuất factor loadings.
+5. Trích xuất fit indices.
+6. Tính Cronbach's Alpha.
+7. Tính AVE.
+8. Khai báo structural model.
+9. Chạy SEM.
+10. Trích xuất path coefficients.
+11. Trích xuất R-squared.
+12. Viết một đoạn kết quả SEM học thuật.
+
+:::
+
+# 15. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Một nghiên cứu có 8 construct, mỗi construct có 3–4 item Likert.
+
+Kết quả CFA cho thấy:
+
+- Một số factor loadings thấp hơn .50
+- CFI = .89
+- RMSEA = .09
+- Một construct có Cronbach's Alpha = .58
+
+## Câu hỏi
+
+1. Có nên chạy structural model ngay không?
+2. Cần kiểm tra điều gì trước?
+3. Có nên xóa item chỉ dựa trên loading không?
+4. Cần báo cáo những chỉ số nào?
+5. Viết diễn giải thận trọng như thế nào?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+Một câu trả lời tốt nên nêu:
+
+- Chưa nên chạy hoặc diễn giải structural model quá mạnh.
+- Cần kiểm tra lại measurement model.
+- Cần xem nội dung item, lý thuyết và reliability.
+- Không nên xóa item chỉ dựa vào thống kê.
+- Cần báo cáo fit indices, loadings, reliability và validity.
+- Diễn giải nên thận trọng và minh bạch.
+
+:::
+
+# 16. Dự án nhỏ
+
+::: {.callout-important title="Dự án nhỏ (Mini Project)"}
+
+## Chủ đề
+
+Advanced SEM Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+```text
+Advanced_SEM_Report.html
+```
+
+## Nội dung báo cáo
+
+1. Research model
+2. Measurement model
+3. CFA results
+4. Model fit indices
+5. Reliability assessment
+6. Convergent validity
+7. Structural model
+8. Path coefficients
+9. R-squared
+10. Academic interpretation
+11. Limitations and next steps
+
+:::
+
+# 17. Điểm cần ghi nhớ
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- SEM gồm measurement model và structural model.
+- CFA dùng để kiểm tra cấu trúc thang đo.
+- Model fit cần được đánh giá bằng nhiều chỉ số.
+- Factor loadings nên được xem cùng với lý thuyết và nội dung item.
+- Reliability và validity là bước quan trọng trước structural paths.
+- Không nên so sánh nhóm nếu chưa kiểm tra measurement invariance.
+- SEM không tự chứng minh quan hệ nhân quả nếu dữ liệu không hỗ trợ thiết kế nhân quả.
+
+:::
+
+# 18. Bước tiếp theo
+
+::: {.callout-note title="Bước tiếp theo (What Next?)"}
+
+Sau khi hoàn thành phần này, học viên nên:
+
+1. Biết cách chạy CFA.
+2. Biết đọc fit indices.
+3. Biết đánh giá reliability và validity.
+4. Biết chạy structural model.
+5. Biết viết kết quả SEM một cách thận trọng.
+6. Chuyển sang:
+
+[Bayesian Statistics](adv-05-bayesian.qmd)
+
+Trong phần tiếp theo, chúng ta sẽ học tư duy thống kê Bayes (Bayesian Statistics), prior, likelihood, posterior và credible interval.
+
+:::

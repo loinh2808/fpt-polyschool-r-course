@@ -1,0 +1,1529 @@
+---
+title: "Advanced 02. Hồi quy Nâng cao"
+subtitle: "Advanced Regression Models"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Hiểu vì sao hồi quy tuyến tính (Linear Regression) không phù hợp cho mọi loại biến phụ thuộc
+- Chọn mô hình hồi quy theo loại biến phụ thuộc
+- Thực hiện hồi quy Logistic (Logistic Regression) cho biến nhị phân
+- Thực hiện hồi quy thứ bậc (Ordinal Regression) cho biến có thứ tự
+- Thực hiện hồi quy Poisson (Poisson Regression) cho dữ liệu đếm
+- Hiểu logic phân tích trung gian (Mediation Analysis)
+- Hiểu logic phân tích điều tiết (Moderation Analysis)
+- Diễn giải odds ratio, incident rate ratio và interaction effect
+- Viết kết quả hồi quy nâng cao theo chuẩn học thuật
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Khi biến phụ thuộc không phù hợp với hồi quy tuyến tính thông thường, ta nên chọn mô hình nào?**
+
+Quy trình:
+
+```text
+Research Question
+↓
+Outcome Type
+↓
+Model Selection
+↓
+Model Estimation
+↓
+Model Interpretation
+↓
+Research Reporting
+```
+
+:::
+
+---
+
+# 1. Vì sao cần hồi quy nâng cao?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Hồi quy nâng cao (Advanced Regression) là nhóm mô hình hồi quy được thiết kế cho nhiều loại biến phụ thuộc khác nhau.
+
+Không phải mọi biến phụ thuộc đều phù hợp với hồi quy tuyến tính (Linear Regression).
+
+**Tại sao cần? (Why?)**
+
+Nếu chọn sai mô hình:
+
+- Hệ số có thể bị sai
+- p-value có thể không đáng tin cậy
+- Diễn giải kết quả có thể sai
+- Kết luận nghiên cứu có thể không phù hợp
+
+**Khi nào dùng? (When?)**
+
+Khi biến phụ thuộc không phải là biến định lượng liên tục thông thường.
+
+**Thực hiện thế nào? (How?)**
+
+Chọn mô hình theo loại biến phụ thuộc:
+
+| Loại biến phụ thuộc | Ví dụ | Mô hình phù hợp |
+|---|---|---|
+| Liên tục | satisfaction, productivity | Linear Regression |
+| Nhị phân | adopted_ai: 0/1 | Logistic Regression |
+| Thứ bậc | low/medium/high | Ordinal Regression |
+| Dữ liệu đếm | số lần vắng mặt | Poisson Regression |
+| Có trung gian | X → M → Y | Mediation Analysis |
+| Có điều tiết | X × Z → Y | Moderation Analysis |
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Hồi quy nâng cao thường được dùng trong:
+
+- Nghiên cứu hành vi người học
+- Nghiên cứu chấp nhận công nghệ
+- Nghiên cứu giáo dục
+- Nghiên cứu quản trị
+- Khảo sát người dùng
+- Nghiên cứu dự đoán hành vi
+- Nghiên cứu có biến phụ thuộc nhị phân, thứ bậc hoặc dạng đếm
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Người học thường mắc lỗi:
+
+- Dùng `lm()` cho mọi loại biến phụ thuộc
+- Diễn giải odds ratio như hệ số tuyến tính
+- Không kiểm tra loại biến phụ thuộc trước khi chọn mô hình
+- Không phân biệt mediation và moderation
+- Diễn giải kết quả hồi quy cắt ngang như quan hệ nhân quả
+
+:::
+
+---
+
+# 2. Chuẩn bị dữ liệu
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Dữ liệu sử dụng**
+
+```text
+data/advance/module7_advanced_data.xlsx
+```
+
+Sheet sử dụng:
+
+```text
+02_Advanced_Regression
+```
+
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("broom")
+install.packages("MASS")
+install.packages("car")
+install.packages("performance")
+install.packages("gtsummary")
+```
+
+## Nạp package
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(broom)
+library(car)
+library(performance)
+library(gtsummary)
+```
+
+## Thiết lập đường dẫn dữ liệu
+
+```{r}
+advanced_file <- if (file.exists("../data/advance/module7_advanced_data.xlsx")) {
+  "../data/advance/module7_advanced_data.xlsx"
+} else if (file.exists("../data/advanced/module7_advanced_data.xlsx")) {
+  "../data/advanced/module7_advanced_data.xlsx"
+} else if (file.exists("data/advance/module7_advanced_data.xlsx")) {
+  "data/advance/module7_advanced_data.xlsx"
+} else {
+  "data/advanced/module7_advanced_data.xlsx"
+}
+```
+
+## Nhập dữ liệu
+
+```{r}
+adv_reg <- read_excel(
+  advanced_file,
+  sheet = "02_Advanced_Regression"
+) |>
+  clean_names()
+```
+
+## Kiểm tra dữ liệu
+
+```{r}
+glimpse(adv_reg)
+```
+
+```{r}
+names(adv_reg)
+```
+
+---
+
+# 3. Chọn mô hình theo loại biến phụ thuộc
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Nhận diện loại biến phụ thuộc
+- Chọn mô hình hồi quy phù hợp
+- Tránh dùng sai mô hình
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Mô hình hồi quy phải phù hợp với bản chất của biến phụ thuộc.
+
+**Tại sao cần? (Why?)**
+
+Hồi quy tuyến tính giả định biến phụ thuộc là biến liên tục và sai số có tính chất tương đối phù hợp. Nếu biến phụ thuộc là 0/1 hoặc dữ liệu đếm, ta cần mô hình khác.
+
+**Cách chọn nhanh**
+
+| Câu hỏi nghiên cứu | Outcome | Mô hình |
+|---|---|---|
+| Có hay không? | 0/1 | Logistic |
+| Mức thấp/vừa/cao? | Ordinal | Ordinal |
+| Bao nhiêu lần? | Count | Poisson |
+| Tại sao X ảnh hưởng Y? | Mediator | Mediation |
+| Khi nào X ảnh hưởng Y mạnh hơn? | Moderator | Moderation |
+
+:::
+
+## Kiểm tra nhanh các biến outcome
+
+```{r}
+adv_reg |>
+  select(
+    adopted_ai,
+    ordinal_performance,
+    absences_count,
+    productivity_score,
+    mediator_engagement,
+    moderator_autonomy
+  ) |>
+  summary()
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- Outcome 0/1 → Logistic Regression
+- Outcome có thứ tự → Ordinal Regression
+- Outcome dạng đếm → Poisson Regression
+- Cơ chế trung gian → Mediation
+- Tác động phụ thuộc bối cảnh → Moderation
+
+:::
+
+---
+
+# 4. Hồi quy Logistic (Logistic Regression)
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu hồi quy Logistic
+- Biết khi nào dùng hồi quy Logistic
+- Chạy mô hình Logistic bằng R
+- Diễn giải Odds Ratio
+- Viết kết quả Logistic Regression
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Hồi quy Logistic (Logistic Regression) dùng khi biến phụ thuộc là nhị phân:
+
+```text
+0 = No
+1 = Yes
+```
+
+**Tại sao cần? (Why?)**
+
+Hồi quy tuyến tính không phù hợp với outcome 0/1 vì dự đoán có thể nhỏ hơn 0 hoặc lớn hơn 1.
+
+**Khi nào dùng? (When?)**
+
+Dùng khi câu hỏi nghiên cứu là:
+
+```text
+Yếu tố nào dự đoán khả năng một người sẽ thực hiện hành vi?
+```
+
+**Thực hiện thế nào? (How?)**
+
+Trong R dùng:
+
+```r
+glm(..., family = binomial)
+```
+
+:::
+
+## Ước lượng mô hình Logistic
+
+```{r}
+logit_model <- glm(
+  adopted_ai ~ digital_readiness + leadership_support + workload + training_hours,
+  data = adv_reg,
+  family = binomial
+)
+
+summary(logit_model)
+```
+
+## Bảng Odds Ratio
+
+```{r}
+logit_or <- tidy(
+  logit_model,
+  exponentiate = TRUE,
+  conf.int = TRUE
+)
+
+logit_or
+```
+
+## Bảng trình bày bằng gtsummary
+
+```{r}
+tbl_regression(
+  logit_model,
+  exponentiate = TRUE
+) |>
+  bold_labels()
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Trong hồi quy Logistic, hệ số thường được diễn giải bằng Odds Ratio.
+
+| Odds Ratio | Diễn giải |
+|---:|---|
+| OR = 1 | Không thay đổi odds |
+| OR > 1 | Odds tăng |
+| OR < 1 | Odds giảm |
+
+Ví dụ:
+
+```text
+OR = 1.50
+```
+
+có thể diễn giải là odds của outcome tăng 50% khi predictor tăng 1 đơn vị, giữ các biến khác không đổi.
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên diễn giải:
+
+```text
+OR = 1.50 nghĩa là xác suất tăng 50%.
+```
+
+Odds không giống probability.
+
+Cần viết cẩn trọng:
+
+```text
+The odds were 1.50 times higher.
+```
+
+:::
+
+::: {.callout-important title="Ví dụ viết học thuật (Academic Reporting Example)"}
+
+```text
+A logistic regression was conducted to examine predictors of AI adoption. The results indicated that digital readiness was positively associated with the odds of AI adoption, controlling for leadership support, workload and training hours.
+```
+
+:::
+
+---
+
+# 5. Hồi quy thứ bậc (Ordinal Regression)
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu biến phụ thuộc thứ bậc (Ordinal Outcome)
+- Biết khi nào dùng hồi quy thứ bậc
+- Chạy mô hình bằng `MASS::polr()`
+- Diễn giải kết quả ở mức cơ bản
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Hồi quy thứ bậc (Ordinal Regression) dùng khi biến phụ thuộc có thứ tự tự nhiên.
+
+Ví dụ:
+
+```text
+1 = Low
+2 = Medium
+3 = High
+4 = Very high
+```
+
+**Tại sao cần? (Why?)**
+
+Outcome thứ bậc không phải là biến liên tục thật sự. Khoảng cách giữa các mức có thể không bằng nhau.
+
+**Khi nào dùng? (When?)**
+
+Dùng khi outcome là mức đánh giá, mức hài lòng, mức thành tích hoặc mức đồng ý có thứ tự.
+
+:::
+
+## Chuẩn bị biến outcome
+
+```{r}
+adv_reg <- adv_reg |>
+  mutate(
+    ordinal_performance_factor = ordered(ordinal_performance)
+  )
+```
+
+## Ước lượng mô hình Ordinal
+
+```{r}
+if (requireNamespace("MASS", quietly = TRUE)) {
+  ordinal_model <- MASS::polr(
+    ordinal_performance_factor ~ digital_readiness + leadership_support + motivation,
+    data = adv_reg,
+    Hess = TRUE
+  )
+
+  summary(ordinal_model)
+}
+```
+
+## Bảng kết quả
+
+```{r}
+if (exists("ordinal_model")) {
+  tidy(
+    ordinal_model,
+    conf.int = TRUE,
+    exponentiate = TRUE
+  )
+}
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Trong ordinal regression, hệ số dương thường gợi ý predictor liên quan đến khả năng cao hơn của việc thuộc nhóm outcome cao hơn.
+
+Tuy nhiên, diễn giải cần thận trọng và nên kiểm tra giả định proportional odds nếu dùng cho nghiên cứu công bố.
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên tự động xem biến thứ bậc như biến liên tục.
+
+Ví dụ:
+
+```text
+Performance level: 1, 2, 3, 4, 5
+```
+
+không chắc có khoảng cách bằng nhau giữa các mức.
+
+:::
+
+---
+
+# 6. Hồi quy Poisson (Poisson Regression)
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu dữ liệu đếm (Count Data)
+- Biết khi nào dùng hồi quy Poisson
+- Chạy mô hình Poisson bằng R
+- Diễn giải Incident Rate Ratio
+- Nhận biết vấn đề overdispersion
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Hồi quy Poisson (Poisson Regression) dùng cho biến phụ thuộc dạng đếm.
+
+Ví dụ:
+
+- Số lần vắng mặt
+- Số lỗi
+- Số lượt truy cập
+- Số lần sử dụng hệ thống
+- Số sự kiện xảy ra
+
+**Tại sao cần? (Why?)**
+
+Dữ liệu đếm thường không phù hợp với hồi quy tuyến tính vì:
+
+- Không thể nhỏ hơn 0
+- Phân phối thường lệch phải
+- Phương sai có thể tăng theo trung bình
+
+**Thực hiện thế nào? (How?)**
+
+Dùng:
+
+```r
+glm(..., family = poisson)
+```
+
+:::
+
+## Ước lượng mô hình Poisson
+
+```{r}
+poisson_model <- glm(
+  absences_count ~ workload + job_satisfaction + training_hours,
+  data = adv_reg,
+  family = poisson
+)
+
+summary(poisson_model)
+```
+
+## Incident Rate Ratio
+
+```{r}
+poisson_irr <- tidy(
+  poisson_model,
+  exponentiate = TRUE,
+  conf.int = TRUE
+)
+
+poisson_irr
+```
+
+## Kiểm tra overdispersion đơn giản
+
+```{r}
+overdispersion_ratio <- sum(residuals(poisson_model, type = "pearson")^2) /
+  poisson_model$df.residual
+
+overdispersion_ratio
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Trong Poisson Regression, hệ số đã exponentiate được diễn giải là Incident Rate Ratio (IRR).
+
+| IRR | Diễn giải |
+|---:|---|
+| IRR = 1 | Không thay đổi rate |
+| IRR > 1 | Rate tăng |
+| IRR < 1 | Rate giảm |
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Nếu overdispersion ratio lớn hơn nhiều so với 1, Poisson model có thể chưa phù hợp.
+
+Khi đó có thể cân nhắc:
+
+- Negative Binomial Regression
+- Robust standard errors
+- Zero-inflated models
+
+:::
+
+---
+
+# 7. Phân tích trung gian (Mediation Analysis)
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu khái niệm biến trung gian (Mediator)
+- Phân biệt direct effect, indirect effect và total effect
+- Chạy phân tích trung gian cơ bản bằng hồi quy
+- Diễn giải kết quả trung gian ở mức nhập môn
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Phân tích trung gian (Mediation Analysis) kiểm tra liệu tác động của X lên Y có đi qua một biến trung gian M hay không.
+
+Cấu trúc:
+
+```text
+X → M → Y
+```
+
+**Tại sao cần? (Why?)**
+
+Mediation giúp trả lời câu hỏi:
+
+```text
+Tại sao X liên quan đến Y?
+```
+
+**Khi nào dùng? (When?)**
+
+Dùng khi lý thuyết cho rằng một biến giải thích cơ chế tác động giữa predictor và outcome.
+
+:::
+
+## Mô hình đường a: X → M
+
+```{r}
+med_model_a <- lm(
+  mediator_engagement ~ leadership_support,
+  data = adv_reg
+)
+
+summary(med_model_a)
+```
+
+## Mô hình đường b và c': X + M → Y
+
+```{r}
+med_model_b <- lm(
+  productivity_score ~ leadership_support + mediator_engagement,
+  data = adv_reg
+)
+
+summary(med_model_b)
+```
+
+## Tính indirect effect đơn giản
+
+```{r}
+a_path <- coef(med_model_a)["leadership_support"]
+b_path <- coef(med_model_b)["mediator_engagement"]
+
+indirect_effect <- a_path * b_path
+
+indirect_effect
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu:
+
+```text
+leadership_support → mediator_engagement
+```
+
+và:
+
+```text
+mediator_engagement → productivity_score
+```
+
+đều có ý nghĩa thống kê, và indirect effect khác 0, có thể có bằng chứng về vai trò trung gian.
+
+Trong nghiên cứu công bố, nên dùng bootstrap confidence interval cho indirect effect.
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên kết luận mediation mạnh nếu dữ liệu là cắt ngang và không có cơ sở lý thuyết rõ ràng.
+
+Mediation cần được hỗ trợ bởi:
+
+- Lý thuyết
+- Thiết kế nghiên cứu phù hợp
+- Kiểm định indirect effect
+
+:::
+
+---
+
+# 8. Phân tích điều tiết (Moderation Analysis)
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu biến điều tiết (Moderator)
+- Hiểu interaction effect
+- Chạy mô hình có tương tác bằng R
+- Diễn giải interaction term
+- Trực quan hóa moderation
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Phân tích điều tiết (Moderation Analysis) kiểm tra liệu mối quan hệ giữa X và Y có thay đổi theo mức của Z hay không.
+
+Cấu trúc:
+
+```text
+X × Z → Y
+```
+
+**Tại sao cần? (Why?)**
+
+Moderation giúp trả lời câu hỏi:
+
+```text
+Khi nào hoặc trong điều kiện nào X liên quan mạnh hơn đến Y?
+```
+
+**Khi nào dùng? (When?)**
+
+Dùng khi có lý thuyết cho rằng tác động của predictor phụ thuộc vào một biến bối cảnh.
+
+:::
+
+## Ước lượng mô hình moderation
+
+```{r}
+moderation_model <- lm(
+  productivity_score ~ digital_readiness * moderator_autonomy,
+  data = adv_reg
+)
+
+summary(moderation_model)
+```
+
+## Bảng hệ số
+
+```{r}
+tidy(moderation_model, conf.int = TRUE)
+```
+
+## Trực quan hóa moderation
+
+```{r}
+moderation_plot_data <- adv_reg |>
+  mutate(
+    autonomy_group = case_when(
+      moderator_autonomy <= quantile(moderator_autonomy, 0.33, na.rm = TRUE) ~ "Low autonomy",
+      moderator_autonomy >= quantile(moderator_autonomy, 0.67, na.rm = TRUE) ~ "High autonomy",
+      TRUE ~ "Medium autonomy"
+    )
+  )
+
+ggplot(
+  moderation_plot_data,
+  aes(
+    x = digital_readiness,
+    y = productivity_score,
+    color = autonomy_group
+  )
+) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Moderation plot",
+    x = "Digital readiness",
+    y = "Productivity score",
+    color = "Autonomy group"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu interaction term có ý nghĩa thống kê, điều đó gợi ý rằng mối quan hệ giữa predictor và outcome thay đổi theo mức của moderator.
+
+Ví dụ:
+
+```text
+Digital readiness may be more strongly associated with productivity when autonomy is high.
+```
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên chỉ nhìn main effects khi mô hình có interaction.
+
+Khi interaction có ý nghĩa, cần diễn giải quan hệ theo mức của moderator.
+
+:::
+
+---
+# 9. Trình bày bảng hồi quy học thuật
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu vai trò của bảng hồi quy (Regression Table) trong bài báo khoa học
+- Tạo bảng hồi quy bằng `gtsummary`
+- So sánh nhiều mô hình hồi quy
+- Trình bày Odds Ratio và Incident Rate Ratio
+- Xuất bảng hồi quy sang HTML, Word hoặc Excel
+- Viết ghi chú bảng (Table Notes) đúng chuẩn học thuật
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Bảng hồi quy học thuật (Academic Regression Table) là bảng tóm tắt kết quả mô hình hồi quy theo định dạng dễ đọc, có thể dùng trong luận văn, luận án, báo cáo nghiên cứu hoặc bài báo khoa học.
+
+**Tại sao cần? (Why?)**
+
+Output mặc định từ R như:
+
+```r
+summary(model)
+```
+
+rất hữu ích khi phân tích, nhưng không phù hợp để đưa trực tiếp vào bài báo.
+
+Một bảng hồi quy tốt nên có:
+
+- Tên biến rõ ràng
+- Hệ số hồi quy hoặc Odds Ratio
+- Khoảng tin cậy (Confidence Interval)
+- p-value
+- Cỡ mẫu
+- Ghi chú bảng
+- Thông tin mô hình
+
+**Khi nào dùng? (When?)**
+
+Dùng sau khi đã ước lượng mô hình và cần trình bày kết quả cho người đọc.
+
+**Thực hiện thế nào? (How?)**
+
+Trong R, có thể dùng:
+
+```r
+gtsummary
+modelsummary
+broom
+gt
+flextable
+```
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Bảng hồi quy thường xuất hiện trong phần Results của:
+
+- Bài báo khoa học
+- Luận văn
+- Luận án
+- Báo cáo khảo sát
+- Báo cáo đánh giá tác động
+- Báo cáo phân tích hành vi người dùng
+
+:::
+
+## 9.1 Regression table cho hồi quy Logistic
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Với hồi quy Logistic (Logistic Regression), hệ số thường được trình bày dưới dạng Odds Ratio.
+
+Trong `gtsummary`, cần dùng:
+
+```r
+exponentiate = TRUE
+```
+
+để chuyển hệ số log-odds thành Odds Ratio.
+
+:::
+
+```{r}
+logit_table <- tbl_regression(
+  logit_model,
+  exponentiate = TRUE
+) |>
+  bold_labels()
+
+logit_table
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu bảng hiển thị:
+
+```text
+OR = 1.45
+```
+
+có thể hiểu là odds của outcome tăng 1.45 lần khi predictor tăng 1 đơn vị, giữ các biến khác không đổi.
+
+Không nên viết:
+
+```text
+Probability increased by 45%.
+```
+
+Nên viết:
+
+```text
+The odds were 1.45 times higher.
+```
+
+:::
+
+---
+
+## 9.2 Regression table cho hồi quy Poisson
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Với hồi quy Poisson (Poisson Regression), hệ số exponentiate thường được diễn giải là Incident Rate Ratio (IRR).
+
+Tương tự Logistic Regression, ta dùng:
+
+```r
+exponentiate = TRUE
+```
+
+:::
+
+```{r}
+poisson_table <- tbl_regression(
+  poisson_model,
+  exponentiate = TRUE
+) |>
+  bold_labels()
+
+poisson_table
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu bảng hiển thị:
+
+```text
+IRR = 1.20
+```
+
+có thể hiểu là expected count hoặc event rate tăng khoảng 20% khi predictor tăng 1 đơn vị, giữ các biến khác không đổi.
+
+:::
+
+---
+
+## 9.3 Regression table cho mô hình điều tiết
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Với mô hình điều tiết (Moderation Model), cần đặc biệt chú ý đến interaction term.
+
+Ví dụ:
+
+```text
+digital_readiness:moderator_autonomy
+```
+
+Nếu interaction term có ý nghĩa thống kê, mối quan hệ giữa predictor và outcome thay đổi theo mức của moderator.
+
+:::
+
+```{r}
+moderation_table <- tbl_regression(
+  moderation_model
+) |>
+  bold_labels()
+
+moderation_table
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Khi mô hình có interaction, không nên chỉ diễn giải main effects.
+
+Cần xem:
+
+- Main effect của predictor
+- Main effect của moderator
+- Interaction term
+- Biểu đồ moderation plot
+
+:::
+
+---
+
+## 9.4 So sánh nhiều mô hình hồi quy
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+So sánh nhiều mô hình giúp đánh giá việc thêm biến dự báo có cải thiện mô hình hay không.
+
+**Tại sao cần? (Why?)**
+
+Trong nghiên cứu, ta thường xây dựng mô hình theo từng bước:
+
+```text
+Model 1: Control variables
+Model 2: Main predictors
+Model 3: Extended predictors
+```
+
+**Khi nào dùng? (When?)**
+
+Dùng khi muốn kiểm tra mô hình nào giải thích outcome tốt hơn hoặc ổn định hơn.
+
+:::
+
+## Tạo ba mô hình Logistic
+
+```{r}
+logit_model_1 <- glm(
+  adopted_ai ~ digital_readiness,
+  data = adv_reg,
+  family = binomial
+)
+
+logit_model_2 <- glm(
+  adopted_ai ~ digital_readiness + leadership_support,
+  data = adv_reg,
+  family = binomial
+)
+
+logit_model_3 <- glm(
+  adopted_ai ~ digital_readiness + leadership_support + workload + training_hours,
+  data = adv_reg,
+  family = binomial
+)
+```
+
+## Gộp bảng bằng `gtsummary`
+
+```{r}
+logit_model_comparison <- tbl_merge(
+  tbls = list(
+    tbl_regression(
+      logit_model_1,
+      exponentiate = TRUE
+    ),
+    tbl_regression(
+      logit_model_2,
+      exponentiate = TRUE
+    ),
+    tbl_regression(
+      logit_model_3,
+      exponentiate = TRUE
+    )
+  ),
+  tab_spanner = c(
+    "Model 1",
+    "Model 2",
+    "Model 3"
+  )
+)
+
+logit_model_comparison
+```
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Bảng so sánh mô hình rất hữu ích khi muốn trình bày:
+
+- Mô hình cơ sở
+- Mô hình thêm biến chính
+- Mô hình đầy đủ
+
+Cách này giúp người đọc thấy kết quả có ổn định hay không khi thêm biến mới.
+
+:::
+
+---
+
+## 9.5 Tạo bảng bằng `broom` và `gt`
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+`broom` giúp chuyển output mô hình thành data frame.
+
+`gt` giúp biến data frame thành bảng đẹp trong HTML.
+
+Cách này linh hoạt hơn nếu muốn tự chỉnh tên cột, làm tròn số hoặc chọn biến.
+
+:::
+
+```{r}
+logit_gt_table <- tidy(
+  logit_model,
+  exponentiate = TRUE,
+  conf.int = TRUE
+) |>
+  mutate(
+    across(
+      where(is.numeric),
+      ~ round(., 3)
+    )
+  ) |>
+  gt() |>
+  tab_header(
+    title = "Logistic Regression Table",
+    subtitle = "Outcome: AI Adoption"
+  )
+
+logit_gt_table
+```
+
+::: {.callout-tip title="Điểm cần ghi nhớ (Key Points)"}
+
+Cách dùng `broom + gt` phù hợp khi bạn muốn kiểm soát bảng nhiều hơn so với `gtsummary`.
+
+:::
+
+---
+
+## 9.6 Tùy chọn nâng cao với `modelsummary`
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+`modelsummary` là package rất mạnh để trình bày và so sánh nhiều mô hình hồi quy.
+
+Nó có thể xuất bảng sang:
+
+- HTML
+- Word
+- Excel
+- LaTeX
+- Markdown
+
+:::
+
+## Cài đặt và nạp package
+
+```{r}
+#| eval: false
+
+install.packages("modelsummary")
+```
+
+```{r}
+if (requireNamespace("modelsummary", quietly = TRUE)) {
+  library(modelsummary)
+}
+```
+
+## So sánh nhiều mô hình
+
+```{r}
+if (requireNamespace("modelsummary", quietly = TRUE)) {
+  modelsummary::modelsummary(
+    list(
+      "Model 1" = logit_model_1,
+      "Model 2" = logit_model_2,
+      "Model 3" = logit_model_3
+    ),
+    exponentiate = TRUE
+  )
+}
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Khi dùng `modelsummary`, cần kiểm tra kỹ:
+
+- Hệ số có được exponentiate đúng chưa?
+- Tên biến có dễ hiểu không?
+- Bảng có cần thêm ghi chú không?
+- Outcome của từng mô hình có giống nhau không?
+
+:::
+
+---
+
+## 9.7 Xuất bảng hồi quy
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Trong khóa học này, các lệnh xuất file được đặt `eval: false` để tránh lỗi khi render website.
+
+Khi làm việc thật, học viên có thể bật chạy các lệnh này để xuất bảng.
+
+:::
+
+## Xuất bảng HTML
+
+```{r}
+#| eval: false
+
+logit_gt_table |>
+  gt::gtsave(
+    "output/advanced_logistic_regression_table.html"
+  )
+```
+
+## Xuất bảng Word bằng `modelsummary`
+
+```{r}
+#| eval: false
+
+modelsummary::modelsummary(
+  list(
+    "Model 1" = logit_model_1,
+    "Model 2" = logit_model_2,
+    "Model 3" = logit_model_3
+  ),
+  exponentiate = TRUE,
+  output = "output/advanced_logistic_regression_table.docx"
+)
+```
+
+## Xuất bảng Excel bằng `modelsummary`
+
+```{r}
+#| eval: false
+
+modelsummary::modelsummary(
+  list(
+    "Model 1" = logit_model_1,
+    "Model 2" = logit_model_2,
+    "Model 3" = logit_model_3
+  ),
+  exponentiate = TRUE,
+  output = "output/advanced_logistic_regression_table.xlsx"
+)
+```
+
+---
+
+## 9.8 Checklist cho bảng hồi quy
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Một bảng hồi quy tốt nên có:
+
+| Thành phần | Nên có |
+|---|---|
+| Tên biến rõ ràng | Có |
+| Hệ số hoặc OR/IRR | Có |
+| Khoảng tin cậy | Có |
+| p-value | Có |
+| Cỡ mẫu | Có |
+| Thông tin mô hình | Có |
+| Ghi chú bảng | Có |
+| Diễn giải trong text | Có |
+
+:::
+
+::: {.callout-important title="Ví dụ ghi chú bảng (Table Note Example)"}
+
+```text
+Note. Values are reported as odds ratios. CI = confidence interval. OR values greater than 1 indicate higher odds of the outcome. Models were estimated using logistic regression.
+```
+
+:::
+
+---
+
+## 9.9 Ví dụ viết kết quả từ bảng hồi quy
+
+::: {.callout-important title="Ví dụ viết học thuật (Academic Reporting Example)"}
+
+```text
+Table 2 presents the logistic regression models predicting AI adoption. In Model 1, digital readiness was positively associated with the odds of AI adoption. After adding leadership support in Model 2, the association between digital readiness and AI adoption remained positive. The full model, which included workload and training hours, showed that digital readiness and leadership support were the most consistent predictors of AI adoption.
+```
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên để bảng tự nói thay phần diễn giải.
+
+Sau mỗi bảng hồi quy, cần có đoạn text giải thích:
+
+- Kết quả chính là gì?
+- Predictor nào quan trọng?
+- Mô hình nào tốt hơn?
+- Ý nghĩa thực tiễn là gì?
+- Có giới hạn nào khi diễn giải không?
+
+:::
+---
+# 10. So sánh các mô hình hồi quy nâng cao
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Bảng dưới đây giúp chọn mô hình phù hợp.
+
+:::
+
+| Mục tiêu phân tích | Biến phụ thuộc | Mô hình đề xuất | Hàm R |
+|---|---|---|---|
+| Dự đoán outcome liên tục | Continuous | Linear Regression | `lm()` |
+| Dự đoán outcome 0/1 | Binary | Logistic Regression | `glm(..., binomial)` |
+| Dự đoán outcome thứ bậc | Ordered | Ordinal Regression | `MASS::polr()` |
+| Dự đoán dữ liệu đếm | Count | Poisson Regression | `glm(..., poisson)` |
+| Kiểm tra cơ chế | Mediator | Mediation | `lm()` / bootstrap |
+| Kiểm tra điều kiện tác động | Moderator | Moderation | `lm(y ~ x*z)` |
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- Chọn mô hình theo loại biến phụ thuộc.
+- Logistic Regression dùng cho outcome nhị phân.
+- Ordinal Regression dùng cho outcome có thứ tự.
+- Poisson Regression dùng cho dữ liệu đếm.
+- Mediation trả lời câu hỏi "tại sao".
+- Moderation trả lời câu hỏi "khi nào".
+- Không diễn giải hồi quy cắt ngang như bằng chứng nhân quả mạnh.
+
+:::
+
+---
+
+# 11. Viết kết quả học thuật
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Viết kết quả học thuật là chuyển output mô hình thành đoạn văn rõ ràng, chính xác và thận trọng.
+
+**Nguyên tắc**
+
+- Nêu mô hình đã dùng
+- Nêu biến phụ thuộc
+- Nêu predictors chính
+- Báo cáo hệ số phù hợp
+- Không diễn giải quá mức
+- Tránh ngôn ngữ nhân quả nếu thiết kế nghiên cứu không hỗ trợ
+
+:::
+
+## Template hồi quy Logistic
+
+```text
+A logistic regression was conducted to examine predictors of [binary outcome]. The results indicated that [predictor] was associated with higher odds of [outcome], OR = [value], 95% CI [lower, upper].
+```
+
+## Template hồi quy Poisson
+
+```text
+A Poisson regression was estimated to examine predictors of [count outcome]. The results showed that [predictor] was associated with the expected count of [outcome], IRR = [value], 95% CI [lower, upper].
+```
+
+## Template Mediation
+
+```text
+The mediation analysis suggested that [mediator] may explain part of the association between [predictor] and [outcome]. However, this result should be interpreted cautiously given the study design.
+```
+
+## Template Moderation
+
+```text
+The interaction between [predictor] and [moderator] was statistically significant, suggesting that the association between [predictor] and [outcome] varied across levels of [moderator].
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên viết:
+
+```text
+X caused Y.
+```
+
+nếu dữ liệu là khảo sát cắt ngang.
+
+Nên viết:
+
+```text
+X was associated with Y.
+```
+
+hoặc:
+
+```text
+X significantly predicted Y in the estimated model.
+```
+
+:::
+
+---
+
+# 12. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Sử dụng sheet `02_Advanced_Regression`, hãy thực hiện:
+
+1. Xác định loại biến phụ thuộc của `adopted_ai`.
+2. Chạy hồi quy Logistic cho `adopted_ai`.
+3. Diễn giải odds ratio.
+4. Xác định loại biến phụ thuộc của `ordinal_performance`.
+5. Chạy hồi quy thứ bậc.
+6. Xác định loại biến phụ thuộc của `absences_count`.
+7. Chạy hồi quy Poisson.
+8. Kiểm tra overdispersion.
+9. Chạy mô hình trung gian.
+10. Chạy mô hình điều tiết.
+11. Vẽ moderation plot.
+12. Viết một đoạn kết quả học thuật cho một mô hình.
+
+:::
+
+---
+
+# 13. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Một nhà nghiên cứu có ba biến phụ thuộc:
+
+```text
+adopted_ai = 0/1
+performance_level = 1/2/3/4/5
+number_of_absences = 0, 1, 2, ...
+```
+
+## Câu hỏi
+
+1. Mỗi biến nên dùng mô hình nào?
+2. Vì sao không nên dùng `lm()` cho cả ba?
+3. Hệ số trong logistic regression nên diễn giải như thế nào?
+4. Khi nào cần mediation?
+5. Khi nào cần moderation?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+1. `adopted_ai` → Logistic Regression.
+2. `performance_level` → Ordinal Regression.
+3. `number_of_absences` → Poisson Regression.
+4. Không dùng `lm()` cho cả ba vì bản chất biến phụ thuộc khác nhau.
+5. Logistic Regression nên diễn giải bằng odds ratio.
+6. Mediation dùng khi muốn hiểu cơ chế.
+7. Moderation dùng khi muốn hiểu điều kiện làm thay đổi mối quan hệ.
+
+:::
+
+---
+
+# 14. Dự án nhỏ
+
+::: {.callout-important title="Dự án nhỏ (Mini Project)"}
+
+## Chủ đề
+
+Báo cáo hồi quy nâng cao  
+(Advanced Regression Report)
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+```text
+Advanced_Regression_Report.html
+```
+
+## Nội dung báo cáo
+
+1. Research question
+2. Outcome type identification
+3. Logistic regression model
+4. Ordinal regression model
+5. Poisson regression model
+6. Mediation model
+7. Moderation model
+8. Model interpretation
+9. Academic reporting
+10. Method selection reflection
+
+:::
+
+---
+
+# 15. Điểm cần ghi nhớ
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- Không phải mọi outcome đều phù hợp với hồi quy tuyến tính.
+- Logistic Regression dùng cho biến phụ thuộc nhị phân.
+- Ordinal Regression dùng cho biến phụ thuộc có thứ tự.
+- Poisson Regression dùng cho biến phụ thuộc dạng đếm.
+- Odds ratio không phải là probability.
+- Incident rate ratio dùng để diễn giải Poisson Regression.
+- Mediation giải thích cơ chế.
+- Moderation giải thích điều kiện.
+- Chọn mô hình phải dựa vào câu hỏi nghiên cứu và loại biến phụ thuộc.
+
+:::
+
+---
+
+# 16. Bước tiếp theo
+
+::: {.callout-note title="Bước tiếp theo (What Next?)"}
+
+Sau khi hoàn thành phần này, học viên nên:
+
+1. Ghi nhớ cách chọn mô hình theo outcome.
+2. Thực hành diễn giải odds ratio và IRR.
+3. Phân biệt mediation và moderation.
+4. Chuyển sang:
+
+[Ridge, LASSO and Elastic Net](adv-03-regularized.qmd)
+
+Trong phần tiếp theo, chúng ta sẽ học các mô hình hồi quy điều chuẩn (Regularized Regression) để xử lý nhiều predictors, đa cộng tuyến và bài toán prediction.
+
+:::

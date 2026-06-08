@@ -1,0 +1,324 @@
+---
+title: "Advanced Analytics for Research"
+---
+
+# Advanced Analytics for Research
+
+::: {.callout-tip title="Learning Outcomes"}
+
+Sau khi hoàn thành phần Advanced Analytics, học viên có thể:
+
+- Chọn phương pháp phân tích nâng cao phù hợp với câu hỏi nghiên cứu
+- Thực hiện thống kê mô tả nâng cao
+- Áp dụng các mô hình hồi quy nâng cao
+- Hiểu Ridge, LASSO và Elastic Net Regression
+- Làm quen với SEM nâng cao
+- Hiểu tư duy Bayesian
+- Thực hiện Monte Carlo Simulation
+- Giải thích Simpson's Paradox
+- Tạo biểu đồ Likert nâng cao
+- Xây dựng visualization gallery bằng `ggplot2`
+- Chuẩn bị output phục vụ báo cáo và công bố khoa học
+
+:::
+
+::: {.callout-note title="Module Logic"}
+
+Phần Advanced Analytics mở rộng từ 6 module nền tảng.
+
+```text
+Foundation Modules
+↓
+Advanced Statistical Thinking
+↓
+Advanced Modeling
+↓
+Advanced Visualization
+↓
+Research Publication Toolkit
+```
+
+Mục tiêu không phải học tất cả kỹ thuật cùng lúc, mà là biết:
+
+```text
+What is the method?
+When should we use it?
+How do we run it in R?
+How do we interpret the output?
+How do we report it in research?
+```
+
+:::
+
+---
+
+# Learning Path
+
+## Part 1. Advanced Descriptive Statistics
+
+File:
+
+```text
+advanced/adv-01-descriptive.qmd
+```
+
+Nội dung:
+
+- Beyond mean and SD
+- Skewness
+- Kurtosis
+- Outlier detection
+- Confidence intervals
+- Effect size
+
+---
+
+## Part 2. Advanced Regression
+
+File:
+
+```text
+advanced/adv-02-regression.qmd
+```
+
+Nội dung:
+
+- Logistic regression
+- Ordinal regression
+- Poisson regression
+- Mediation
+- Moderation
+
+---
+
+## Part 3. Ridge, LASSO and Elastic Net
+
+File:
+
+```text
+advanced/adv-03-regularized.qmd
+```
+
+Nội dung:
+
+- Why OLS sometimes fails
+- Ridge Regression
+- LASSO Regression
+- Elastic Net Regression
+- Model comparison
+
+---
+
+## Part 4. Advanced SEM
+
+File:
+
+```text
+advanced/adv-04-sem.qmd
+```
+
+Nội dung:
+
+- CFA
+- CB-SEM
+- Multi-group SEM
+- Measurement invariance
+- SEM reporting
+
+---
+
+## Part 5. Bayesian Statistics
+
+File:
+
+```text
+advanced/adv-05-bayesian.qmd
+```
+
+Nội dung:
+
+- Prior
+- Likelihood
+- Posterior
+- Credible interval
+- Bayesian regression overview
+
+---
+
+## Part 6. Monte Carlo Simulation
+
+File:
+
+```text
+advanced/adv-06-monte-carlo.qmd
+```
+
+Nội dung:
+
+- Monte Carlo logic
+- Repeated simulation
+- Bootstrap
+- Simulation-based confidence intervals
+- Uncertainty visualization
+
+---
+
+## Part 7. Simpson's Paradox
+
+File:
+
+```text
+advanced/adv-07-simpson.qmd
+```
+
+Nội dung:
+
+- Aggregation bias
+- Confounding
+- Group-level vs overall patterns
+- Visualization and interpretation
+
+---
+
+## Part 8. Advanced Likert Analysis
+
+File:
+
+```text
+advanced/adv-08-likert.qmd
+```
+
+Nội dung:
+
+- Horizontal Likert bar
+- Diverging Likert plot
+- Grouped Likert comparison
+- Publication-ready survey figures
+
+---
+
+## Part 9. Advanced Visualization Gallery
+
+File:
+
+```text
+advanced/adv-09-visualization.qmd
+```
+
+Nội dung:
+
+- Histogram
+- Density plot
+- Boxplot
+- Violin plot
+- Jitter plot
+- Bar chart
+- Stacked bar chart
+- Scatter plot
+- Regression line
+- Line chart
+- Area chart
+- Heatmap
+- Correlation heatmap
+- Volcano plot
+- Ridgeline plot
+- Alluvial plot
+- Network plot
+
+---
+
+## Part 10. Research Toolkit
+
+File:
+
+```text
+advanced/adv-10-toolkit.qmd
+```
+
+Nội dung:
+
+- Choosing the right method
+- Reporting templates
+- Figure checklist
+- Table checklist
+- Publication workflow
+
+---
+
+# Dataset
+
+Phần Advanced Analytics sử dụng workbook:
+
+```text
+data/advance/module7_advanced_data.xlsx
+```
+
+Workbook gồm nhiều sheet phục vụ từng kỹ thuật:
+
+```text
+01_Advanced_Descriptive
+02_Advanced_Regression
+03_Ridge_Lasso_Elastic
+04_SEM_Advanced
+05_Bayesian_MonteCarlo
+06_Simpsons_Paradox
+07_Likert_Advanced
+08_Visualization_Heatmap
+09_Visualization_Volcano
+10_Visualization_Network
+```
+
+---
+
+# How to Study This Section
+
+::: {.callout-important title="Suggested Learning Strategy"}
+
+Không cần học toàn bộ Advanced Analytics trong một buổi.
+
+Khuyến nghị:
+
+1. Học `Advanced Descriptive Statistics` trước.
+2. Sau đó học `Advanced Regression`.
+3. Tiếp theo học `Regularized Regression`.
+4. Học `Visualization Gallery` song song với các phần còn lại.
+5. Dùng `Research Toolkit` để chọn phương pháp phù hợp cho nghiên cứu.
+
+:::
+
+---
+
+# Mini Project
+
+::: {.callout-important title="Advanced Analytics Portfolio"}
+
+Cuối phần Advanced Analytics, học viên tạo một portfolio gồm:
+
+1. Một bảng thống kê mô tả nâng cao
+2. Một mô hình hồi quy nâng cao
+3. Một mô hình Ridge/LASSO/Elastic Net
+4. Một mô phỏng Monte Carlo
+5. Một ví dụ Simpson's Paradox
+6. Một biểu đồ Likert nâng cao
+7. Năm biểu đồ `ggplot2` nâng cao
+8. Một đoạn diễn giải kết quả học thuật
+
+Sản phẩm đầu ra:
+
+```text
+Advanced_Analytics_Portfolio.html
+```
+
+:::
+
+---
+
+# What Next?
+
+::: {.callout-note title="What Next?"}
+
+Bắt đầu với:
+
+[Advanced Descriptive Statistics](adv-01-descriptive.qmd)
+
+:::

@@ -1,0 +1,1044 @@
+---
+title: "Advanced 03. Hồi quy Điều chuẩn"
+subtitle: "Ridge, LASSO and Elastic Net Regression"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Hiểu vì sao hồi quy tuyến tính thông thường có thể gặp vấn đề khi có nhiều biến dự báo
+- Hiểu đa cộng tuyến (Multicollinearity) và quá khớp mô hình (Overfitting)
+- Hiểu hồi quy điều chuẩn (Regularized Regression)
+- Phân biệt Ridge Regression, LASSO Regression và Elastic Net Regression
+- Chuẩn bị dữ liệu dạng ma trận cho package `glmnet`
+- Chạy Ridge Regression bằng R
+- Chạy LASSO Regression bằng R
+- Chạy Elastic Net Regression bằng R
+- So sánh kết quả giữa ba mô hình
+- Diễn giải hệ số và lựa chọn biến
+- Viết kết quả hồi quy điều chuẩn theo hướng nghiên cứu và dự đoán
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Khi có nhiều biến dự báo, các biến tương quan mạnh với nhau hoặc mục tiêu là dự đoán, ta có thể dùng mô hình hồi quy nào thay cho hồi quy tuyến tính thông thường?**
+
+Quy trình:
+
+```text
+Many Predictors
+↓
+Multicollinearity / Overfitting
+↓
+Penalty
+↓
+Ridge / LASSO / Elastic Net
+↓
+Cross-validation
+↓
+Best Lambda
+↓
+Prediction and Interpretation
+```
+
+:::
+
+# 1. Vì sao cần hồi quy điều chuẩn?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Hồi quy điều chuẩn (Regularized Regression) là nhóm mô hình hồi quy thêm một thành phần phạt (penalty) vào hàm mất mát để làm cho mô hình ổn định hơn.
+
+**Tại sao cần? (Why?)**
+
+Hồi quy tuyến tính thông thường (Ordinary Least Squares - OLS) có thể gặp vấn đề khi:
+
+- Có quá nhiều biến dự báo
+- Các biến dự báo tương quan mạnh với nhau
+- Mô hình quá phức tạp
+- Dữ liệu có nhiều nhiễu
+- Mục tiêu chính là dự đoán
+
+**Khi nào dùng? (When?)**
+
+Dùng khi:
+
+- Mục tiêu là prediction
+- Có nhiều predictors
+- Có nguy cơ overfitting
+- Có multicollinearity
+- Cần chọn biến quan trọng
+- Muốn so sánh nhiều biến dự báo trong cùng một mô hình
+
+**Thực hiện thế nào? (How?)**
+
+Ta dùng package `glmnet`.
+
+Ba kỹ thuật chính:
+
+| Kỹ thuật | Mục tiêu chính |
+|---|---|
+| Ridge Regression | Giảm độ lớn hệ số |
+| LASSO Regression | Chọn biến |
+| Elastic Net Regression | Kết hợp Ridge và LASSO |
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Hồi quy điều chuẩn phù hợp cho các bài nghiên cứu có mục tiêu dự đoán như:
+
+- Dự đoán hiệu quả học tập
+- Dự đoán mức độ sử dụng công nghệ
+- Dự đoán sự hài lòng
+- Dự đoán năng suất làm việc
+- Dự đoán ý định hành vi
+- Chọn các yếu tố dự báo quan trọng từ nhiều biến khảo sát
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Người học thường mắc lỗi:
+
+- Dùng Ridge/LASSO như công cụ chứng minh nhân quả
+- Không chuẩn hóa biến trước khi chạy mô hình
+- Không dùng cross-validation
+- Diễn giải hệ số giống hệt OLS
+- Chỉ nhìn hệ số mà không xem mục tiêu prediction
+- Nghĩ LASSO chọn biến nghĩa là biến đó chắc chắn có quan hệ nhân quả
+
+:::
+
+# 2. Chuẩn bị dữ liệu
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Dữ liệu sử dụng**
+
+```text
+data/advance/module7_advanced_data.xlsx
+```
+
+Sheet sử dụng:
+
+```text
+03_Ridge_Lasso_Elastic
+```
+
+Sheet này gồm:
+
+- Biến phụ thuộc liên tục (continuous outcome)
+- Nhiều biến dự báo có tiền tố `x`
+- Một số predictors có thể tương quan với nhau
+
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("glmnet")
+install.packages("broom")
+install.packages("gt")
+install.packages("patchwork")
+```
+
+## Nạp package
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(glmnet)
+library(broom)
+library(gt)
+library(patchwork)
+```
+
+## Thiết lập đường dẫn dữ liệu
+
+```{r}
+advanced_file <- if (file.exists("../data/advance/module7_advanced_data.xlsx")) {
+  "../data/advance/module7_advanced_data.xlsx"
+} else if (file.exists("../data/advanced/module7_advanced_data.xlsx")) {
+  "../data/advanced/module7_advanced_data.xlsx"
+} else if (file.exists("data/advance/module7_advanced_data.xlsx")) {
+  "data/advance/module7_advanced_data.xlsx"
+} else {
+  "data/advanced/module7_advanced_data.xlsx"
+}
+```
+
+## Nhập dữ liệu
+
+```{r}
+reg_data <- read_excel(
+  advanced_file,
+  sheet = "03_Ridge_Lasso_Elastic"
+) |>
+  clean_names()
+```
+
+## Kiểm tra dữ liệu
+
+```{r}
+glimpse(reg_data)
+```
+
+```{r}
+names(reg_data)
+```
+
+# 3. Vấn đề của hồi quy OLS khi có nhiều predictors
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu vì sao OLS có thể không ổn định
+- Nhận diện multicollinearity
+- Hiểu overfitting ở mức cơ bản
+- Biết khi nào cần regularization
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**OLS là gì? (What is OLS?)**
+
+Hồi quy tuyến tính thông thường ước lượng hệ số bằng cách tối thiểu hóa tổng bình phương sai số.
+
+```text
+Observed value - Predicted value
+```
+
+**Vấn đề là gì?**
+
+Khi có nhiều predictors hoặc predictors tương quan mạnh:
+
+- Hệ số có thể rất lớn hoặc rất nhỏ bất thường
+- Dấu của hệ số có thể không ổn định
+- Mô hình phù hợp tốt trên dữ liệu huấn luyện nhưng dự đoán kém trên dữ liệu mới
+- Standard errors có thể tăng
+
+**Overfitting là gì?**
+
+Overfitting xảy ra khi mô hình học cả pattern thật và nhiễu trong dữ liệu.
+
+**Multicollinearity là gì?**
+
+Multicollinearity xảy ra khi các predictors tương quan mạnh với nhau.
+
+:::
+
+## Chạy OLS cơ bản
+
+```{r}
+ols_model <- lm(
+  y_continuous ~ .,
+  data = reg_data |>
+    select(y_continuous, starts_with("x"))
+)
+
+summary(ols_model)
+```
+
+## Kiểm tra tương quan giữa predictors
+
+```{r}
+predictor_corr <- reg_data |>
+  select(starts_with("x")) |>
+  cor(use = "pairwise.complete.obs")
+
+predictor_corr[1:6, 1:6]
+```
+
+## Correlation heatmap
+
+```{r}
+corr_long <- as.data.frame(as.table(predictor_corr)) |>
+  rename(
+    variable_1 = Var1,
+    variable_2 = Var2,
+    correlation = Freq
+  )
+
+ggplot(corr_long, aes(x = variable_1, y = variable_2, fill = correlation)) +
+  geom_tile() +
+  labs(
+    title = "Correlation Heatmap among Predictors",
+    x = NULL,
+    y = NULL,
+    fill = "r"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+::: {.callout-important title="Quyết định nghiên cứu (Research Decision)"}
+
+Nếu predictors có tương quan cao hoặc số lượng predictors lớn, hãy cân nhắc:
+
+- Ridge Regression
+- LASSO Regression
+- Elastic Net Regression
+- Principal Component Regression
+- Feature selection
+
+:::
+
+# 4. Chuẩn bị dữ liệu cho `glmnet`
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+`glmnet` yêu cầu dữ liệu đầu vào ở dạng:
+
+```text
+x = matrix of predictors
+y = outcome vector
+```
+
+**Tại sao cần? (Why?)**
+
+Khác với `lm()`, `glmnet()` không dùng công thức dạng:
+
+```r
+y ~ x1 + x2 + x3
+```
+
+mà dùng matrix để chạy nhanh và ổn định hơn.
+
+**Khi nào dùng? (When?)**
+
+Mỗi khi chạy Ridge, LASSO hoặc Elastic Net bằng `glmnet`.
+
+:::
+
+## Tạo ma trận predictors và outcome
+
+```{r}
+x <- reg_data |>
+  select(starts_with("x")) |>
+  as.matrix()
+
+y <- reg_data$y_continuous
+```
+
+## Kiểm tra kích thước
+
+```{r}
+dim(x)
+```
+
+```{r}
+length(y)
+```
+
+## Chia train-test đơn giản
+
+```{r}
+set.seed(123)
+
+train_id <- sample(
+  1:nrow(reg_data),
+  size = 0.7 * nrow(reg_data)
+)
+
+x_train <- x[train_id, ]
+x_test <- x[-train_id, ]
+
+y_train <- y[train_id]
+y_test <- y[-train_id]
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên chạy mô hình trên toàn bộ dữ liệu rồi đánh giá lại trên chính dữ liệu đó nếu mục tiêu là prediction.
+
+Nên có:
+
+- Train set
+- Test set
+- Cross-validation
+
+:::
+
+# 5. Ridge Regression
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu Ridge Regression
+- Biết khi nào dùng Ridge
+- Chạy Ridge bằng `glmnet`
+- Diễn giải lambda
+- Hiểu vì sao Ridge không loại biến
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Ridge Regression là hồi quy điều chuẩn sử dụng L2 penalty.
+
+Nó làm hệ số nhỏ lại nhưng thường không đưa hệ số về đúng 0.
+
+**Tại sao cần? (Why?)**
+
+Ridge hữu ích khi:
+
+- Predictors tương quan mạnh
+- Muốn giữ tất cả biến trong mô hình
+- Cần mô hình ổn định hơn OLS
+
+**Khi nào dùng? (When?)**
+
+Dùng Ridge khi bạn không muốn loại bỏ biến, nhưng muốn giảm tác động của multicollinearity.
+
+**Thực hiện thế nào? (How?)**
+
+Trong `glmnet`:
+
+```r
+alpha = 0
+```
+
+:::
+
+## Chạy Ridge với cross-validation
+
+```{r}
+set.seed(123)
+
+ridge_cv <- cv.glmnet(
+  x = x_train,
+  y = y_train,
+  alpha = 0,
+  standardize = TRUE
+)
+
+ridge_cv
+```
+
+## Lambda tốt nhất
+
+```{r}
+ridge_cv$lambda.min
+```
+
+## Vẽ cross-validation curve
+
+```{r}
+plot(ridge_cv)
+```
+
+## Hệ số Ridge
+
+```{r}
+ridge_coef <- coef(
+  ridge_cv,
+  s = "lambda.min"
+)
+
+ridge_coef
+```
+
+## Dự đoán trên test set
+
+```{r}
+ridge_pred <- predict(
+  ridge_cv,
+  newx = x_test,
+  s = "lambda.min"
+)
+
+ridge_rmse <- sqrt(mean((y_test - ridge_pred)^2))
+
+ridge_rmse
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Ridge Regression làm hệ số nhỏ lại để mô hình ổn định hơn.
+
+Nếu nhiều predictors tương quan mạnh, Ridge thường hoạt động tốt hơn OLS cho mục tiêu prediction.
+
+Tuy nhiên, Ridge không phải là phương pháp chọn biến vì nó thường giữ lại tất cả predictors.
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên nói:
+
+```text
+Ridge selected important variables.
+```
+
+Vì Ridge chủ yếu shrink coefficients, không loại biến về 0.
+
+:::
+
+# 6. LASSO Regression
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu LASSO Regression
+- Biết khi nào dùng LASSO
+- Chạy LASSO bằng `glmnet`
+- Xác định biến được chọn
+- Diễn giải hệ số bằng cách thận trọng
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+LASSO Regression là hồi quy điều chuẩn sử dụng L1 penalty.
+
+Điểm nổi bật của LASSO là có thể đưa một số hệ số về đúng 0.
+
+**Tại sao cần? (Why?)**
+
+LASSO hữu ích khi:
+
+- Có nhiều predictors
+- Muốn chọn biến quan trọng
+- Muốn mô hình gọn hơn
+- Mục tiêu là prediction và variable selection
+
+**Khi nào dùng? (When?)**
+
+Dùng LASSO khi bạn muốn mô hình tự động loại bớt predictors ít hữu ích.
+
+**Thực hiện thế nào? (How?)**
+
+Trong `glmnet`:
+
+```r
+alpha = 1
+```
+
+:::
+
+## Chạy LASSO với cross-validation
+
+```{r}
+set.seed(123)
+
+lasso_cv <- cv.glmnet(
+  x = x_train,
+  y = y_train,
+  alpha = 1,
+  standardize = TRUE
+)
+
+lasso_cv
+```
+
+## Lambda tốt nhất
+
+```{r}
+lasso_cv$lambda.min
+```
+
+## Vẽ cross-validation curve
+
+```{r}
+plot(lasso_cv)
+```
+
+## Hệ số LASSO
+
+```{r}
+lasso_coef <- coef(
+  lasso_cv,
+  s = "lambda.min"
+)
+
+lasso_coef
+```
+
+## Biến được chọn bởi LASSO
+
+```{r}
+lasso_selected <- as.matrix(lasso_coef) |>
+  as.data.frame() |>
+  rownames_to_column("variable") |>
+  rename(coefficient = 2) |>
+  filter(
+    coefficient != 0,
+    variable != "(Intercept)"
+  ) |>
+  arrange(desc(abs(coefficient)))
+
+lasso_selected
+```
+
+## Dự đoán trên test set
+
+```{r}
+lasso_pred <- predict(
+  lasso_cv,
+  newx = x_test,
+  s = "lambda.min"
+)
+
+lasso_rmse <- sqrt(mean((y_test - lasso_pred)^2))
+
+lasso_rmse
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu một biến có hệ số khác 0 trong LASSO, biến đó được giữ lại trong mô hình tại mức lambda đã chọn.
+
+Nếu hệ số bằng 0, biến đó bị loại khỏi mô hình.
+
+Tuy nhiên, điều này không có nghĩa là biến bị loại hoàn toàn không quan trọng trong mọi bối cảnh nghiên cứu.
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên diễn giải LASSO như bằng chứng nhân quả.
+
+LASSO chọn biến tốt cho prediction, nhưng không tự chứng minh quan hệ nhân quả.
+
+:::
+
+# 7. Elastic Net Regression
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu Elastic Net Regression
+- Biết vì sao Elastic Net kết hợp Ridge và LASSO
+- Chạy Elastic Net bằng R
+- So sánh Elastic Net với Ridge và LASSO
+- Biết khi nào Elastic Net là lựa chọn phù hợp
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Elastic Net Regression kết hợp L1 penalty của LASSO và L2 penalty của Ridge.
+
+**Tại sao cần? (Why?)**
+
+Elastic Net hữu ích khi:
+
+- Có nhiều predictors
+- Predictors tương quan mạnh
+- Muốn vừa shrink coefficients vừa chọn biến
+- LASSO có thể chọn quá ít biến trong nhóm predictors tương quan
+
+**Khi nào dùng? (When?)**
+
+Dùng Elastic Net khi bạn muốn cân bằng giữa Ridge và LASSO.
+
+**Thực hiện thế nào? (How?)**
+
+Trong `glmnet`, chọn alpha giữa 0 và 1:
+
+```r
+alpha = 0.5
+```
+
+:::
+
+## Chạy Elastic Net
+
+```{r}
+set.seed(123)
+
+elastic_cv <- cv.glmnet(
+  x = x_train,
+  y = y_train,
+  alpha = 0.5,
+  standardize = TRUE
+)
+
+elastic_cv
+```
+
+## Lambda tốt nhất
+
+```{r}
+elastic_cv$lambda.min
+```
+
+## Vẽ cross-validation curve
+
+```{r}
+plot(elastic_cv)
+```
+
+## Hệ số Elastic Net
+
+```{r}
+elastic_coef <- coef(
+  elastic_cv,
+  s = "lambda.min"
+)
+
+elastic_coef
+```
+
+## Biến được giữ lại
+
+```{r}
+elastic_selected <- as.matrix(elastic_coef) |>
+  as.data.frame() |>
+  rownames_to_column("variable") |>
+  rename(coefficient = 2) |>
+  filter(
+    coefficient != 0,
+    variable != "(Intercept)"
+  ) |>
+  arrange(desc(abs(coefficient)))
+
+elastic_selected
+```
+
+## Dự đoán trên test set
+
+```{r}
+elastic_pred <- predict(
+  elastic_cv,
+  newx = x_test,
+  s = "lambda.min"
+)
+
+elastic_rmse <- sqrt(mean((y_test - elastic_pred)^2))
+
+elastic_rmse
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Elastic Net thường là lựa chọn thực tế khi có nhiều predictors tương quan với nhau.
+
+Nó có thể giữ lại một nhóm biến liên quan thay vì chỉ chọn một biến như LASSO trong một số tình huống.
+
+:::
+
+# 8. So sánh Ridge, LASSO và Elastic Net
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+So sánh mô hình giúp đánh giá kỹ thuật nào dự đoán tốt hơn trên test set.
+
+**Tại sao cần? (Why?)**
+
+Không có mô hình nào luôn tốt nhất cho mọi dữ liệu.
+
+**Khi nào dùng? (When?)**
+
+Sau khi đã huấn luyện nhiều mô hình trên cùng dữ liệu.
+
+:::
+
+## Bảng so sánh RMSE
+
+```{r}
+model_comparison <- tibble(
+  model = c("OLS", "Ridge", "LASSO", "Elastic Net"),
+  rmse = c(
+    sqrt(mean((y_test - predict(ols_model, newdata = reg_data[-train_id, ]))^2)),
+    ridge_rmse,
+    lasso_rmse,
+    elastic_rmse
+  )
+)
+
+model_comparison
+```
+
+## Biểu đồ so sánh RMSE
+
+```{r}
+ggplot(model_comparison, aes(x = reorder(model, rmse), y = rmse)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Model Comparison by RMSE",
+    x = "Model",
+    y = "RMSE"
+  ) +
+  theme_minimal()
+```
+
+## Bảng so sánh phương pháp
+
+| Tiêu chí | Ridge | LASSO | Elastic Net |
+|---|---|---|---|
+| Loại penalty | L2 | L1 | L1 + L2 |
+| Chọn biến | Không mạnh | Có | Có |
+| Xử lý multicollinearity | Tốt | Trung bình | Tốt |
+| Giữ nhóm biến tương quan | Có | Có thể không | Tốt hơn LASSO |
+| Phù hợp prediction | Có | Có | Có |
+| Dễ diễn giải | Trung bình | Tốt hơn | Trung bình |
+
+::: {.callout-important title="Quyết định nghiên cứu (Research Decision)"}
+
+Gợi ý chọn mô hình:
+
+- Dùng Ridge nếu muốn giữ tất cả biến và xử lý multicollinearity.
+- Dùng LASSO nếu muốn chọn biến và tạo mô hình gọn.
+- Dùng Elastic Net nếu predictors tương quan mạnh và vẫn muốn chọn biến.
+
+:::
+
+# 9. Trực quan hóa hệ số mô hình
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Tạo bảng hệ số từ mô hình LASSO
+- Trực quan hóa biến được chọn
+- Diễn giải hướng và độ lớn tương đối của hệ số
+
+:::
+
+## LASSO coefficient plot
+
+```{r}
+lasso_selected |>
+  ggplot(aes(x = coefficient, y = reorder(variable, coefficient))) +
+  geom_col() +
+  labs(
+    title = "Selected Predictors from LASSO",
+    x = "Coefficient",
+    y = "Predictor"
+  ) +
+  theme_minimal()
+```
+
+## Elastic Net coefficient plot
+
+```{r}
+elastic_selected |>
+  ggplot(aes(x = coefficient, y = reorder(variable, coefficient))) +
+  geom_col() +
+  labs(
+    title = "Selected Predictors from Elastic Net",
+    x = "Coefficient",
+    y = "Predictor"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên so sánh hệ số nếu các biến không được chuẩn hóa.
+
+Trong `glmnet`, mặc định `standardize = TRUE`, điều này giúp mô hình xử lý predictors có thang đo khác nhau.
+
+:::
+
+# 10. Viết kết quả học thuật
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Viết kết quả hồi quy điều chuẩn cần nhấn mạnh mục tiêu prediction và variable selection, không diễn giải quá mức theo hướng nhân quả.
+
+**Nguyên tắc**
+
+- Nêu lý do dùng regularized regression
+- Nêu phương pháp dùng
+- Nêu cross-validation
+- Nêu lambda tối ưu
+- Nêu chỉ số dự đoán như RMSE
+- Nêu biến được chọn nếu dùng LASSO hoặc Elastic Net
+- Không nói mô hình chứng minh quan hệ nhân quả
+
+:::
+
+## Template Ridge Regression
+
+```text
+Ridge regression was used to address multicollinearity among predictors and improve predictive stability. The penalty parameter was selected using cross-validation. The model achieved an RMSE of [value] on the test set.
+```
+
+## Template LASSO Regression
+
+```text
+LASSO regression was applied for variable selection and prediction. Cross-validation was used to select the optimal lambda. The final model retained [number] predictors, suggesting that these variables contributed most strongly to prediction in the current dataset.
+```
+
+## Template Elastic Net Regression
+
+```text
+Elastic Net regression was estimated to combine coefficient shrinkage and variable selection. This approach was chosen because several predictors were expected to be correlated. The model achieved an RMSE of [value] on the test set and retained [number] predictors.
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên viết:
+
+```text
+LASSO proved that X causes Y.
+```
+
+Nên viết:
+
+```text
+LASSO selected X as a useful predictor of Y in the current predictive model.
+```
+
+:::
+
+# 11. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Sử dụng sheet `03_Ridge_Lasso_Elastic`, hãy thực hiện:
+
+1. Nhập dữ liệu.
+2. Tạo ma trận `x` và vector `y`.
+3. Chia dữ liệu thành train set và test set.
+4. Chạy OLS.
+5. Chạy Ridge Regression.
+6. Chạy LASSO Regression.
+7. Chạy Elastic Net Regression.
+8. Tìm `lambda.min` cho từng mô hình.
+9. Tính RMSE trên test set.
+10. So sánh bốn mô hình.
+11. Tạo coefficient plot cho LASSO.
+12. Viết một đoạn diễn giải kết quả.
+
+:::
+
+# 12. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Bạn có một dataset với:
+
+- 200 quan sát
+- 30 predictors
+- Nhiều predictors tương quan mạnh
+- Mục tiêu là dự đoán outcome liên tục
+
+## Câu hỏi
+
+1. Vì sao OLS có thể không phải lựa chọn tốt nhất?
+2. Khi nào chọn Ridge?
+3. Khi nào chọn LASSO?
+4. Khi nào chọn Elastic Net?
+5. Vì sao cần cross-validation?
+6. Có nên diễn giải LASSO như causal model không?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+Một câu trả lời tốt nên nêu:
+
+- OLS có thể overfit và bị ảnh hưởng bởi multicollinearity.
+- Ridge phù hợp khi muốn giữ tất cả predictors.
+- LASSO phù hợp khi muốn chọn biến.
+- Elastic Net phù hợp khi predictors tương quan mạnh và vẫn muốn chọn biến.
+- Cross-validation giúp chọn lambda tốt hơn.
+- LASSO là công cụ prediction/selection, không tự chứng minh causality.
+
+:::
+
+# 13. Dự án nhỏ
+
+::: {.callout-important title="Dự án nhỏ (Mini Project)"}
+
+## Chủ đề
+
+Regularized Regression Prediction Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+```text
+Regularized_Regression_Report.html
+```
+
+## Nội dung báo cáo
+
+1. Research question
+2. Dataset overview
+3. Predictor correlation heatmap
+4. OLS model
+5. Ridge model
+6. LASSO model
+7. Elastic Net model
+8. RMSE comparison
+9. Selected predictors
+10. Coefficient visualization
+11. Academic interpretation
+12. Recommendation for model choice
+
+:::
+
+# 14. Điểm cần ghi nhớ
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- Hồi quy điều chuẩn hữu ích khi có nhiều predictors hoặc multicollinearity.
+- Ridge shrink coefficients nhưng thường không loại biến.
+- LASSO có thể chọn biến bằng cách đưa một số hệ số về 0.
+- Elastic Net kết hợp Ridge và LASSO.
+- Cross-validation giúp chọn lambda tối ưu.
+- RMSE giúp đánh giá khả năng dự đoán.
+- Regularized regression phù hợp với prediction hơn là causal inference.
+- Không nên diễn giải biến được chọn bởi LASSO như bằng chứng nhân quả.
+
+:::
+
+# 15. Bước tiếp theo
+
+::: {.callout-note title="Bước tiếp theo (What Next?)"}
+
+Sau khi hoàn thành phần này, học viên nên:
+
+1. Biết khi nào OLS có thể chưa đủ.
+2. Biết cách chạy Ridge, LASSO và Elastic Net.
+3. Biết so sánh mô hình bằng RMSE.
+4. Biết diễn giải selected predictors một cách thận trọng.
+5. Chuyển sang:
+
+[Advanced SEM](adv-04-sem.qmd)
+
+Trong phần tiếp theo, chúng ta sẽ học CFA, CB-SEM và các mở rộng của mô hình SEM.
+
+:::

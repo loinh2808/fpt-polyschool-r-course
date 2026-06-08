@@ -1,0 +1,1126 @@
+---
+title: "Advanced 11. Phân tích Tổng hợp"
+subtitle: "Meta-analysis with R"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Hiểu phân tích tổng hợp (Meta-analysis)
+- Hiểu kích thước ảnh hưởng (Effect Size)
+- Phân biệt fixed-effect model và random-effects model
+- Tính và diễn giải pooled effect
+- Hiểu dị biệt nghiên cứu (Heterogeneity)
+- Đọc các chỉ số Q, tau-squared và I-squared
+- Tạo forest plot
+- Tạo funnel plot
+- Hiểu publication bias ở mức nhập môn
+- Thực hiện subgroup analysis
+- Thực hiện meta-regression cơ bản
+- Viết kết quả meta-analysis theo chuẩn học thuật
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Khi có nhiều nghiên cứu cùng kiểm tra một vấn đề, làm thế nào để tổng hợp bằng chứng định lượng một cách có hệ thống?**
+
+Quy trình:
+
+```text
+Research Question
+↓
+Study Selection
+↓
+Effect Size Extraction
+↓
+Meta-analysis Model
+↓
+Heterogeneity
+↓
+Forest Plot
+↓
+Publication Bias
+↓
+Subgroup / Meta-regression
+↓
+Academic Reporting
+```
+
+:::
+
+## Quy trình meta-analysis
+
+```{mermaid}
+flowchart TD
+
+A[Research Question]
+--> B[Systematic Search]
+
+B --> C[Study Screening]
+
+C --> D[Effect Size Extraction]
+
+D --> E[Fixed or Random Effects]
+
+E --> F[Pooled Effect]
+
+F --> G[Heterogeneity Assessment]
+
+G --> H[Forest Plot]
+
+H --> I[Publication Bias Check]
+
+I --> J[Reporting]
+```
+
+# 1. Meta-analysis là gì?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Phân tích tổng hợp (Meta-analysis) là phương pháp thống kê dùng để tổng hợp kết quả định lượng từ nhiều nghiên cứu độc lập.
+
+**Tại sao cần? (Why?)**
+
+Một nghiên cứu riêng lẻ có thể có:
+
+- Cỡ mẫu nhỏ
+- Kết quả không ổn định
+- Bối cảnh riêng
+- Sai số ngẫu nhiên
+- Kết luận khác với nghiên cứu khác
+
+Meta-analysis giúp ước lượng hiệu ứng tổng hợp (pooled effect) và đánh giá mức độ nhất quán giữa các nghiên cứu.
+
+**Khi nào dùng? (When?)**
+
+Dùng khi:
+
+- Có nhiều nghiên cứu cùng câu hỏi
+- Các nghiên cứu báo cáo effect size hoặc đủ dữ liệu để tính effect size
+- Cần tổng hợp bằng chứng định lượng
+- Cần đánh giá heterogeneity
+- Cần kiểm tra publication bias
+
+**Thực hiện thế nào? (How?)**
+
+Trong R có thể dùng:
+
+```r
+metafor
+meta
+```
+
+Trong module này, ta ưu tiên `metafor` vì linh hoạt và phù hợp cho học thuật.
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Meta-analysis thường dùng trong:
+
+- Giáo dục
+- Quản trị
+- Marketing
+- Tâm lý học
+- Y tế công cộng
+- Nông nghiệp
+- Công nghệ giáo dục
+- Hành vi người tiêu dùng
+- Adoption studies
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Người học thường mắc lỗi:
+
+- Gộp các nghiên cứu quá khác nhau
+- Không kiểm tra heterogeneity
+- Không báo cáo mô hình fixed hay random
+- Không giải thích effect size
+- Không kiểm tra publication bias
+- Nhầm systematic review với meta-analysis
+- Diễn giải pooled effect như kết quả tuyệt đối cho mọi bối cảnh
+
+:::
+
+# 2. Chuẩn bị dữ liệu
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Module này dùng dữ liệu mô phỏng public để đảm bảo render ổn định.
+
+Dữ liệu gồm:
+
+- `study_id`: tên nghiên cứu
+- `effect_size`: kích thước ảnh hưởng
+- `standard_error`: sai số chuẩn
+- `sample_size`: cỡ mẫu
+- `region`: nhóm nghiên cứu
+- `year`: năm công bố
+- `method_quality`: chất lượng phương pháp
+
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("metafor")
+install.packages("gt")
+install.packages("patchwork")
+install.packages("scales")
+```
+
+## Nạp package
+
+```{r}
+library(tidyverse)
+library(gt)
+library(patchwork)
+library(scales)
+```
+
+## Nạp metafor nếu có
+
+```{r}
+has_metafor <- requireNamespace("metafor", quietly = TRUE)
+has_metafor
+```
+
+## Tạo dữ liệu meta-analysis mô phỏng
+
+```{r}
+set.seed(123)
+
+meta_data <- tibble(
+  study_id = paste0("Study ", 1:30),
+  year = sample(2015:2026, 30, replace = TRUE),
+  region = sample(
+    c("Asia", "Europe", "North America"),
+    30,
+    replace = TRUE,
+    prob = c(0.45, 0.30, 0.25)
+  ),
+  method_quality = sample(
+    c("High", "Moderate", "Low"),
+    30,
+    replace = TRUE,
+    prob = c(0.35, 0.45, 0.20)
+  ),
+  sample_size = sample(80:800, 30, replace = TRUE),
+  true_effect = rnorm(30, mean = 0.35, sd = 0.12)
+) |>
+  mutate(
+    standard_error = 1 / sqrt(sample_size / 20),
+    effect_size = rnorm(
+      n(),
+      mean = true_effect,
+      sd = standard_error
+    ),
+    variance = standard_error^2
+  ) |>
+  arrange(year)
+
+glimpse(meta_data)
+```
+
+## Bảng dữ liệu
+
+```{r}
+meta_data |>
+  select(study_id, year, region, method_quality, sample_size, effect_size, standard_error) |>
+  head(10) |>
+  gt() |>
+  tab_header(
+    title = "Example Meta-analysis Dataset",
+    subtitle = "Simulated public data"
+  ) |>
+  fmt_number(
+    columns = c(effect_size, standard_error),
+    decimals = 3
+  )
+```
+
+# 3. Effect size là gì?
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu effect size
+- Phân biệt effect size và p-value
+- Biết một số loại effect size phổ biến
+- Diễn giải effect size cẩn trọng
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Effect size là gì?**
+
+Kích thước ảnh hưởng (Effect Size) là chỉ số đo độ lớn của một hiệu ứng hoặc mối quan hệ.
+
+**Tại sao cần?**
+
+p-value cho biết kết quả có ý nghĩa thống kê hay không.
+
+Effect size cho biết hiệu ứng lớn hay nhỏ.
+
+**Một số effect size phổ biến**
+
+| Loại dữ liệu | Effect size |
+|---|---|
+| So sánh trung bình | Cohen's d, Hedges' g |
+| Tương quan | r |
+| Outcome nhị phân | Odds Ratio, Risk Ratio |
+| Hồi quy | Standardized beta |
+| Tỷ lệ | Proportion, log odds |
+
+:::
+
+## Phân phối effect size
+
+```{r}
+ggplot(meta_data, aes(x = effect_size)) +
+  geom_histogram(bins = 15) +
+  geom_vline(xintercept = mean(meta_data$effect_size), linetype = "dashed") +
+  labs(
+    title = "Distribution of Effect Sizes",
+    x = "Effect size",
+    y = "Number of studies"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên chỉ tổng hợp p-values.
+
+Meta-analysis thường cần effect size và variance hoặc standard error.
+
+:::
+
+# 4. Fixed-effect và random-effects model
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Phân biệt fixed-effect model và random-effects model
+- Biết khi nào dùng từng mô hình
+- Hiểu vì sao random-effects thường phù hợp trong khoa học xã hội
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Fixed-effect model là gì?**
+
+Fixed-effect model giả định tất cả nghiên cứu ước lượng cùng một effect thật.
+
+**Random-effects model là gì?**
+
+Random-effects model giả định effect thật có thể khác nhau giữa các nghiên cứu do khác bối cảnh, mẫu, phương pháp hoặc thời gian.
+
+**So sánh**
+
+| Nội dung | Fixed-effect | Random-effects |
+|---|---|---|
+| Giả định | Một effect thật | Nhiều effect thật |
+| Heterogeneity | Không nhấn mạnh | Có xem xét |
+| Trọng số | Chủ yếu theo SE | Theo SE và tau² |
+| Phù hợp | Nghiên cứu rất đồng nhất | Nghiên cứu đa bối cảnh |
+
+:::
+
+## Chạy meta-analysis bằng metafor
+
+```{r}
+if (has_metafor) {
+  fixed_model <- metafor::rma(
+    yi = effect_size,
+    vi = variance,
+    data = meta_data,
+    method = "FE"
+  )
+
+  random_model <- metafor::rma(
+    yi = effect_size,
+    vi = variance,
+    data = meta_data,
+    method = "REML"
+  )
+
+  fixed_model
+  random_model
+}
+```
+
+## Trích xuất kết quả
+
+```{r}
+if (has_metafor) {
+  model_summary <- tibble(
+    model = c("Fixed-effect", "Random-effects"),
+    pooled_effect = c(
+      as.numeric(fixed_model$b),
+      as.numeric(random_model$b)
+    ),
+    se = c(
+      fixed_model$se,
+      random_model$se
+    ),
+    ci_lower = c(
+      fixed_model$ci.lb,
+      random_model$ci.lb
+    ),
+    ci_upper = c(
+      fixed_model$ci.ub,
+      random_model$ci.ub
+    )
+  )
+
+  model_summary
+}
+```
+
+## Bảng model summary
+
+```{r}
+if (has_metafor) {
+  model_summary |>
+    gt() |>
+    tab_header(
+      title = "Fixed-effect and Random-effects Models"
+    ) |>
+    fmt_number(
+      columns = c(pooled_effect, se, ci_lower, ci_upper),
+      decimals = 3
+    )
+}
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu các nghiên cứu khác nhau về bối cảnh, phương pháp hoặc mẫu, random-effects model thường hợp lý hơn.
+
+Tuy nhiên, lựa chọn mô hình cần dựa trên lý thuyết và đặc điểm bộ nghiên cứu, không chỉ dựa vào thói quen.
+
+:::
+
+# 5. Heterogeneity
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu heterogeneity
+- Đọc Q statistic
+- Đọc tau-squared
+- Đọc I-squared
+- Biết khi nào cần subgroup analysis hoặc meta-regression
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Heterogeneity là gì?**
+
+Heterogeneity là mức độ khác biệt giữa các effect sizes vượt quá sai số ngẫu nhiên.
+
+**Chỉ số thường dùng**
+
+| Chỉ số | Ý nghĩa |
+|---|---|
+| Q | Kiểm định heterogeneity |
+| tau² | Phương sai effect thật giữa nghiên cứu |
+| I² | Tỷ lệ biến thiên do heterogeneity |
+
+**Quy tắc I² tham khảo**
+
+| I² | Diễn giải |
+|---:|---|
+| 25% | Thấp |
+| 50% | Trung bình |
+| 75% | Cao |
+
+:::
+
+## Trích xuất heterogeneity
+
+```{r}
+if (has_metafor) {
+  heterogeneity_table <- tibble(
+    statistic = c("Q", "Q p-value", "tau-squared", "I-squared"),
+    value = c(
+      random_model$QE,
+      random_model$QEp,
+      random_model$tau2,
+      random_model$I2
+    )
+  )
+
+  heterogeneity_table
+}
+```
+
+## Bảng heterogeneity
+
+```{r}
+if (has_metafor) {
+  heterogeneity_table |>
+    gt() |>
+    tab_header(
+      title = "Heterogeneity Statistics"
+    ) |>
+    fmt_number(
+      columns = value,
+      decimals = 3
+    )
+}
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên bỏ qua heterogeneity.
+
+Nếu I² cao, cần hỏi:
+
+- Nghiên cứu khác nhau ở đâu?
+- Có biến moderator không?
+- Có cần subgroup analysis không?
+- Có nên diễn giải pooled effect thận trọng hơn không?
+
+:::
+
+# 6. Forest plot
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu forest plot
+- Biết cách đọc confidence interval của từng nghiên cứu
+- Biết cách đọc pooled effect
+- Tạo forest plot bằng `metafor`
+- Tạo forest-style plot bằng `ggplot2`
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Forest plot là biểu đồ trung tâm trong meta-analysis.
+
+Nó thể hiện:
+
+- Effect size từng nghiên cứu
+- Confidence interval từng nghiên cứu
+- Pooled effect
+- Mức độ nhất quán giữa các nghiên cứu
+
+:::
+
+## Forest plot bằng metafor
+
+```{r}
+if (has_metafor) {
+  metafor::forest(
+    random_model,
+    slab = meta_data$study_id,
+    xlab = "Effect size"
+  )
+}
+```
+
+## Forest-style plot bằng ggplot2
+
+```{r}
+forest_data <- meta_data |>
+  mutate(
+    ci_lower = effect_size - 1.96 * standard_error,
+    ci_upper = effect_size + 1.96 * standard_error
+  )
+
+ggplot(
+  forest_data,
+  aes(
+    x = effect_size,
+    y = reorder(study_id, effect_size)
+  )
+) +
+  geom_point(size = 2) +
+  geom_errorbarh(
+    aes(xmin = ci_lower, xmax = ci_upper),
+    height = 0.15
+  ) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Forest-style Plot",
+    subtitle = "Effect sizes and 95% confidence intervals",
+    x = "Effect size",
+    y = "Study"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu confidence interval của một nghiên cứu cắt qua 0, nghiên cứu đó không cho thấy hiệu ứng rõ ràng ở mức riêng lẻ.
+
+Nếu pooled effect không cắt qua 0, tổng hợp bằng chứng có thể gợi ý hiệu ứng khác 0.
+
+:::
+
+# 7. Funnel plot và publication bias
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu funnel plot
+- Biết publication bias là gì
+- Tạo funnel plot
+- Diễn giải funnel plot thận trọng
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Publication bias là gì?**
+
+Publication bias xảy ra khi các nghiên cứu có kết quả có ý nghĩa thống kê dễ được công bố hơn nghiên cứu không có ý nghĩa.
+
+**Funnel plot là gì?**
+
+Funnel plot vẽ effect size theo standard error hoặc precision.
+
+Nếu không có bias và heterogeneity thấp, hình thường tương đối đối xứng.
+
+:::
+
+## Funnel plot bằng metafor
+
+```{r}
+if (has_metafor) {
+  metafor::funnel(
+    random_model,
+    xlab = "Effect size",
+    ylab = "Standard error"
+  )
+}
+```
+
+## Funnel-style plot bằng ggplot2
+
+```{r}
+ggplot(meta_data, aes(x = effect_size, y = standard_error)) +
+  geom_point(size = 3, alpha = 0.7) +
+  scale_y_reverse() +
+  geom_vline(xintercept = mean(meta_data$effect_size), linetype = "dashed") +
+  labs(
+    title = "Funnel-style Plot",
+    x = "Effect size",
+    y = "Standard error"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên kết luận publication bias chỉ từ mắt thường nhìn funnel plot.
+
+Funnel plot bất đối xứng có thể do:
+
+- Publication bias
+- Heterogeneity
+- Small-study effects
+- Method differences
+- Chance
+
+:::
+
+# 8. Egger's test
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu Egger's test ở mức nhập môn
+- Biết kiểm tra funnel plot asymmetry
+- Diễn giải kết quả thận trọng
+
+:::
+
+## Egger's test
+
+```{r}
+if (has_metafor) {
+  egger_test <- metafor::regtest(
+    random_model,
+    model = "rma"
+  )
+
+  egger_test
+}
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu Egger's test có p-value nhỏ, có thể có dấu hiệu funnel plot asymmetry.
+
+Tuy nhiên, không nên xem đây là bằng chứng tuyệt đối về publication bias.
+
+:::
+
+# 9. Subgroup analysis
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu subgroup analysis
+- So sánh effect size giữa nhóm nghiên cứu
+- Biết khi nào subgroup analysis hợp lý
+- Trực quan hóa subgroup effects
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Subgroup analysis kiểm tra liệu pooled effect có khác nhau giữa các nhóm hay không.
+
+Ví dụ:
+
+- Region
+- Method quality
+- Population
+- Measurement type
+- Study design
+
+:::
+
+## Tính effect trung bình theo region
+
+```{r}
+subgroup_summary <- meta_data |>
+  group_by(region) |>
+  summarise(
+    k = n(),
+    mean_effect = mean(effect_size),
+    mean_se = mean(standard_error),
+    .groups = "drop"
+  )
+
+subgroup_summary
+```
+
+## Random-effects model theo region
+
+```{r}
+if (has_metafor) {
+  subgroup_models <- meta_data |>
+    group_by(region) |>
+    group_modify(
+      ~ {
+        model <- metafor::rma(
+          yi = effect_size,
+          vi = variance,
+          data = .x,
+          method = "REML"
+        )
+
+        tibble(
+          pooled_effect = as.numeric(model$b),
+          ci_lower = model$ci.lb,
+          ci_upper = model$ci.ub,
+          i_squared = model$I2
+        )
+      }
+    ) |>
+    ungroup()
+
+  subgroup_models
+}
+```
+
+## Biểu đồ subgroup
+
+```{r}
+if (exists("subgroup_models")) {
+  ggplot(
+    subgroup_models,
+    aes(x = pooled_effect, y = region)
+  ) +
+    geom_point(size = 3) +
+    geom_errorbarh(
+      aes(xmin = ci_lower, xmax = ci_upper),
+      height = 0.15
+    ) +
+    geom_vline(xintercept = 0, linetype = "dashed") +
+    labs(
+      title = "Subgroup Meta-analysis by Region",
+      x = "Pooled effect",
+      y = "Region"
+    ) +
+    theme_minimal()
+}
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên chạy quá nhiều subgroup analyses nếu không có lý thuyết.
+
+Subgroup analysis dễ tạo kết quả giả nếu thử quá nhiều nhóm.
+
+:::
+
+# 10. Meta-regression
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu meta-regression
+- Biết khi nào dùng moderator liên tục
+- Chạy meta-regression cơ bản
+- Diễn giải hệ số meta-regression
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Meta-regression kiểm tra liệu effect size khác nhau theo đặc điểm nghiên cứu hay không.
+
+Ví dụ:
+
+```text
+Effect size có thay đổi theo year hoặc sample_size không?
+```
+
+:::
+
+## Meta-regression với sample size và year
+
+```{r}
+if (has_metafor) {
+  meta_reg_model <- metafor::rma(
+    yi = effect_size,
+    vi = variance,
+    mods = ~ sample_size + year,
+    data = meta_data,
+    method = "REML"
+  )
+
+  meta_reg_model
+}
+```
+
+## Meta-regression plot
+
+```{r}
+ggplot(meta_data, aes(x = sample_size, y = effect_size)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "Meta-regression Style Plot",
+    subtitle = "Effect size by sample size",
+    x = "Sample size",
+    y = "Effect size"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu hệ số của moderator có ý nghĩa, điều đó gợi ý effect size có thể thay đổi theo đặc điểm nghiên cứu.
+
+Tuy nhiên, meta-regression thường có số nghiên cứu nhỏ, nên cần diễn giải rất thận trọng.
+
+:::
+
+# 11. Sensitivity analysis
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu sensitivity analysis
+- Kiểm tra ảnh hưởng của nghiên cứu chất lượng thấp
+- So sánh kết quả trước và sau khi loại nhóm nghiên cứu
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Sensitivity analysis kiểm tra liệu kết luận có ổn định khi thay đổi một số quyết định phân tích hay không.
+
+Ví dụ:
+
+- Loại studies chất lượng thấp
+- Loại outlier effect sizes
+- Dùng mô hình khác
+- Thay đổi effect size metric
+
+:::
+
+## Loại studies chất lượng thấp
+
+```{r}
+meta_data_high_moderate <- meta_data |>
+  filter(method_quality != "Low")
+```
+
+## Chạy lại model
+
+```{r}
+if (has_metafor) {
+  sensitivity_model <- metafor::rma(
+    yi = effect_size,
+    vi = variance,
+    data = meta_data_high_moderate,
+    method = "REML"
+  )
+
+  sensitivity_result <- tibble(
+    model = c("Original", "Excluding low quality studies"),
+    pooled_effect = c(
+      as.numeric(random_model$b),
+      as.numeric(sensitivity_model$b)
+    ),
+    ci_lower = c(
+      random_model$ci.lb,
+      sensitivity_model$ci.lb
+    ),
+    ci_upper = c(
+      random_model$ci.ub,
+      sensitivity_model$ci.ub
+    )
+  )
+
+  sensitivity_result
+}
+```
+
+## Bảng sensitivity
+
+```{r}
+if (exists("sensitivity_result")) {
+  sensitivity_result |>
+    gt() |>
+    tab_header(
+      title = "Sensitivity Analysis"
+    ) |>
+    fmt_number(
+      columns = c(pooled_effect, ci_lower, ci_upper),
+      decimals = 3
+    )
+}
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Kết quả mạnh hơn nếu pooled effect ổn định qua nhiều sensitivity analyses hợp lý.
+
+:::
+
+# 12. Viết kết quả học thuật
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Khi viết meta-analysis, cần báo cáo:
+
+- Số nghiên cứu
+- Tổng sample size nếu phù hợp
+- Effect size metric
+- Model fixed/random
+- Pooled effect
+- Confidence interval
+- Heterogeneity
+- Publication bias
+- Subgroup hoặc meta-regression nếu có
+
+:::
+
+## Template pooled effect
+
+```text
+A random-effects meta-analysis was conducted across [k] studies. The pooled effect size was [estimate], 95% CI [lower, upper], indicating [interpretation].
+```
+
+## Template heterogeneity
+
+```text
+Heterogeneity across studies was [low/moderate/high], as indicated by I² = [value]%. This suggests that effect sizes varied across study contexts.
+```
+
+## Template forest plot
+
+```text
+The forest plot shows that most studies reported positive effects, although confidence intervals varied across studies.
+```
+
+## Template publication bias
+
+```text
+Visual inspection of the funnel plot suggested [symmetry/asymmetry]. However, this result should be interpreted cautiously because funnel plot asymmetry may reflect heterogeneity as well as publication bias.
+```
+
+## Template meta-regression
+
+```text
+Meta-regression was conducted to examine whether study-level characteristics explained variation in effect sizes. The results suggested that [moderator] was [associated/not associated] with effect size variation.
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên viết:
+
+```text
+Meta-analysis proved that the intervention works in all contexts.
+```
+
+Nên viết:
+
+```text
+The pooled evidence suggests a positive average effect, although heterogeneity indicates that effects may vary across contexts.
+```
+
+:::
+
+# 13. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Hãy thực hiện:
+
+1. Tạo hoặc nhập dữ liệu gồm ít nhất 15 studies.
+2. Kiểm tra effect size và standard error.
+3. Chạy fixed-effect model.
+4. Chạy random-effects model.
+5. So sánh pooled effect.
+6. Trích xuất I².
+7. Tạo forest plot.
+8. Tạo funnel plot.
+9. Chạy subgroup analysis.
+10. Chạy meta-regression.
+11. Viết đoạn kết quả meta-analysis.
+
+:::
+
+# 14. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Bạn tổng hợp 25 nghiên cứu về hiệu quả của một phương pháp dạy học.
+
+Kết quả random-effects model:
+
+```text
+Pooled effect = 0.38
+95% CI = [0.20, 0.56]
+I² = 72%
+```
+
+## Câu hỏi
+
+1. Kết quả pooled effect nên diễn giải thế nào?
+2. I² = 72% có ý nghĩa gì?
+3. Có nên chỉ báo cáo pooled effect không?
+4. Cần kiểm tra thêm gì?
+5. Có nên làm subgroup analysis không?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+Một câu trả lời tốt nên nêu:
+
+- Pooled effect dương và CI không cắt 0.
+- I² = 72% cho thấy heterogeneity cao.
+- Không nên chỉ báo cáo pooled effect.
+- Cần kiểm tra forest plot, funnel plot, sensitivity analysis.
+- Subgroup analysis hoặc meta-regression có thể cần nếu có lý thuyết hoặc moderator hợp lý.
+
+:::
+
+# 15. Dự án nhỏ
+
+::: {.callout-important title="Dự án nhỏ (Mini Project)"}
+
+## Chủ đề
+
+Meta-analysis Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+```text
+Meta_Analysis_Report.html
+```
+
+## Nội dung báo cáo
+
+1. Research question
+2. Study inclusion criteria
+3. Effect size metric
+4. Dataset description
+5. Fixed-effect model
+6. Random-effects model
+7. Heterogeneity
+8. Forest plot
+9. Funnel plot
+10. Subgroup analysis
+11. Meta-regression
+12. Sensitivity analysis
+13. Academic interpretation
+
+:::
+
+# 16. Điểm cần ghi nhớ
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- Meta-analysis tổng hợp effect sizes từ nhiều nghiên cứu.
+- Effect size quan trọng hơn việc chỉ gộp p-values.
+- Fixed-effect giả định một effect thật; random-effects cho phép effect khác nhau giữa nghiên cứu.
+- Heterogeneity cần được báo cáo.
+- I² cao cho thấy effect sizes khác nhau đáng kể giữa nghiên cứu.
+- Forest plot là hình trung tâm của meta-analysis.
+- Funnel plot giúp kiểm tra khả năng publication bias nhưng cần diễn giải thận trọng.
+- Subgroup analysis và meta-regression cần cơ sở lý thuyết.
+- Kết quả meta-analysis không tự động áp dụng cho mọi bối cảnh.
+
+:::
+
+# 17. Bước tiếp theo
+
+::: {.callout-note title="Bước tiếp theo (What Next?)"}
+
+Sau khi hoàn thành phần này, học viên nên:
+
+1. Biết cấu trúc dữ liệu meta-analysis.
+2. Biết chạy fixed-effect và random-effects model.
+3. Biết đọc heterogeneity.
+4. Biết tạo forest plot và funnel plot.
+5. Biết viết kết quả meta-analysis.
+6. Chuyển sang:
+
+[Bibliometric Analysis](adv-12-bibliometric.qmd)
+
+Trong phần tiếp theo, chúng ta sẽ học phân tích thư mục khoa học bằng R và bibliometrix.
+
+:::

@@ -1,0 +1,866 @@
+---
+title: "Glossary"
+subtitle: "Bilingual Glossary for R, Statistics, and Research Methods"
+---
+
+# Glossary
+
+::: callout-note
+Trang này là từ điển thuật ngữ song ngữ cho khóa học **R for Research and Data Analytics**.
+
+Mỗi thuật ngữ gồm:
+
+- Tên tiếng Anh
+- Nghĩa tiếng Việt
+- Giải thích ngắn
+- Khi nào dùng
+- Module liên quan có link trực tiếp
+:::
+
+# A
+
+## AIC (Akaike Information Criterion)
+
+**Tiếng Việt:** Tiêu chuẩn thông tin Akaike
+
+**Là gì?**
+
+AIC là chỉ số dùng để so sánh mô hình thống kê. Mô hình có AIC thấp hơn thường được xem là phù hợp hơn, nếu các mô hình được so sánh trên cùng một dữ liệu.
+
+**Khi nào dùng?**
+
+- So sánh nhiều mô hình hồi quy
+- So sánh mixed models
+- Chọn mô hình cân bằng giữa độ phù hợp và độ phức tạp
+
+**Module liên quan**
+
+- [Module A2. Hồi quy Nâng cao](advanced/adv-02-regression.qmd)
+- [Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc](advanced/adv-14-mixed-models.qmd)
+
+------------------------------------------------------------------------
+
+## ANOVA (Analysis of Variance)
+
+**Tiếng Việt:** Phân tích phương sai
+
+**Là gì?**
+
+ANOVA là phương pháp kiểm định sự khác biệt trung bình giữa từ ba nhóm trở lên.
+
+**Khi nào dùng?**
+
+- So sánh nhiều nhóm
+- Thiết kế thí nghiệm
+- Phân tích nghiệm thức
+- Đánh giá chương trình
+
+**Sai lầm thường gặp**
+
+- Dùng nhiều t-test thay vì ANOVA
+- Không kiểm tra giả định
+- Không thực hiện post hoc test khi cần
+
+**Module liên quan**
+
+- [Module A13. Thiết kế Thí nghiệm và ANOVA](advanced/adv-13-anova.qmd)
+
+------------------------------------------------------------------------
+
+## Alpha Level
+
+**Tiếng Việt:** Mức ý nghĩa thống kê
+
+**Là gì?**
+
+Alpha là ngưỡng xác suất dùng để quyết định kết quả có ý nghĩa thống kê hay không. Thường dùng nhất là `0.05`.
+
+**Khi nào dùng?**
+
+- Kiểm định giả thuyết
+- Hồi quy
+- ANOVA
+- So sánh nhóm
+
+**Module liên quan**
+
+- [Module 3. Thống kê mô tả](module-3.qmd)
+- [Module 4. Tương quan và Hồi quy](module-4.qmd)
+- [Module A13. Thiết kế Thí nghiệm và ANOVA](advanced/adv-13-anova.qmd)
+
+------------------------------------------------------------------------
+
+# B
+
+## Bayesian Inference
+
+**Tiếng Việt:** Suy luận Bayes
+
+**Là gì?**
+
+Bayesian inference là phương pháp suy luận thống kê kết hợp thông tin trước đó với dữ liệu quan sát để tạo ra phân phối posterior.
+
+``` text
+Prior + Data = Posterior
+```
+
+**Khi nào dùng?**
+
+- Khi có prior knowledge
+- Khi muốn diễn giải kết quả dưới dạng xác suất
+- Khi cần mô hình hóa uncertainty
+
+**Module liên quan**
+
+- [Module A5. Thống kê Bayes](advanced/adv-05-bayesian.qmd)
+
+------------------------------------------------------------------------
+
+## Bibliometric Analysis
+
+**Tiếng Việt:** Phân tích trắc lượng thư mục
+
+**Là gì?**
+
+Bibliometric analysis là phương pháp phân tích metadata của công bố khoa học để hiểu xu hướng, tác giả, tạp chí, quốc gia, từ khóa và mạng lưới tri thức.
+
+**Khi nào dùng?**
+
+- Tổng quan lĩnh vực nghiên cứu lớn
+- Xác định xu hướng học thuật
+- Phân tích từ khóa
+- Phân tích tạp chí, tác giả, quốc gia
+
+**Module liên quan**
+
+- [Module A12. Phân tích Trắc lượng Thư mục](advanced/adv-12-bibliometric.qmd)
+
+------------------------------------------------------------------------
+
+## Bootstrap
+
+**Tiếng Việt:** Lấy mẫu lại bootstrap
+
+**Là gì?**
+
+Bootstrap là kỹ thuật lấy mẫu lại có hoàn lại từ dữ liệu hiện có để ước lượng uncertainty.
+
+**Khi nào dùng?**
+
+- Tính khoảng tin cậy
+- Ước lượng uncertainty
+- Khi công thức lý thuyết phức tạp
+
+**Module liên quan**
+
+- [Module A6. Mô phỏng Monte Carlo](advanced/adv-06-monte-carlo.qmd)
+
+------------------------------------------------------------------------
+
+# C
+
+## CFA (Confirmatory Factor Analysis)
+
+**Tiếng Việt:** Phân tích nhân tố khẳng định
+
+**Là gì?**
+
+CFA kiểm tra liệu các item quan sát có đo đúng các construct tiềm ẩn theo lý thuyết hay không.
+
+**Khi nào dùng?**
+
+- Kiểm tra thang đo
+- Kiểm tra measurement model
+- Nghiên cứu SEM
+
+**Module liên quan**
+
+- [Module 5. PLS-SEM](module-5.qmd)
+- [Module A4. Mô hình Phương trình Cấu trúc Nâng cao](advanced/adv-04-sem.qmd)
+
+------------------------------------------------------------------------
+
+## Confidence Interval
+
+**Tiếng Việt:** Khoảng tin cậy
+
+**Là gì?**
+
+Confidence interval là khoảng ước lượng cho tham số dựa trên dữ liệu mẫu và cách tiếp cận frequentist.
+
+**Khi nào dùng?**
+
+- Ước lượng mean
+- Hồi quy
+- ANOVA
+- Meta-analysis
+
+**Module liên quan**
+
+- [Module 3. Thống kê mô tả](module-3.qmd)
+- [Module A11. Phân tích Tổng hợp](advanced/adv-11-meta-analysis.qmd)
+
+------------------------------------------------------------------------
+
+## Correlation
+
+**Tiếng Việt:** Tương quan
+
+**Là gì?**
+
+Correlation đo mức độ và chiều hướng liên hệ giữa hai biến định lượng.
+
+**Khi nào dùng?**
+
+- Khám phá quan hệ giữa hai biến
+- Kiểm tra liên hệ tuyến tính
+- Trước khi chạy hồi quy
+
+**Sai lầm thường gặp**
+
+- Diễn giải tương quan như quan hệ nhân quả
+
+**Module liên quan**
+
+- [Module 4. Tương quan và Hồi quy](module-4.qmd)
+
+------------------------------------------------------------------------
+
+## Cronbach's Alpha
+
+**Tiếng Việt:** Hệ số tin cậy Cronbach
+
+**Là gì?**
+
+Cronbach's Alpha đo độ nhất quán nội tại của một thang đo gồm nhiều item.
+
+**Quy tắc tham khảo**
+
+``` text
+≥ 0.70: chấp nhận được
+≥ 0.80: tốt
+≥ 0.90: rất cao
+```
+
+**Module liên quan**
+
+- [Module 5. PLS-SEM](module-5.qmd)
+- [Module A4. Mô hình Phương trình Cấu trúc Nâng cao](advanced/adv-04-sem.qmd)
+- [Module A8. Phân tích Likert Nâng cao](advanced/adv-08-likert.qmd)
+
+------------------------------------------------------------------------
+
+# D
+
+## Data Cleaning
+
+**Tiếng Việt:** Làm sạch dữ liệu
+
+**Là gì?**
+
+Data cleaning là quá trình phát hiện, xử lý và chuẩn hóa dữ liệu trước khi phân tích.
+
+**Khi nào dùng?**
+
+- Trước mọi phân tích thống kê
+- Trước visualization
+- Trước modeling
+
+**Module liên quan**
+
+- [Module 2. Làm sạch dữ liệu](module-2.qmd)
+
+------------------------------------------------------------------------
+
+## Descriptive Statistics
+
+**Tiếng Việt:** Thống kê mô tả
+
+**Là gì?**
+
+Descriptive statistics dùng để mô tả đặc điểm dữ liệu thông qua mean, median, SD, min, max, frequency và percentage.
+
+**Khi nào dùng?**
+
+- Giai đoạn đầu phân tích
+- Báo cáo mẫu nghiên cứu
+- Kiểm tra dữ liệu
+
+**Module liên quan**
+
+- [Module 3. Thống kê mô tả](module-3.qmd)
+- [Module A1. Chẩn đoán Thống kê Mô tả](advanced/adv-01-descriptive.qmd)
+
+------------------------------------------------------------------------
+
+## Diverging Likert Plot
+
+**Tiếng Việt:** Biểu đồ Likert phân kỳ
+
+**Là gì?**
+
+Diverging Likert plot đặt phản hồi tiêu cực bên trái và phản hồi tích cực bên phải để dễ so sánh agreement và disagreement.
+
+**Khi nào dùng?**
+
+- Khảo sát Likert
+- So sánh nhiều item
+- Báo cáo survey
+
+**Module liên quan**
+
+- [Module A8. Phân tích Likert Nâng cao](advanced/adv-08-likert.qmd)
+
+------------------------------------------------------------------------
+
+# E
+
+## Effect Size
+
+**Tiếng Việt:** Kích thước ảnh hưởng
+
+**Là gì?**
+
+Effect size đo độ lớn của một hiệu ứng hoặc khác biệt, thay vì chỉ cho biết có ý nghĩa thống kê hay không.
+
+**Khi nào dùng?**
+
+- ANOVA
+- Meta-analysis
+- Regression
+- So sánh nhóm
+
+**Module liên quan**
+
+- [Module A11. Phân tích Tổng hợp](advanced/adv-11-meta-analysis.qmd)
+- [Module A13. Thiết kế Thí nghiệm và ANOVA](advanced/adv-13-anova.qmd)
+
+------------------------------------------------------------------------
+
+## Elastic Net
+
+**Tiếng Việt:** Hồi quy Elastic Net
+
+**Là gì?**
+
+Elastic Net là phương pháp hồi quy chính quy hóa kết hợp Ridge và LASSO.
+
+**Khi nào dùng?**
+
+- Nhiều predictors
+- Predictors tương quan mạnh
+- Mục tiêu dự đoán
+
+**Module liên quan**
+
+- [Module A3. Hồi quy Chính quy hóa](advanced/adv-03-regularized.qmd)
+
+------------------------------------------------------------------------
+
+## Estimated Marginal Means
+
+**Tiếng Việt:** Trung bình biên ước lượng
+
+**Là gì?**
+
+Estimated marginal means là mean được ước lượng từ mô hình, thường dùng trong ANOVA, factorial design và mixed models.
+
+**Module liên quan**
+
+- [Module A13. Thiết kế Thí nghiệm và ANOVA](advanced/adv-13-anova.qmd)
+- [Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc](advanced/adv-14-mixed-models.qmd)
+
+------------------------------------------------------------------------
+
+# F
+
+## Fixed Effect
+
+**Tiếng Việt:** Hiệu ứng cố định
+
+**Là gì?**
+
+Fixed effect là tác động trung bình của biến độc lập mà nhà nghiên cứu muốn ước lượng trực tiếp.
+
+**Khi nào dùng?**
+
+- Regression
+- Mixed models
+- Longitudinal models
+
+**Module liên quan**
+
+- [Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc](advanced/adv-14-mixed-models.qmd)
+
+------------------------------------------------------------------------
+
+## Forest Plot
+
+**Tiếng Việt:** Biểu đồ forest
+
+**Là gì?**
+
+Forest plot hiển thị effect size và confidence interval của từng nghiên cứu trong meta-analysis.
+
+**Module liên quan**
+
+- [Module A11. Phân tích Tổng hợp](advanced/adv-11-meta-analysis.qmd)
+
+------------------------------------------------------------------------
+
+## Funnel Plot
+
+**Tiếng Việt:** Biểu đồ funnel
+
+**Là gì?**
+
+Funnel plot dùng để xem khả năng publication bias hoặc small-study effects trong meta-analysis.
+
+**Module liên quan**
+
+- [Module A11. Phân tích Tổng hợp](advanced/adv-11-meta-analysis.qmd)
+
+------------------------------------------------------------------------
+
+# G
+
+## ggplot2
+
+**Tiếng Việt:** Hệ thống trực quan hóa dữ liệu theo Grammar of Graphics
+
+**Là gì?**
+
+`ggplot2` là package R dùng để tạo biểu đồ theo logic layer.
+
+``` r
+ggplot(data, aes(x, y)) +
+  geom_point() +
+  labs() +
+  theme_minimal()
+```
+
+**Module liên quan**
+
+- [Module 6. Trực quan hóa dữ liệu và Viết kết quả](module-6.qmd)
+- [Module A9. Thư viện Trực quan hóa](advanced/adv-09-visualization.qmd)
+
+------------------------------------------------------------------------
+
+# H
+
+## Heterogeneity
+
+**Tiếng Việt:** Dị biệt giữa nghiên cứu
+
+**Là gì?**
+
+Heterogeneity là mức độ khác biệt giữa effect sizes của các nghiên cứu trong meta-analysis.
+
+**Chỉ số thường dùng**
+
+- Q statistic
+- Tau-squared
+- I-squared
+
+**Module liên quan**
+
+- [Module A11. Phân tích Tổng hợp](advanced/adv-11-meta-analysis.qmd)
+
+------------------------------------------------------------------------
+
+# I
+
+## ICC (Intraclass Correlation Coefficient)
+
+**Tiếng Việt:** Hệ số tương quan nội lớp
+
+**Là gì?**
+
+ICC cho biết tỷ lệ phương sai của outcome nằm ở cấp nhóm hoặc cluster.
+
+**Khi nào dùng?**
+
+- Dữ liệu phân cấp
+- Mixed models
+- Students nested in classes
+- Repeated measures
+
+**Module liên quan**
+
+- [Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc](advanced/adv-14-mixed-models.qmd)
+
+------------------------------------------------------------------------
+
+## Interaction Effect
+
+**Tiếng Việt:** Hiệu ứng tương tác
+
+**Là gì?**
+
+Interaction effect xảy ra khi tác động của một biến phụ thuộc vào mức của biến khác.
+
+**Khi nào dùng?**
+
+- Two-way ANOVA
+- Regression
+- Moderation analysis
+- Mixed models
+
+**Module liên quan**
+
+- [Module A2. Hồi quy Nâng cao](advanced/adv-02-regression.qmd)
+- [Module A13. Thiết kế Thí nghiệm và ANOVA](advanced/adv-13-anova.qmd)
+
+------------------------------------------------------------------------
+
+# L
+
+## LASSO Regression
+
+**Tiếng Việt:** Hồi quy LASSO
+
+**Là gì?**
+
+LASSO là phương pháp hồi quy chính quy hóa có thể đưa một số hệ số về 0, giúp chọn biến.
+
+**Khi nào dùng?**
+
+- Nhiều predictors
+- Cần variable selection
+- Mục tiêu prediction
+
+**Module liên quan**
+
+- [Module A3. Hồi quy Chính quy hóa](advanced/adv-03-regularized.qmd)
+
+------------------------------------------------------------------------
+
+## Likert Scale
+
+**Tiếng Việt:** Thang đo Likert
+
+**Là gì?**
+
+Likert scale là thang đo dùng nhiều item để đo thái độ, nhận thức, hài lòng hoặc ý định.
+
+**Module liên quan**
+
+- [Module A8. Phân tích Likert Nâng cao](advanced/adv-08-likert.qmd)
+- [Module 5. PLS-SEM](module-5.qmd)
+
+------------------------------------------------------------------------
+
+## Linear Regression
+
+**Tiếng Việt:** Hồi quy tuyến tính
+
+**Là gì?**
+
+Linear regression dùng để dự đoán hoặc giải thích một outcome liên tục dựa trên một hoặc nhiều predictors.
+
+**Module liên quan**
+
+- [Module 4. Tương quan và Hồi quy](module-4.qmd)
+- [Module A2. Hồi quy Nâng cao](advanced/adv-02-regression.qmd)
+
+------------------------------------------------------------------------
+
+# M
+
+## Meta-analysis
+
+**Tiếng Việt:** Phân tích tổng hợp
+
+**Là gì?**
+
+Meta-analysis là phương pháp thống kê tổng hợp effect sizes từ nhiều nghiên cứu độc lập.
+
+**Module liên quan**
+
+- [Module A11. Phân tích Tổng hợp](advanced/adv-11-meta-analysis.qmd)
+
+------------------------------------------------------------------------
+
+## Mixed Model
+
+**Tiếng Việt:** Mô hình hỗn hợp
+
+**Là gì?**
+
+Mixed model là mô hình kết hợp fixed effects và random effects, phù hợp với dữ liệu phân cấp hoặc dữ liệu lặp lại.
+
+**Module liên quan**
+
+- [Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc](advanced/adv-14-mixed-models.qmd)
+
+------------------------------------------------------------------------
+
+## Monte Carlo Simulation
+
+**Tiếng Việt:** Mô phỏng Monte Carlo
+
+**Là gì?**
+
+Monte Carlo simulation dùng lấy mẫu ngẫu nhiên lặp lại nhiều lần để hiểu uncertainty, sampling distribution hoặc power.
+
+**Module liên quan**
+
+- [Module A6. Mô phỏng Monte Carlo](advanced/adv-06-monte-carlo.qmd)
+
+------------------------------------------------------------------------
+
+# P
+
+## PCA (Principal Component Analysis)
+
+**Tiếng Việt:** Phân tích thành phần chính
+
+**Là gì?**
+
+PCA là kỹ thuật giảm chiều dữ liệu, giúp tóm tắt nhiều biến thành một số thành phần chính.
+
+**Module liên quan**
+
+- [Module A9. Thư viện Trực quan hóa](advanced/adv-09-visualization.qmd)
+- [Module A10. Bộ Công cụ Nghiên cứu](advanced/adv-10-toolkit.qmd)
+
+------------------------------------------------------------------------
+
+## PLS-SEM
+
+**Tiếng Việt:** Mô hình phương trình cấu trúc bình phương tối thiểu từng phần
+
+**Là gì?**
+
+PLS-SEM là phương pháp SEM dựa trên phương sai, thường dùng trong nghiên cứu dự báo và khám phá.
+
+**Module liên quan**
+
+- [Module 5. PLS-SEM](module-5.qmd)
+- [Module A4. Mô hình Phương trình Cấu trúc Nâng cao](advanced/adv-04-sem.qmd)
+
+------------------------------------------------------------------------
+
+## Posterior Distribution
+
+**Tiếng Việt:** Phân phối hậu nghiệm
+
+**Là gì?**
+
+Posterior distribution là phân phối xác suất của tham số sau khi kết hợp prior và dữ liệu quan sát.
+
+**Module liên quan**
+
+- [Module A5. Thống kê Bayes](advanced/adv-05-bayesian.qmd)
+
+------------------------------------------------------------------------
+
+# Q
+
+## Quarto
+
+**Tiếng Việt:** Hệ thống tạo tài liệu và website tái lập
+
+**Là gì?**
+
+Quarto cho phép kết hợp văn bản, R code, bảng, hình và kết quả phân tích trong một tài liệu hoặc website.
+
+**Module liên quan**
+
+- [Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật](advanced/adv-15-reproducible.qmd)
+
+------------------------------------------------------------------------
+
+# R
+
+## Random Effect
+
+**Tiếng Việt:** Hiệu ứng ngẫu nhiên
+
+**Là gì?**
+
+Random effect mô hình hóa sự khác biệt giữa nhóm, cá nhân hoặc cluster.
+
+**Module liên quan**
+
+- [Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc](advanced/adv-14-mixed-models.qmd)
+
+------------------------------------------------------------------------
+
+## Random Forest
+
+**Tiếng Việt:** Rừng ngẫu nhiên
+
+**Là gì?**
+
+Random Forest là thuật toán machine learning dựa trên nhiều decision trees để dự đoán và đánh giá variable importance.
+
+**Module liên quan**
+
+- [Module A3. Hồi quy Chính quy hóa](advanced/adv-03-regularized.qmd)
+- [Module A10. Bộ Công cụ Nghiên cứu](advanced/adv-10-toolkit.qmd)
+
+------------------------------------------------------------------------
+
+## Regression
+
+**Tiếng Việt:** Hồi quy
+
+**Là gì?**
+
+Regression là nhóm phương pháp dùng để phân tích quan hệ giữa outcome và predictors.
+
+**Module liên quan**
+
+- [Module 4. Tương quan và Hồi quy](module-4.qmd)
+- [Module A2. Hồi quy Nâng cao](advanced/adv-02-regression.qmd)
+
+------------------------------------------------------------------------
+
+## Reproducible Research
+
+**Tiếng Việt:** Nghiên cứu tái lập
+
+**Là gì?**
+
+Reproducible research là cách tổ chức dữ liệu, code và báo cáo sao cho có thể chạy lại và tạo ra kết quả tương tự.
+
+**Module liên quan**
+
+- [Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật](advanced/adv-15-reproducible.qmd)
+
+------------------------------------------------------------------------
+
+## Ridge Regression
+
+**Tiếng Việt:** Hồi quy Ridge
+
+**Là gì?**
+
+Ridge regression là phương pháp hồi quy chính quy hóa giúp xử lý multicollinearity bằng cách thu nhỏ hệ số.
+
+**Module liên quan**
+
+- [Module A3. Hồi quy Chính quy hóa](advanced/adv-03-regularized.qmd)
+
+------------------------------------------------------------------------
+
+# S
+
+## SEM (Structural Equation Modeling)
+
+**Tiếng Việt:** Mô hình phương trình cấu trúc
+
+**Là gì?**
+
+SEM là phương pháp phân tích quan hệ giữa các construct tiềm ẩn và biến quan sát.
+
+**Module liên quan**
+
+- [Module 5. PLS-SEM](module-5.qmd)
+- [Module A4. Mô hình Phương trình Cấu trúc Nâng cao](advanced/adv-04-sem.qmd)
+
+------------------------------------------------------------------------
+
+## Simpson's Paradox
+
+**Tiếng Việt:** Nghịch lý Simpson
+
+**Là gì?**
+
+Simpson's Paradox xảy ra khi xu hướng trong dữ liệu tổng thể khác hoặc ngược với xu hướng trong từng nhóm con.
+
+**Module liên quan**
+
+- [Module A7. Nghịch lý Simpson](advanced/adv-07-simpson.qmd)
+
+------------------------------------------------------------------------
+
+## Standard Error
+
+**Tiếng Việt:** Sai số chuẩn
+
+**Là gì?**
+
+Standard error đo mức độ biến động của một estimator giữa các mẫu lặp lại.
+
+**Module liên quan**
+
+- [Module 3. Thống kê mô tả](module-3.qmd)
+- [Module A6. Mô phỏng Monte Carlo](advanced/adv-06-monte-carlo.qmd)
+
+------------------------------------------------------------------------
+
+# T
+
+## Thematic Map
+
+**Tiếng Việt:** Bản đồ chủ đề
+
+**Là gì?**
+
+Thematic map là biểu đồ trong bibliometric analysis giúp phân loại chủ đề theo centrality và density.
+
+**Module liên quan**
+
+- [Module A12. Phân tích Trắc lượng Thư mục](advanced/adv-12-bibliometric.qmd)
+
+------------------------------------------------------------------------
+
+## Tidy Data
+
+**Tiếng Việt:** Dữ liệu ngăn nắp
+
+**Là gì?**
+
+Tidy data là dữ liệu trong đó mỗi biến là một cột, mỗi quan sát là một dòng và mỗi loại đơn vị quan sát là một bảng.
+
+**Module liên quan**
+
+- [Module 2. Làm sạch dữ liệu](module-2.qmd)
+
+------------------------------------------------------------------------
+
+# V
+
+## Visualization
+
+**Tiếng Việt:** Trực quan hóa dữ liệu
+
+**Là gì?**
+
+Visualization là quá trình chuyển dữ liệu thành biểu đồ để hiểu pattern, so sánh nhóm và trình bày kết quả.
+
+**Module liên quan**
+
+- [Module 6. Trực quan hóa dữ liệu và Viết kết quả](module-6.qmd)
+- [Module A9. Thư viện Trực quan hóa](advanced/adv-09-visualization.qmd)
+
+------------------------------------------------------------------------
+
+# W
+
+## Wide Format
+
+**Tiếng Việt:** Dữ liệu dạng rộng
+
+**Là gì?**
+
+Wide format là dữ liệu trong đó mỗi biến hoặc mỗi thời điểm đo thường nằm ở một cột riêng.
+
+**Module liên quan**
+
+- [Module 2. Làm sạch dữ liệu](module-2.qmd)
+- [Module A8. Phân tích Likert Nâng cao](advanced/adv-08-likert.qmd)
+
+------------------------------------------------------------------------
+
+# What Next?
+
+::: callout-tip
+Sau glossary, nên tiếp tục với:
+
+- [Research Toolkit](research-toolkit.qmd)
+- [Learning Roadmap](roadmap.qmd)
+- [Resources](resources.qmd)
+:::

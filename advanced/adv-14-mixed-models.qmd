@@ -1,0 +1,1096 @@
+---
+title: "Advanced 14. Mô hình Hỗn hợp và Dữ liệu Dọc"
+subtitle: "Mixed Models and Longitudinal Data with R"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Hiểu dữ liệu phân cấp (Hierarchical Data)
+- Hiểu dữ liệu lặp lại (Repeated Measures)
+- Hiểu dữ liệu dọc (Longitudinal Data)
+- Phân biệt fixed effects và random effects
+- Chạy mô hình random intercept
+- Chạy mô hình random slope
+- Chạy mô hình repeated measures
+- Trực quan hóa growth trajectories
+- So sánh mô hình bằng AIC
+- Diễn giải intraclass correlation coefficient (ICC)
+- Viết kết quả mixed model theo chuẩn học thuật
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Khi dữ liệu có cấu trúc lặp lại hoặc phân cấp, làm thế nào để phân tích đúng thay vì giả định tất cả quan sát độc lập?**
+
+Quy trình:
+
+```text
+Nested / Repeated Data
+↓
+Identify Clustering
+↓
+Fixed Effects
+↓
+Random Effects
+↓
+Mixed Model
+↓
+Model Comparison
+↓
+Trajectory Visualization
+↓
+Academic Reporting
+```
+
+:::
+
+## Quy trình mixed model
+
+```{mermaid}
+flowchart TD
+
+A[Research Question]
+--> B{Data Structure?}
+
+B -->|Students in Classes| C[Hierarchical Data]
+
+B -->|Repeated Time Points| D[Longitudinal Data]
+
+C --> E[Random Intercept Model]
+
+D --> F[Repeated Measures / Growth Model]
+
+E --> G[Random Slope if Needed]
+
+F --> G
+
+G --> H[Model Comparison]
+
+H --> I[Interpret Fixed and Random Effects]
+
+I --> J[Report Results]
+```
+
+# 1. Vì sao cần mixed models?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Mô hình hỗn hợp (Mixed Model) là mô hình kết hợp:
+
+- Fixed effects
+- Random effects
+
+Nó phù hợp khi dữ liệu có cấu trúc phân cấp hoặc lặp lại.
+
+**Tại sao cần? (Why?)**
+
+Nhiều dữ liệu nghiên cứu không độc lập hoàn toàn.
+
+Ví dụ:
+
+- Sinh viên nằm trong lớp
+- Lớp nằm trong trường
+- Một người được đo nhiều lần
+- Một đối tượng có nhiều quan sát theo thời gian
+- Một ruộng có nhiều ô thí nghiệm
+- Một giáo viên đánh giá nhiều học sinh
+
+Nếu bỏ qua cấu trúc này, standard errors và p-values có thể không đáng tin cậy.
+
+**Khi nào dùng? (When?)**
+
+Dùng khi:
+
+- Có repeated measures
+- Có clustering
+- Có nested data
+- Có longitudinal data
+- Có random variation giữa nhóm
+- Muốn mô hình hóa sự khác biệt giữa cá nhân hoặc nhóm
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Mixed models thường dùng trong:
+
+- Giáo dục
+- Tâm lý học
+- Y tế
+- Nông nghiệp
+- Quản trị
+- Nghiên cứu longitudinal
+- Đánh giá chương trình
+- Phân tích đa cấp
+- Dữ liệu học sinh-lớp-trường
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Người học thường mắc lỗi:
+
+- Dùng `lm()` cho dữ liệu lặp lại
+- Bỏ qua cluster hoặc subject ID
+- Không phân biệt fixed và random effects
+- Diễn giải random effects như fixed effects
+- Không kiểm tra dữ liệu theo nhóm
+- Không trực quan hóa trajectory
+- Chạy mô hình quá phức tạp so với dữ liệu
+
+:::
+
+# 2. Chuẩn bị dữ liệu
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Module này dùng dữ liệu mô phỏng public để render ổn định.
+
+Dữ liệu gồm hai dạng:
+
+1. Dữ liệu phân cấp: students within classes
+2. Dữ liệu dọc: repeated measures over time
+
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("lme4")
+install.packages("lmerTest")
+install.packages("broom.mixed")
+install.packages("performance")
+install.packages("emmeans")
+install.packages("gt")
+install.packages("patchwork")
+```
+
+## Nạp package
+
+```{r}
+library(tidyverse)
+library(gt)
+library(patchwork)
+```
+
+## Kiểm tra packages
+
+```{r}
+has_lme4 <- requireNamespace("lme4", quietly = TRUE)
+has_lmerTest <- requireNamespace("lmerTest", quietly = TRUE)
+has_broom_mixed <- requireNamespace("broom.mixed", quietly = TRUE)
+has_performance <- requireNamespace("performance", quietly = TRUE)
+has_emmeans <- requireNamespace("emmeans", quietly = TRUE) && "contrast" %in% getNamespaceExports("emmeans")
+
+tibble(
+  package = c("lme4", "lmerTest", "broom.mixed", "performance", "emmeans"),
+  installed = c(has_lme4, has_lmerTest, has_broom_mixed, has_performance, has_emmeans)
+)
+```
+
+## Tạo dữ liệu phân cấp
+
+```{r}
+set.seed(123)
+
+n_classes <- 20
+students_per_class <- 30
+
+class_effects <- tibble(
+  class_id = factor(paste0("Class_", 1:n_classes)),
+  class_random_intercept = rnorm(n_classes, mean = 0, sd = 5)
+)
+
+hier_data <- expand_grid(
+  class_id = factor(paste0("Class_", 1:n_classes)),
+  student_id = 1:students_per_class
+) |>
+  left_join(class_effects, by = "class_id") |>
+  mutate(
+    motivation = rnorm(n(), mean = 3.5, sd = 0.8),
+    prior_score = rnorm(n(), mean = 65, sd = 10),
+    score = 50 +
+      4 * motivation +
+      0.35 * prior_score +
+      class_random_intercept +
+      rnorm(n(), mean = 0, sd = 6)
+  )
+
+glimpse(hier_data)
+```
+
+## Tạo dữ liệu dọc
+
+```{r}
+set.seed(123)
+
+n_students <- 180
+time_points <- 4
+
+student_effects <- tibble(
+  student_id = factor(1:n_students),
+  random_intercept = rnorm(n_students, mean = 0, sd = 6),
+  random_slope = rnorm(n_students, mean = 0, sd = 1.2)
+)
+
+long_data <- expand_grid(
+  student_id = factor(1:n_students),
+  time = 0:(time_points - 1)
+) |>
+  left_join(student_effects, by = "student_id") |>
+  mutate(
+    group = sample(c("Control", "Intervention"), n_students, replace = TRUE)[as.integer(student_id)],
+    treatment = if_else(group == "Intervention", 1, 0),
+    outcome = 60 +
+      2.5 * time +
+      4 * treatment +
+      2.0 * time * treatment +
+      random_intercept +
+      random_slope * time +
+      rnorm(n(), mean = 0, sd = 5)
+  )
+
+glimpse(long_data)
+```
+
+# 3. Fixed effects và random effects
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể phân biệt fixed effects và random effects.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Fixed effect là gì?**
+
+Fixed effect là tác động trung bình của predictor mà ta muốn ước lượng trực tiếp.
+
+Ví dụ:
+
+```text
+motivation → score
+time → outcome
+treatment → outcome
+```
+
+**Random effect là gì?**
+
+Random effect mô hình hóa sự khác biệt giữa các nhóm hoặc cá nhân.
+
+Ví dụ:
+
+```text
+Mỗi lớp có baseline score khác nhau
+Mỗi học sinh có điểm xuất phát khác nhau
+Mỗi học sinh có tốc độ tăng trưởng khác nhau
+```
+
+**Ví dụ cú pháp**
+
+| Mô hình | Ý nghĩa |
+|---|---|
+| `(1 | class_id)` | Random intercept theo lớp |
+| `(1 | student_id)` | Random intercept theo học sinh |
+| `(time | student_id)` | Random intercept và random slope theo học sinh |
+| `(1 + time | student_id)` | Tương tự random slope |
+
+:::
+
+## Minh họa cấu trúc phân cấp
+
+```{mermaid}
+flowchart TD
+
+A[School]
+--> B[Class 1]
+
+A --> C[Class 2]
+
+B --> D[Student 1]
+B --> E[Student 2]
+
+C --> F[Student 3]
+C --> G[Student 4]
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Fixed effects trả lời câu hỏi về tác động trung bình.
+
+Random effects trả lời câu hỏi về sự khác biệt giữa nhóm hoặc cá nhân.
+
+:::
+
+# 4. Khám phá dữ liệu phân cấp
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể trực quan hóa dữ liệu theo cluster.
+
+:::
+
+## Mean score theo class
+
+```{r}
+class_summary <- hier_data |>
+  group_by(class_id) |>
+  summarise(
+    n = n(),
+    mean_score = mean(score),
+    sd_score = sd(score),
+    .groups = "drop"
+  )
+
+class_summary
+```
+
+## Biểu đồ class means
+
+```{r}
+ggplot(class_summary, aes(x = mean_score, y = reorder(class_id, mean_score))) +
+  geom_point(size = 3) +
+  labs(
+    title = "Class-level Mean Scores",
+    x = "Mean score",
+    y = "Class"
+  ) +
+  theme_minimal()
+```
+
+## Boxplot theo class
+
+```{r}
+ggplot(hier_data, aes(x = class_id, y = score)) +
+  geom_boxplot() +
+  labs(
+    title = "Score Distribution by Class",
+    x = "Class",
+    y = "Score"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1)
+  )
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu mean score khác nhau rõ giữa các lớp, dữ liệu có thể có clustering.
+
+Khi đó mixed model phù hợp hơn hồi quy tuyến tính đơn giản.
+
+:::
+
+# 5. Linear model thông thường
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên thấy giới hạn của mô hình `lm()` khi dữ liệu có cluster.
+
+:::
+
+## Chạy mô hình lm
+
+```{r}
+lm_model <- lm(
+  score ~ motivation + prior_score,
+  data = hier_data
+)
+
+summary(lm_model)
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+`lm()` giả định các quan sát độc lập.
+
+Nếu học sinh trong cùng lớp giống nhau hơn học sinh khác lớp, giả định độc lập có thể bị vi phạm.
+
+:::
+
+# 6. Random intercept model
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể chạy mô hình random intercept.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Random intercept model cho phép mỗi nhóm có baseline khác nhau.
+
+Cú pháp:
+
+```r
+score ~ motivation + prior_score + (1 | class_id)
+```
+
+Ý nghĩa:
+
+```text
+score được dự đoán bởi motivation và prior_score,
+nhưng mỗi lớp có intercept riêng.
+```
+
+:::
+
+## Chạy random intercept model
+
+```{r}
+if (has_lme4) {
+  random_intercept_model <- lme4::lmer(
+    score ~ motivation + prior_score + (1 | class_id),
+    data = hier_data
+  )
+
+  summary(random_intercept_model)
+}
+```
+
+## Tidy kết quả
+
+```{r}
+if (has_broom_mixed && exists("random_intercept_model")) {
+  broom.mixed::tidy(
+    random_intercept_model,
+    effects = "fixed",
+    conf.int = TRUE
+  )
+}
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Fixed effect của motivation cho biết mối liên hệ trung bình giữa motivation và score, sau khi tính đến sự khác biệt baseline giữa các lớp.
+
+:::
+
+# 7. Intraclass Correlation Coefficient
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể hiểu và tính ICC.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**ICC là gì?**
+
+Intraclass Correlation Coefficient cho biết tỷ lệ phương sai của outcome nằm ở cấp nhóm.
+
+Ví dụ:
+
+```text
+ICC = 0.20
+```
+
+nghĩa là khoảng 20% phương sai outcome nằm ở cấp class.
+
+:::
+
+## Null model
+
+```{r}
+if (has_lme4) {
+  null_model <- lme4::lmer(
+    score ~ 1 + (1 | class_id),
+    data = hier_data
+  )
+
+  summary(null_model)
+}
+```
+
+## Tính ICC thủ công
+
+```{r}
+if (exists("null_model")) {
+  variance_components <- as.data.frame(lme4::VarCorr(null_model))
+
+  between_class_var <- variance_components$vcov[variance_components$grp == "class_id"]
+  residual_var <- variance_components$vcov[variance_components$grp == "Residual"]
+
+  icc <- between_class_var / (between_class_var + residual_var)
+
+  icc
+}
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+ICC càng cao thì clustering càng quan trọng.
+
+Nếu ICC đáng kể, mixed model thường phù hợp hơn `lm()`.
+
+:::
+
+# 8. So sánh lm và mixed model
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể so sánh mô hình bằng AIC.
+
+:::
+
+```{r}
+if (exists("random_intercept_model")) {
+  model_comparison <- tibble(
+    model = c("Linear model", "Random intercept model"),
+    AIC = c(
+      AIC(lm_model),
+      AIC(random_intercept_model)
+    )
+  )
+
+  model_comparison
+}
+```
+
+## Biểu đồ so sánh AIC
+
+```{r}
+if (exists("model_comparison")) {
+  ggplot(model_comparison, aes(x = AIC, y = reorder(model, AIC))) +
+    geom_col() +
+    labs(
+      title = "Model Comparison by AIC",
+      x = "AIC",
+      y = "Model"
+    ) +
+    theme_minimal()
+}
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+AIC thấp hơn gợi ý mô hình phù hợp tốt hơn theo tiêu chí đó, nhưng không nên chọn mô hình chỉ dựa vào AIC.
+
+Cần xét cả:
+
+- Câu hỏi nghiên cứu
+- Thiết kế dữ liệu
+- Độ phức tạp mô hình
+- Diễn giải
+
+:::
+
+# 9. Dữ liệu dọc và repeated measures
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể nhận diện dữ liệu repeated measures.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Dữ liệu dọc có nhiều quan sát theo thời gian trên cùng một đơn vị.
+
+Ví dụ:
+
+```text
+Student 1: time 0, 1, 2, 3
+Student 2: time 0, 1, 2, 3
+```
+
+Các quan sát trong cùng student thường không độc lập.
+
+:::
+
+## Kiểm tra dữ liệu
+
+```{r}
+long_data |>
+  count(student_id) |>
+  summarise(
+    min_time_points = min(n),
+    max_time_points = max(n)
+  )
+```
+
+## Mean outcome theo time và group
+
+```{r}
+time_summary <- long_data |>
+  group_by(group, time) |>
+  summarise(
+    mean_outcome = mean(outcome),
+    sd_outcome = sd(outcome),
+    n = n(),
+    se = sd_outcome / sqrt(n),
+    .groups = "drop"
+  )
+
+time_summary
+```
+
+# 10. Visualize longitudinal trajectories
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể vẽ trajectory theo cá nhân và nhóm.
+
+:::
+
+## Individual trajectories
+
+```{r}
+sample_students <- sample(unique(long_data$student_id), 40)
+
+ggplot(
+  long_data |> filter(student_id %in% sample_students),
+  aes(x = time, y = outcome, group = student_id)
+) +
+  geom_line(alpha = 0.35) +
+  labs(
+    title = "Individual Longitudinal Trajectories",
+    x = "Time",
+    y = "Outcome"
+  ) +
+  theme_minimal()
+```
+
+## Group mean trajectories
+
+```{r}
+fig_growth <- ggplot(
+  time_summary,
+  aes(x = time, y = mean_outcome, group = group, linetype = group)
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  geom_errorbar(
+    aes(ymin = mean_outcome - 1.96 * se, ymax = mean_outcome + 1.96 * se),
+    width = 0.1
+  ) +
+  labs(
+    title = "Mean Growth Trajectories by Group",
+    x = "Time",
+    y = "Mean outcome",
+    linetype = "Group"
+  ) +
+  theme_minimal()
+
+fig_growth
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu đường của nhóm intervention tăng nhanh hơn control, có thể có group-by-time interaction.
+
+Cần kiểm tra bằng mô hình.
+
+:::
+
+# 11. Random intercept longitudinal model
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể chạy repeated-measures mixed model.
+
+:::
+
+## Random intercept theo student
+
+```{r}
+if (has_lme4) {
+  longitudinal_ri_model <- lme4::lmer(
+    outcome ~ time * group + (1 | student_id),
+    data = long_data
+  )
+
+  summary(longitudinal_ri_model)
+}
+```
+
+## Fixed effects table
+
+```{r}
+if (has_broom_mixed && exists("longitudinal_ri_model")) {
+  broom.mixed::tidy(
+    longitudinal_ri_model,
+    effects = "fixed",
+    conf.int = TRUE
+  )
+}
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Hệ số `time:groupIntervention` cho biết tốc độ thay đổi theo thời gian có khác giữa nhóm intervention và control hay không.
+
+:::
+
+# 12. Random slope model
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể hiểu random slope.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Random slope cho phép mỗi cá nhân có tốc độ thay đổi riêng theo thời gian.
+
+Cú pháp:
+
+```r
+(time | student_id)
+```
+
+nghĩa là mỗi student có intercept riêng và slope time riêng.
+
+:::
+
+## Random slope model
+
+```{r}
+if (has_lme4) {
+  longitudinal_rs_model <- lme4::lmer(
+    outcome ~ time * group + (time | student_id),
+    data = long_data
+  )
+
+  summary(longitudinal_rs_model)
+}
+```
+
+## So sánh random intercept và random slope
+
+```{r}
+if (exists("longitudinal_ri_model") && exists("longitudinal_rs_model")) {
+  longitudinal_comparison <- tibble(
+    model = c("Random intercept", "Random intercept + slope"),
+    AIC = c(
+      AIC(longitudinal_ri_model),
+      AIC(longitudinal_rs_model)
+    )
+  )
+
+  longitudinal_comparison
+}
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Random slope model phức tạp hơn.
+
+Nếu dữ liệu ít time points hoặc ít observations, mô hình có thể khó hội tụ.
+
+:::
+
+# 13. Predicted trajectories
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể tạo predicted values từ mixed model.
+
+:::
+
+```{r}
+if (exists("longitudinal_ri_model")) {
+  prediction_grid <- expand_grid(
+    time = seq(0, 3, by = 0.1),
+    group = c("Control", "Intervention")
+  )
+
+  prediction_grid$predicted <- predict(
+    longitudinal_ri_model,
+    newdata = prediction_grid,
+    re.form = NA
+  )
+
+  ggplot(prediction_grid, aes(x = time, y = predicted, linetype = group)) +
+    geom_line(linewidth = 1) +
+    labs(
+      title = "Model-predicted Growth Trajectories",
+      x = "Time",
+      y = "Predicted outcome",
+      linetype = "Group"
+    ) +
+    theme_minimal()
+}
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Predicted trajectories giúp diễn giải interaction dễ hơn bảng hệ số.
+
+:::
+
+# 14. Estimated marginal means
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên biết dùng `emmeans` với mixed models.
+
+:::
+
+## emmeans theo time và group
+
+```{r}
+if (has_emmeans && exists("longitudinal_ri_model")) {
+  emm_long <- emmeans::emmeans(
+    longitudinal_ri_model,
+    ~ group | time,
+    at = list(time = 0:3)
+  )
+
+  emm_long
+}
+```
+
+## Pairwise comparison
+
+```{r}
+if (has_emmeans && exists("emm_long")) {
+  emmeans::contrast(
+    emm_long,
+    method = "pairwise"
+  )
+}
+```
+
+# 15. Model diagnostics
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên biết kiểm tra residuals của mixed model.
+
+:::
+
+## Residual plots
+
+```{r}
+if (exists("longitudinal_ri_model")) {
+  diag_long <- tibble(
+    fitted = fitted(longitudinal_ri_model),
+    residual = resid(longitudinal_ri_model)
+  )
+
+  p1 <- ggplot(diag_long, aes(x = fitted, y = residual)) +
+    geom_point(alpha = 0.5) +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    labs(
+      title = "Residuals vs Fitted",
+      x = "Fitted values",
+      y = "Residuals"
+    ) +
+    theme_minimal()
+
+  p2 <- ggplot(diag_long, aes(x = residual)) +
+    geom_histogram(bins = 30) +
+    labs(
+      title = "Residual Distribution",
+      x = "Residuals",
+      y = "Frequency"
+    ) +
+    theme_minimal()
+
+  p1 + p2
+}
+```
+
+## performance package
+
+```{r}
+if (has_performance && exists("longitudinal_ri_model")) {
+  performance::check_model(longitudinal_ri_model)
+}
+```
+
+# 16. Viết kết quả học thuật
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Khi viết mixed model, cần báo cáo:
+
+- Cấu trúc dữ liệu
+- Fixed effects
+- Random effects
+- Software/package
+- Model comparison nếu có
+- Interaction nếu có
+- ICC nếu phù hợp
+- Predicted trajectories nếu helpful
+
+:::
+
+## Template random intercept
+
+```text
+A linear mixed-effects model was estimated with students nested within classes. Motivation and prior score were included as fixed effects, while class was modeled as a random intercept. The results indicated that motivation was positively associated with score after accounting for class-level variation.
+```
+
+## Template ICC
+
+```text
+The intraclass correlation coefficient indicated that approximately [ICC]% of the variance in scores was attributable to differences between classes.
+```
+
+## Template longitudinal model
+
+```text
+A longitudinal mixed-effects model was estimated with repeated observations nested within students. The model included fixed effects for time, group, and their interaction, with a random intercept for each student.
+```
+
+## Template interaction
+
+```text
+The time-by-group interaction was positive, suggesting that the intervention group showed a faster increase in outcomes over time compared with the control group.
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên viết:
+
+```text
+The mixed model proves the intervention caused improvement.
+```
+
+Nên viết:
+
+```text
+The mixed model suggests that the intervention group improved more rapidly over time, conditional on the model specification and study design.
+```
+
+:::
+
+# 17. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Hãy thực hiện:
+
+1. Tạo dữ liệu học sinh nằm trong lớp.
+2. Vẽ mean outcome theo class.
+3. Chạy `lm()`.
+4. Chạy random intercept model.
+5. Tính ICC.
+6. So sánh AIC giữa `lm()` và mixed model.
+7. Tạo dữ liệu repeated measures.
+8. Vẽ individual trajectories.
+9. Vẽ group mean trajectories.
+10. Chạy random intercept longitudinal model.
+11. Chạy random slope model.
+12. Tạo predicted trajectories.
+13. Viết đoạn kết quả học thuật.
+
+:::
+
+# 18. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Một nghiên cứu đo kết quả học tập của 300 học sinh ở 15 lớp. Mỗi học sinh được đo 4 lần trong học kỳ.
+
+## Câu hỏi
+
+1. Vì sao `lm()` có thể không phù hợp?
+2. Có mấy cấp dữ liệu?
+3. Random intercept nên đặt ở đâu?
+4. Khi nào cần random slope?
+5. Nên vẽ biểu đồ gì?
+6. Nên báo cáo kết quả thế nào?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+Một câu trả lời tốt nên nêu:
+
+- Dữ liệu không độc lập vì học sinh nằm trong lớp và được đo lặp lại.
+- Có thể có cấp lớp, học sinh và thời gian.
+- Random intercept có thể đặt cho class và student tùy cấu trúc.
+- Random slope cần khi tốc độ thay đổi theo thời gian khác nhau giữa học sinh.
+- Nên vẽ individual trajectories và group mean trajectories.
+- Báo cáo fixed effects, random effects, ICC và interaction nếu có.
+
+:::
+
+# 19. Dự án nhỏ
+
+::: {.callout-important title="Dự án nhỏ (Mini Project)"}
+
+## Chủ đề
+
+Mixed Models and Longitudinal Data Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+```text
+Mixed_Models_Report.html
+```
+
+## Nội dung báo cáo
+
+1. Research question
+2. Data structure
+3. Cluster description
+4. Descriptive visualization
+5. Linear model baseline
+6. Random intercept model
+7. ICC
+8. Longitudinal trajectory plot
+9. Random slope model
+10. Model comparison
+11. Predicted trajectories
+12. Academic interpretation
+13. Limitations
+
+:::
+
+# 20. Điểm cần ghi nhớ
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- Mixed models phù hợp với dữ liệu phân cấp hoặc lặp lại.
+- Fixed effects là tác động trung bình cần ước lượng.
+- Random effects mô hình hóa sự khác biệt giữa nhóm hoặc cá nhân.
+- Random intercept cho phép baseline khác nhau giữa nhóm.
+- Random slope cho phép tác động hoặc tốc độ thay đổi khác nhau giữa nhóm.
+- ICC cho biết mức độ clustering.
+- Dữ liệu longitudinal cần xem xét repeated measures.
+- Trajectory plots rất quan trọng để diễn giải dữ liệu dọc.
+- Không nên bỏ qua cấu trúc dữ liệu khi chọn mô hình.
+
+:::
+
+# 21. Bước tiếp theo
+
+::: {.callout-note title="Bước tiếp theo (What Next?)"}
+
+Sau khi hoàn thành phần này, học viên nên:
+
+1. Biết nhận diện dữ liệu phân cấp và dữ liệu dọc.
+2. Biết chạy random intercept và random slope models.
+3. Biết tính ICC.
+4. Biết vẽ growth trajectories.
+5. Chuyển sang:
+
+[Reproducible Research and Reporting](adv-15-reproducible.qmd)
+
+Trong phần tiếp theo, chúng ta sẽ học cách tổ chức project, viết báo cáo Quarto, xuất bảng/hình và xây dựng workflow nghiên cứu tái lập.
+
+:::

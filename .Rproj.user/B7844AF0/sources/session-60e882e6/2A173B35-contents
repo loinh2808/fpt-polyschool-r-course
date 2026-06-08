@@ -1,0 +1,997 @@
+---
+title: "Module 2. Làm sạch và Chuẩn bị Dữ liệu cho Nghiên cứu"
+---
+
+# Tổng quan Module
+
+::: {.callout-tip title="Learning Outcomes"}
+Sau khi hoàn thành Module 2, học viên có thể:
+
+- Kiểm tra chất lượng dữ liệu nghiên cứu
+- Phát hiện và xử lý dữ liệu thiếu
+- Phát hiện dữ liệu trùng lặp
+- Chuẩn hóa biến phân loại
+- Kiểm tra và xác thực thang đo Likert
+- Phát hiện ngoại lệ cơ bản
+- Tạo Data Quality Report
+- Xuất bộ dữ liệu sạch cho các bước phân tích tiếp theo
+:::
+
+::: {.callout-note title="Module Logic"}
+Module này trả lời câu hỏi:
+
+**Làm thế nào để chuyển một bộ dữ liệu khảo sát còn nhiều lỗi thành một bộ dữ liệu sẵn sàng cho phân tích?**
+
+Workflow:
+
+``` text
+Nhập dữ liệu
+↓
+Kiểm tra
+↓
+Dữ liệu thiếu
+↓
+Dữ liệu trùng lặp
+↓
+Danh mục
+↓
+Kiểm định số liệu
+↓
+Lọc dữ liệu ngoại lai
+↓
+Báo cáo chất lượng
+↓
+Xuất dữ liệu sạch
+```
+:::
+
+------------------------------------------------------------------------
+
+# 2.1 Why Data Cleaning Matters?
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Data cleaning là quá trình phát hiện, đánh giá và xử lý các lỗi dữ liệu trước khi phân tích.
+
+**Why?**
+
+Dữ liệu sai sẽ tạo ra kết quả sai.
+
+**When?**
+
+Luôn thực hiện trước mọi phân tích thống kê.
+
+**How do we use it in research?**
+
+Data cleaning là bước bắt buộc trong tất cả các nghiên cứu. Đây là bước đầu tiên và quan trọng nhất cần được thực hiện trước khi phân tích số liệu
+:::
+
+::: {.callout-important title="Research Application"}
+Trong nghiên cứu thực tế, các lỗi thường gặp:
+
+``` text
+Age = 999
+Gender = male / Male / MALE
+PE1 = 99
+Duplicate IDs
+Missing values
+```
+
+Nếu không xử lý, kết quả phân tích có thể bị sai lệch nghiêm trọng.
+:::
+
+::: {.callout-warning title="Common Mistakes"}
+Người học thường mắc lỗi:
+
+- Chạy các phân tích trước khi kiểm tra dữ liệu
+- Không kiểm tra dữ liệu thiếu (missing values)
+- Không phát hiện duplicate IDs
+- Không kiểm tra chất lượng số liệu
+- Chỉ nhìn output mà không đánh giá chất lượng dữ liệu
+:::
+
+------------------------------------------------------------------------
+
+# 2.2 Research Workflow
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Research data workflow là quy trình xử lý dữ liệu từ dữ liệu thô đến dữ liệu sẵn sàng phân tích.
+
+**Why?**
+
+Một workflow rõ ràng giúp đảm bảo tính tái lập và giảm lỗi.
+
+**How?**
+
+Quy trình chuẩn:
+
+``` text
+Dữ liệu thô
+↓
+Nhập khẩu
+↓
+Kiểm tra
+↓
+Làm sạch dữ liệu
+↓
+Xác thực
+↓
+Xuất dữ liệu sạch
+↓
+Phân tích thống kê
+```
+:::
+
+::: {.callout-tip title="Key Points"}
+Phân tích tốt bắt đầu từ dữ liệu tốt.
+
+Data cleaning thường chiếm phần lớn thời gian của một dự án phân tích dữ liệu.
+:::
+
+------------------------------------------------------------------------
+
+# 2.3 Import Raw Dataset
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Trong module này, dữ liệu thô được lưu trong sheet `02_Dirty_Data`.
+
+**When?**
+
+Dùng sheet này để thực hành phát hiện và sửa lỗi dữ liệu.
+
+**How?**
+
+Ta dùng `read_excel()` để nhập dữ liệu và `clean_names()` để chuẩn hóa tên biến.
+:::
+
+## Load Packages
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(skimr)
+library(stringr)
+library(writexl)
+```
+
+## Import Data
+
+```{r}
+dirty_data <- read_excel(
+  "data/FPT_PolySchool_R_Training_Demo_Dataset.xlsx",
+  sheet = "02_Dirty_Data"
+) |>
+  clean_names()
+```
+
+## First Look
+
+```{r}
+glimpse(dirty_data)
+```
+
+```{r}
+head(dirty_data)
+```
+
+::: {.callout-important title="Research Application"}
+Trong nghiên cứu thực tế, nên lưu toàn bộ bước import trong script để đảm bảo tính tái lập.
+:::
+
+------------------------------------------------------------------------
+
+# 2.4 Initial Data Audit
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Data audit là bước đánh giá sơ bộ chất lượng dữ liệu.
+
+**Why?**
+
+Giúp phát hiện lỗi trước khi làm sạch.
+
+**How?**
+
+Kiểm tra:
+
+- Kích thước bộ dữ liệu (Dataset Dimensions)
+- Tên biến (Variable Names)
+- Kiểu dữ liệu biến (Data Structure)
+- Thống kê tóm tắt (Summary Statistics)
+- Giá trị thiếu (Missing value)
+:::
+
+## Dataset Dimensions
+
+```{r}
+dim(dirty_data)
+```
+
+## Variable Names
+
+```{r}
+names(dirty_data)
+```
+
+## Data Structure
+
+```{r}
+str(dirty_data)
+```
+
+## Summary Statistics
+
+```{r}
+summary(dirty_data)
+```
+
+## Data Diagnostic Report
+
+```{r}
+skim(dirty_data)
+```
+
+::: {.callout-tip title="Key Points"}
+Trước khi xử lý dữ liệu, cần hiểu:
+
+- Có bao nhiêu dòng?
+- Có bao nhiêu biến?
+- Biến nào là biến numeric?
+- Biến nào là biến character?
+- Có dấu hiệu dữ liệu bất thường hay không?
+:::
+
+------------------------------------------------------------------------
+
+# 2.5 Missing Data Analysis
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Missing data là dữ liệu bị thiếu.
+
+**Why?**
+
+Missing data có thể làm:
+
+- Giảm cỡ mẫu
+- Giảm chất lượng thống kê
+- Làm sai lệch kết quả phân tích
+
+**When?**
+
+Luôn kiểm tra ngay sau bước kiểm định bộ số liệu.
+:::
+
+## Count Missing Values
+
+```{r}
+colSums(is.na(dirty_data))
+```
+
+## Missing Percentage
+
+```{r}
+missing_report <- tibble(
+  variable = names(dirty_data),
+  missing_n = colSums(is.na(dirty_data))
+) |>
+  mutate(
+    missing_pct = round(
+      missing_n / nrow(dirty_data) * 100,
+      2
+    )
+  )
+
+missing_report
+```
+
+## Variables with Missing Data
+
+```{r}
+missing_report |>
+  filter(missing_n > 0)
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không xóa toàn bộ dòng có `NA` ngay lập tức.
+
+Trước tiên cần đánh giá:
+
+- Tỷ lệ thiếu
+- Vị trí thiếu
+- Tầm quan trọng của biến
+- Cách xử lý phù hợp với mục tiêu nghiên cứu
+:::
+
+------------------------------------------------------------------------
+
+# 2.6 Duplicate Records
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Duplicate records là các quan sát bị lặp.
+
+**Why?**
+
+Dữ liệu trùng có thể làm sai:
+
+- Mean
+- Percentages
+- Regression coefficients
+- SEM estimates
+
+**When?**
+
+Cần kiểm tra duplicate khi dữ liệu có ID người trả lời hoặc ID khảo sát.
+:::
+
+## Count Duplicate IDs
+
+```{r}
+sum(duplicated(dirty_data$id))
+```
+
+## View Duplicate Records
+
+```{r}
+dirty_data |>
+  filter(duplicated(id) | duplicated(id, fromLast = TRUE)) |>
+  arrange(id)
+```
+
+## Remove Duplicates
+
+```{r}
+clean_data <- dirty_data |>
+  distinct(id, .keep_all = TRUE)
+```
+
+## Verify
+
+```{r}
+sum(duplicated(clean_data$id))
+```
+
+::: {.callout-tip title="Key Points"}
+Sau bước này, mỗi ID chỉ nên xuất hiện một lần trong bộ dữ liệu.
+:::
+
+------------------------------------------------------------------------
+
+# 2.7 Category Standardization
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Chuẩn hóa biến phân loại là quá trình đưa các giá trị cùng nghĩa về cùng một cách viết.
+
+**Why?**
+
+Một biến có thể xuất hiện dưới nhiều cách viết khác nhau.
+
+Ví dụ:
+
+``` text
+Male
+male
+MALE
+M
+```
+
+**How?**
+
+Dùng các hàm:
+
+``` r
+str_to_title()
+str_squish()
+case_when()
+```
+:::
+
+## Gender Before Cleaning
+
+```{r}
+table(clean_data$gender)
+```
+
+## Gender Standardization
+
+```{r}
+clean_data <- clean_data |>
+  mutate(
+    gender = str_squish(gender),
+    gender = str_to_title(gender),
+    gender = case_when(
+      gender %in% c("M", "Male") ~ "Male",
+      gender %in% c("F", "Female") ~ "Female",
+      TRUE ~ gender
+    )
+  )
+```
+
+## Gender After Cleaning
+
+```{r}
+table(clean_data$gender)
+```
+
+## Major Example
+
+```{r}
+table(clean_data$major)
+```
+
+## Clean Major
+
+```{r}
+clean_data <- clean_data |>
+  mutate(
+    major = str_squish(major)
+  )
+```
+
+```{r}
+table(clean_data$major)
+```
+
+::: {.callout-important title="Research Application"}
+Các biến thường cần chuẩn hóa trong khảo sát:
+
+- Gender
+- Campus
+- Major
+- Province
+- Occupation
+- Education level
+:::
+
+------------------------------------------------------------------------
+
+# 2.8 Likert Scale Validation
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Likert items phải nằm trong khoảng hợp lệ.
+
+Trong khóa học này, thang đo hợp lệ là:
+
+``` text
+1 = Hoàn toàn không đồng ý
+2 = Không đồng ý
+3 = Trung lập
+4 = Đồng ý
+5 = Hoàn toàn đồng ý
+```
+
+**Invalid Values**
+
+Các giá trị sau là không hợp lệ:
+
+``` text
+0
+6
+7
+99
+999
+text values
+```
+
+**Why?**
+
+Nếu giữ các giá trị này, tất cả các phân tích liên quan đều bị sai
+:::
+
+## Define Likert Variables
+
+```{r}
+likert_vars <- c(
+  paste0("pe", 1:4),
+  paste0("ee", 1:4),
+  paste0("si", 1:4),
+  paste0("fc", 1:4),
+  paste0("dr", 1:4),
+  paste0("tr", 1:4),
+  paste0("bi", 1:3),
+  paste0("au", 1:3)
+)
+```
+
+## Check Data Types
+
+```{r}
+clean_data |>
+  select(all_of(likert_vars)) |>
+  summarise(
+    across(
+      everything(),
+      ~ class(.)[1]
+    )
+  )
+```
+
+## Convert Likert Variables to Numeric
+
+```{r}
+clean_data <- clean_data |>
+  mutate(
+    across(
+      all_of(likert_vars),
+      ~ as.numeric(.)
+    )
+  )
+```
+
+Nếu R báo cảnh báo `NAs introduced by coercion`, điều đó có nghĩa là một số giá trị chữ hoặc lỗi đã được chuyển thành `NA`.
+
+## Detect Invalid Values
+
+```{r}
+invalid_likert_report <- clean_data |>
+  summarise(
+    across(
+      all_of(likert_vars),
+      ~ sum(!(. %in% 1:5), na.rm = TRUE)
+    )
+  )
+
+invalid_likert_report
+```
+
+## Convert Invalid Values to NA
+
+```{r}
+clean_data <- clean_data |>
+  mutate(
+    across(
+      all_of(likert_vars),
+      ~ ifelse(. %in% 1:5, ., NA)
+    )
+  )
+```
+
+## Verify Missing Values in Likert Variables
+
+```{r}
+clean_data |>
+  summarise(
+    across(
+      all_of(likert_vars),
+      ~ sum(is.na(.))
+    )
+  )
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không được giữ các giá trị sau trong phân tích SEM:
+
+``` text
+99
+999
+0
+6
+7
+```
+
+Các giá trị này phải được kiểm tra và xử lý trước khi phân tích.
+:::
+
+------------------------------------------------------------------------
+
+# 2.9 Outlier Screening
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Outlier là giá trị bất thường, nằm quá xa so với phần lớn dữ liệu.
+
+**When?**
+
+Kiểm tra outlier trước khi thực hiện tất cả các phân tích thống kê.
+
+**How?**
+
+Có thể dùng:
+
+- Boxplot
+- IQR method
+- Z-score
+- Domain knowledge
+:::
+
+## Example: Age Outlier
+
+```{r}
+summary(clean_data$age)
+```
+
+## Boxplot
+
+```{r}
+boxplot(
+  clean_data$age,
+  main = "Boxplot of Age",
+  ylab = "Age"
+)
+```
+
+## Z-score
+
+```{r}
+z_age <- scale(clean_data$age)
+
+sum(abs(z_age) > 3, na.rm = TRUE)
+```
+
+## Show Possible Age Outliers
+
+```{r}
+clean_data |>
+  mutate(age_z = as.numeric(scale(age))) |>
+  filter(abs(age_z) > 3)
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên xóa outlier tự động.
+
+Cần hỏi:
+
+- Giá trị này có phải lỗi nhập liệu không?
+- Giá trị này có thể xảy ra trong thực tế không?
+- Việc xóa có làm sai lệch kết quả không?
+:::
+
+------------------------------------------------------------------------
+
+# 2.10 Handling Missing Values
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Sau khi chuyển giá trị lỗi thành `NA`, cần quyết định cách xử lý missing values.
+
+**Common options**
+
+- Giữ nguyên nếu phân tích cho phép
+- Loại bỏ dòng thiếu
+- Thay thế bằng mean hoặc median
+- Dùng multiple imputation trong phân tích nâng cao
+
+**In this module**
+
+Ta minh họa cách thay thế missing values trong Likert items bằng mean của từng biến.
+:::
+
+## Mean Imputation for Likert Variables
+
+```{r}
+clean_data <- clean_data |>
+  mutate(
+    across(
+      all_of(likert_vars),
+      ~ replace_na(., mean(., na.rm = TRUE))
+    )
+  )
+```
+
+## Verify
+
+```{r}
+clean_data |>
+  summarise(
+    across(
+      all_of(likert_vars),
+      ~ sum(is.na(.))
+    )
+  )
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Mean imputation là phương pháp đơn giản để minh họa.
+
+Trong nghiên cứu công bố, cần cân nhắc kỹ vì mean imputation có thể làm giảm phương sai và ảnh hưởng đến tương quan.
+:::
+
+------------------------------------------------------------------------
+
+# 2.11 Create Composite Scores
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Composite score là điểm trung bình của nhiều item cùng đo một khái niệm.
+
+Ví dụ:
+
+``` text
+PE = mean(PE1, PE2, PE3, PE4)
+```
+
+**Why?**
+
+Các biến composite thường dùng cho:
+
+- Thống kê mô tả
+- Hồi quy
+- So sánh nhóm
+- Báo cáo kết quả sơ bộ
+:::
+
+## Create Mean Scores
+
+```{r}
+clean_data <- clean_data |>
+  mutate(
+    pe_mean = rowMeans(pick(pe1, pe2, pe3, pe4), na.rm = TRUE),
+    ee_mean = rowMeans(pick(ee1, ee2, ee3, ee4), na.rm = TRUE),
+    si_mean = rowMeans(pick(si1, si2, si3, si4), na.rm = TRUE),
+    fc_mean = rowMeans(pick(fc1, fc2, fc3, fc4), na.rm = TRUE),
+    dr_mean = rowMeans(pick(dr1, dr2, dr3, dr4), na.rm = TRUE),
+    tr_mean = rowMeans(pick(tr1, tr2, tr3, tr4), na.rm = TRUE),
+    bi_mean = rowMeans(pick(bi1, bi2, bi3), na.rm = TRUE),
+    au_mean = rowMeans(pick(au1, au2, au3), na.rm = TRUE)
+  )
+```
+
+## Check Composite Scores
+
+```{r}
+clean_data |>
+  select(
+    pe_mean, ee_mean, si_mean, fc_mean,
+    dr_mean, tr_mean, bi_mean, au_mean
+  ) |>
+  summary()
+```
+
+------------------------------------------------------------------------
+
+# 2.12 Data Quality Report
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Data Quality Report là bảng tổng hợp các bước kiểm tra dữ liệu.
+
+**Why?**
+
+Giúp ghi lại quá trình làm sạch dữ liệu một cách minh bạch và tái lập.
+
+**When?**
+
+Tạo trước khi xuất dữ liệu sạch.
+:::
+
+## Create Quality Report
+
+```{r}
+quality_report <- tibble(
+  check_item = c(
+    "Variable names cleaned",
+    "Duplicate IDs checked",
+    "Gender standardized",
+    "Major standardized",
+    "Likert variables converted to numeric",
+    "Invalid Likert values converted to NA",
+    "Missing Likert values handled",
+    "Composite scores created"
+  ),
+  status = c(
+    "Done",
+    "Done",
+    "Done",
+    "Done",
+    "Done",
+    "Done",
+    "Done",
+    "Done"
+  )
+)
+
+quality_report
+```
+
+::: {.callout-tip title="Key Points"}
+Một nghiên cứu tốt không chỉ có dữ liệu sạch mà còn phải có bằng chứng cho thấy dữ liệu đã được làm sạch như thế nào.
+:::
+
+------------------------------------------------------------------------
+
+# 2.13 Final Data Check
+
+## Dataset Dimensions
+
+```{r}
+dim(clean_data)
+```
+
+## Remaining Missing Values
+
+```{r}
+clean_data |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.))
+    )
+  )
+```
+
+## Final Structure
+
+```{r}
+glimpse(clean_data)
+```
+
+------------------------------------------------------------------------
+
+# 2.14 Export Clean Dataset
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Sau khi làm sạch, cần xuất dữ liệu để sử dụng cho các module tiếp theo.
+
+**Output**
+
+``` text
+output/03_Clean_Data.xlsx
+```
+
+**Why?**
+
+Module 3, 4, 5 và 6 sẽ dùng file dữ liệu sạch này.
+:::
+
+```{r}
+#| eval: false
+
+dir.create("output", showWarnings = FALSE)
+
+write_xlsx(
+  clean_data,
+  "output/03_Clean_Data.xlsx"
+)
+
+write_csv(
+  clean_data,
+  "output/03_Clean_Data.csv"
+)
+```
+
+------------------------------------------------------------------------
+
+# Practice Exercise
+
+::: {.callout-important title="Practice Exercise"}
+Sử dụng sheet `02_Dirty_Data`, hãy thực hiện:
+
+1.  Nhập dữ liệu.
+2.  Kiểm tra số dòng và số cột.
+3.  Kiểm tra dữ liệu thiếu.
+4.  Kiểm tra duplicate ID.
+5.  Chuẩn hóa biến `gender`.
+6.  Chuẩn hóa biến `major`.
+7.  Xác định các biến Likert.
+8.  Chuyển biến Likert sang numeric.
+9.  Phát hiện giá trị Likert không hợp lệ.
+10. Chuyển giá trị không hợp lệ thành `NA`.
+11. Tạo composite scores.
+12. Tạo Data Quality Report.
+13. Xuất dữ liệu sạch.
+:::
+
+------------------------------------------------------------------------
+
+# Challenge
+
+::: {.callout-warning collapse="true" title="Challenge"}
+## Tình huống
+
+Một bộ dữ liệu khảo sát có các vấn đề sau:
+
+- 15% missing values ở một số biến
+- 8 duplicate IDs
+- Biến `gender` có các giá trị `Male`, `male`, `MALE`, `M`
+- Một số biến Likert có giá trị `99`
+- Biến `age` có giá trị `999`
+
+## Câu hỏi
+
+Bạn sẽ xử lý từng vấn đề như thế nào?
+:::
+
+::: {.callout-tip collapse="true" title="Suggested Solution"}
+Một quy trình hợp lý:
+
+1.  Kiểm tra tỷ lệ missing values.
+2.  Xem duplicate IDs và quyết định giữ bản ghi nào.
+3.  Chuẩn hóa gender bằng `str_to_title()` và `case_when()`.
+4.  Chuyển các giá trị Likert ngoài 1–5 thành `NA`.
+5.  Kiểm tra `age = 999` là lỗi nhập liệu hay giá trị thật.
+6.  Ghi lại mọi quyết định trong Data Quality Report.
+7.  Xuất dữ liệu sạch.
+:::
+
+------------------------------------------------------------------------
+
+# Mini Project 2
+
+::: {.callout-important title="Mini Project 2"}
+## Chủ đề
+
+Data Cleaning and Data Quality Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+``` text
+03_Clean_Data.xlsx
+```
+
+và:
+
+``` text
+Module2_Data_Quality_Report.html
+```
+
+## Nội dung báo cáo
+
+Báo cáo cần có:
+
+1.  Dataset overview
+2.  Missing value report
+3.  Duplicate ID report
+4.  Category standardization
+5.  Likert validation
+6.  Outlier screening
+7.  Composite score creation
+8.  Data Quality Report
+9.  Final dataset assessment
+10. Recommendations for Module 3
+:::
+
+------------------------------------------------------------------------
+
+# Key Takeaways
+
+::: {.callout-tip title="Key Points"}
+- Data cleaning là bước quan trọng nhất trước phân tích.
+- Luôn kiểm tra Missing Values.
+- Luôn kiểm tra Duplicate Records.
+- Luôn kiểm tra biến phân loại.
+- Luôn kiểm tra thang Likert.
+- Không chạy SEM hoặc Regression trên dữ liệu bẩn.
+- Mọi quyết định làm sạch dữ liệu cần được ghi lại.
+- Dữ liệu sạch là nền tảng cho phân tích đáng tin cậy.
+:::
+
+------------------------------------------------------------------------
+
+# What Next?
+
+::: {.callout-note title="What Next?"}
+Sau khi hoàn thành Module 2, học viên nên:
+
+1.  Lưu lại script làm sạch dữ liệu.
+2.  Xuất file `03_Clean_Data.xlsx`.
+3.  Kiểm tra Data Quality Report.
+4.  Chuyển sang **Module 3. Thống kê mô tả và So sánh nhóm**.
+
+Trong Module 3, chúng ta sẽ sử dụng dữ liệu sạch để tạo:
+
+- Thống kê mô tả
+- So sánh nhóm (t-test; ANOVA)
+- Effect size
+:::

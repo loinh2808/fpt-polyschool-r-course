@@ -1,0 +1,945 @@
+---
+title: "Module 3. Thống kê Mô tả và So sánh Nhóm"
+---
+
+# Tổng quan Module
+
+::: {.callout-tip title="Learning Outcomes"}
+Sau khi hoàn thành Module 3, học viên có thể:
+
+- Tạo báo cáo thống kê mô tả cho dữ liệu nghiên cứu
+- Phân loại biến định tính, định lượng và biến thang đo
+- Tạo Table 1 theo chuẩn bài báo khoa học
+- Kiểm tra phân phối dữ liệu
+- So sánh `bi_mean` theo `gender`
+- So sánh `bi_mean` theo `major`
+- Thực hiện t-test và ANOVA bằng R
+- Tính effect size
+- Viết kết quả thống kê mô tả và so sánh nhóm theo chuẩn học thuật
+:::
+
+::: {.callout-note title="Module Logic"}
+Module này trả lời câu hỏi:
+
+**Sau khi dữ liệu đã sạch, làm thế nào để mô tả dữ liệu và kiểm tra sự khác biệt giữa các nhóm?**
+
+Workflow:
+
+``` text
+Dữ liệu sạch
+↓
+Tổng quan về tập dữ liệu
+↓
+Phân loại biến
+↓
+Thống kê mô tả
+↓
+Lập bảng thống kê mô tả
+↓
+Kiểm tra tính chuẩn mực
+↓
+So sánh nhóm
+↓
+Hiệu ứng kích thước
+↓
+Lập báo cáo học thuật
+```
+:::
+
+------------------------------------------------------------------------
+
+# 3.1 Why Descriptive Statistics Matter?
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Thống kê mô tả là bước dùng để tóm tắt đặc điểm chính của bộ dữ liệu.
+
+**Why?**
+
+Trước khi chạy bất kỳ phân tích hay mô hình từ cơ bản đến nâng cao, nhà nghiên cứu cần hiểu:
+
+- Mẫu nghiên cứu gồm những ai?
+- Các biến có phân phối như thế nào?
+- Có giá trị bất thường không?
+- Các nhóm có khác nhau không?
+
+**When?**
+
+Luôn thực hiện sau data cleaning và trước modeling.
+
+**How do we use it in research?**
+
+Thống kê mô tả thường xuất hiện trong:
+
+- Đặc điểm mẫu quan sát (Sample characteristics)
+- Phân tích sơ bộ (Preliminary analysis)
+- Kết quả mô tả (Descriptive results)
+- So sánh nhóm (Group comparison)
+:::
+
+::: {.callout-important title="Research Application"}
+Trong các bài nghiên cứu, Module 3 hỗ trợ viết các phần:
+
+``` text
+Sample Characteristics
+Descriptive Statistics
+Preliminary Analysis
+Group Comparison
+```
+
+Đây là nền tảng cho các nghiên cứu tiếp theo.
+:::
+
+::: {.callout-warning title="Common Mistakes"}
+Người học thường mắc lỗi:
+
+- Chạy phân tích chính trước khi mô tả dữ liệu
+- Chỉ báo cáo mean mà không báo cáo SD
+- Không kiểm tra phân phối
+- Không báo cáo effect size
+- Diễn giải p-value mà không nói ý nghĩa thực tiễn
+:::
+
+------------------------------------------------------------------------
+
+# 3.2 Load Packages
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Module này sử dụng các package phục vụ thống kê mô tả, tạo bảng và so sánh nhóm.
+
+**Main packages**
+
+- `tidyverse`: xử lý dữ liệu
+- `readxl`: đọc Excel
+- `janitor`: làm sạch tên biến
+- `gtsummary`: tạo Table 1
+- `rstatix`: t-test, ANOVA, effect size
+- `ggplot2`: trực quan hóa
+:::
+
+## Install Packages
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("gtsummary")
+install.packages("rstatix")
+install.packages("gt")
+```
+
+## Load Packages
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(gtsummary)
+library(rstatix)
+library(gt)
+```
+
+------------------------------------------------------------------------
+
+# 3.3 Import Clean Dataset
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Module 3 sử dụng dữ liệu sạch được tạo từ Module 2.
+
+**When?**
+
+Sau khi hoàn thành data cleaning.
+
+**How?**
+
+Ưu tiên đọc file:
+
+``` text
+output/03_Clean_Data.xlsx
+```
+
+Nếu file chưa tồn tại, hệ thống sẽ đọc sheet `03_Clean_Data` từ file demo ban đầu.
+:::
+
+```{r}
+if (file.exists("output/03_Clean_Data.xlsx")) {
+  data <- read_excel("output/03_Clean_Data.xlsx")
+} else {
+  data <- read_excel(
+    "data/FPT_PolySchool_R_Training_Demo_Dataset.xlsx",
+    sheet = "03_Clean_Data"
+  )
+}
+
+data <- data |>
+  clean_names()
+```
+
+## Check Data
+
+```{r}
+glimpse(data)
+```
+
+```{r}
+dim(data)
+```
+
+::: {.callout-important title="Research Application"}
+Trong nghiên cứu thật, luôn ghi rõ dữ liệu đã được làm sạch như thế nào trước khi trình bày thống kê mô tả.
+:::
+
+------------------------------------------------------------------------
+
+# 3.4 Prepare Analysis Variables
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Một số phân tích cần biến trung bình như `bi_mean`, `pe_mean`, `tr_mean`.
+
+**Why?**
+
+Các biến trung bình giúp mô tả và hồi quy các cấu trúc nghiên cứu.
+
+**How?**
+
+Nếu các biến này chưa tồn tại, ta tạo lại từ các item Likert.
+:::
+
+```{r}
+needed_mean_vars <- c(
+  "pe_mean", "ee_mean", "si_mean", "fc_mean",
+  "dr_mean", "tr_mean", "bi_mean", "au_mean"
+)
+
+if (!all(needed_mean_vars %in% names(data))) {
+  data <- data |>
+    mutate(
+      pe_mean = rowMeans(pick(pe1, pe2, pe3, pe4), na.rm = TRUE),
+      ee_mean = rowMeans(pick(ee1, ee2, ee3, ee4), na.rm = TRUE),
+      si_mean = rowMeans(pick(si1, si2, si3, si4), na.rm = TRUE),
+      fc_mean = rowMeans(pick(fc1, fc2, fc3, fc4), na.rm = TRUE),
+      dr_mean = rowMeans(pick(dr1, dr2, dr3, dr4), na.rm = TRUE),
+      tr_mean = rowMeans(pick(tr1, tr2, tr3, tr4), na.rm = TRUE),
+      bi_mean = rowMeans(pick(bi1, bi2, bi3), na.rm = TRUE),
+      au_mean = rowMeans(pick(au1, au2, au3), na.rm = TRUE)
+    )
+}
+```
+
+## Convert Categorical Variables
+
+```{r}
+data <- data |>
+  mutate(
+    gender = as.factor(gender),
+    major = as.factor(major),
+    campus = as.factor(campus)
+  )
+```
+
+------------------------------------------------------------------------
+
+# 3.5 Dataset Overview
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Dataset overview giúp nắm tổng quan về mẫu nghiên cứu.
+
+**Những thông tin nào cần được báo cáo?**
+
+Số lượng quan sát
+
+Số lượng biến
+
+Loại biến
+
+Giá trị thiếu
+
+Biến kết quả chính
+:::
+
+## Number of Observations and Variables
+
+```{r}
+nrow(data)
+ncol(data)
+```
+
+## Variable Names
+
+```{r}
+names(data)
+```
+
+## Variable Types
+
+```{r}
+data |>
+  summarise(
+    across(
+      everything(),
+      ~ class(.)[1]
+    )
+  )
+```
+
+## Missing Values
+
+```{r}
+data |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.))
+    )
+  )
+```
+
+::: {.callout-tip title="Key Points"}
+Dataset overview là bước đầu tiên trong báo cáo mô tả.
+
+Không nên bắt đầu bằng t-test hoặc ANOVA khi chưa mô tả dữ liệu.
+:::
+
+------------------------------------------------------------------------
+
+# 3.6 Variable Classification
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Phân loại biến giúp chọn đúng phương pháp mô tả và kiểm định.
+
+**Common types**
+
+| Loại biến        | Ví dụ                 | Cách mô tả            |
+|------------------|-----------------------|-----------------------|
+| Categorical      | gender, major, campus | n, %                  |
+| Numeric          | age, gpa              | mean, SD              |
+| Likert composite | pe_mean, bi_mean      | mean, SD, min, max    |
+| Outcome          | bi_mean               | mô tả và so sánh nhóm |
+:::
+
+## Numeric Variables
+
+```{r}
+data |>
+  select(where(is.numeric))
+```
+
+## Categorical Variables
+
+```{r}
+data |>
+  select(where(~ is.factor(.) || is.character(.)))
+```
+
+------------------------------------------------------------------------
+
+# 3.7 Descriptive Statistics for Numeric Variables
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Thống kê mô tả cho biến định lượng thường gồm:
+
+- Mean
+- SD
+- Median
+- Min
+- Max
+
+**When?**
+
+Dùng khi biến là biến "numeric".
+
+**How do we use it in research?**
+
+Dùng để mô tả các biến numberic của tất cả các biến trong nghiên cứu
+:::
+
+## Select Main Numeric Variables
+
+```{r}
+numeric_vars <- data |>
+  select(
+    age,
+    gpa,
+    internet_hours,
+    smartphone_use,
+    lms_use,
+    ai_experience,
+    pe_mean,
+    ee_mean,
+    si_mean,
+    fc_mean,
+    dr_mean,
+    tr_mean,
+    bi_mean,
+    au_mean
+  )
+```
+
+## Summary
+
+```{r}
+summary(numeric_vars)
+```
+
+## Mean, SD, Min, Max
+
+```{r}
+numeric_vars |>
+  summarise(
+    across(
+      everything(),
+      list(
+        mean = ~ mean(., na.rm = TRUE),
+        sd = ~ sd(., na.rm = TRUE),
+        min = ~ min(., na.rm = TRUE),
+        max = ~ max(., na.rm = TRUE)
+      )
+    )
+  )
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên chỉ báo cáo mean.
+
+Với biến định lượng, tối thiểu nên báo cáo:
+
+``` text
+Mean ± SD
+```
+
+hoặc:
+
+``` text
+Median [IQR]
+```
+
+nếu phân phối lệch mạnh.
+:::
+
+------------------------------------------------------------------------
+
+# 3.8 Descriptive Statistics for Categorical Variables
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Biến phân loại được mô tả bằng tần suất và tỷ lệ phần trăm.
+
+**Examples**
+
+- Gender
+- Major
+- Campus
+:::
+
+## Gender
+
+```{r}
+data |>
+  count(gender) |>
+  mutate(percent = round(n / sum(n) * 100, 2))
+```
+
+## Major
+
+```{r}
+data |>
+  count(major) |>
+  mutate(percent = round(n / sum(n) * 100, 2))
+```
+
+## Campus
+
+```{r}
+data |>
+  count(campus) |>
+  mutate(percent = round(n / sum(n) * 100, 2))
+```
+
+------------------------------------------------------------------------
+
+# 3.9 Create Table
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Bảng kết quả thông kê mô tả là bảng mô tả đặc điểm mẫu nghiên cứu.
+
+**When?**
+
+Dùng trong hầu hết bài báo định lượng.
+
+**How?**
+
+Ta có thể dùng package `gtsummary`.
+:::
+
+```{r}
+table_1 <- data |>
+  select(
+    gender,
+    age,
+    major,
+    campus,
+    gpa,
+    internet_hours,
+    smartphone_use,
+    lms_use,
+    ai_experience,
+    pe_mean,
+    ee_mean,
+    si_mean,
+    fc_mean,
+    dr_mean,
+    tr_mean,
+    bi_mean,
+    au_mean
+  ) |>
+  tbl_summary(
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    digits = all_continuous() ~ 2
+  ) |>
+  bold_labels()
+
+table_1
+```
+
+::: {.callout-important title="Research Application"}
+Table 1 thường được đặt ở phần Results đầu tiên của bài báo.
+
+Nó giúp người đọc hiểu mẫu nghiên cứu trước khi xem kết quả mô hình.
+:::
+
+------------------------------------------------------------------------
+
+# 3.10 Table by Gender
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Bảng kết quả thông kê mô tả theo nhóm giúp so sánh đặc điểm mẫu giữa các nhóm.
+
+**When?**
+
+Dùng khi cần xem các nhóm có khác nhau về đặc điểm ban đầu hay không.
+:::
+
+```{r}
+table_1_gender <- data |>
+  select(
+    gender,
+    age,
+    major,
+    campus,
+    gpa,
+    internet_hours,
+    pe_mean,
+    ee_mean,
+    si_mean,
+    fc_mean,
+    dr_mean,
+    tr_mean,
+    bi_mean,
+    au_mean
+  ) |>
+  tbl_summary(
+    by = gender,
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    digits = all_continuous() ~ 2
+  ) |>
+  add_p() |>
+  bold_labels()
+
+table_1_gender
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên dùng `add_p()` một cách máy móc.
+
+Cần hiểu p-value trong Table 1 chỉ phản ánh sự khác biệt giữa nhóm, không phải quan hệ nhân quả.
+:::
+
+------------------------------------------------------------------------
+
+# 3.11 Normality Check for BI_mean
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Normality check giúp đánh giá biến outcome có phân phối gần chuẩn hay không.
+
+**When?**
+
+Thực hiện trước t-test và ANOVA.
+
+**How?**
+
+Dùng:
+
+- Histogram
+- Boxplot
+- Shapiro-Wilk test
+:::
+
+## Histogram
+
+```{r}
+ggplot(data, aes(x = bi_mean)) +
+  geom_histogram(bins = 20) +
+  labs(
+    title = "Distribution of Behavioral Intention",
+    x = "BI_mean",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+```
+
+## Boxplot
+
+```{r}
+ggplot(data, aes(y = bi_mean)) +
+  geom_boxplot() +
+  labs(
+    title = "Boxplot of BI_mean",
+    y = "BI_mean"
+  ) +
+  theme_minimal()
+```
+
+## Shapiro-Wilk Test
+
+```{r}
+data |>
+  shapiro_test(bi_mean)
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Với mẫu lớn, Shapiro-Wilk test rất nhạy.
+
+Không nên chỉ dựa vào p-value của Shapiro-Wilk. Cần xem thêm histogram và boxplot.
+:::
+
+------------------------------------------------------------------------
+
+# 3.12 Compare BI_mean by Gender
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+t-test dùng để so sánh trung bình giữa hai nhóm.
+
+**When?**
+
+Dùng khi:
+
+- Outcome là numeric
+- Grouping variable có 2 nhóm
+
+**Example**
+
+``` text
+BI_mean by Gender
+```
+:::
+
+## Descriptive Statistics by Gender
+
+```{r}
+data |>
+  group_by(gender) |>
+  summarise(
+    n = n(),
+    mean_bi = mean(bi_mean, na.rm = TRUE),
+    sd_bi = sd(bi_mean, na.rm = TRUE),
+    min_bi = min(bi_mean, na.rm = TRUE),
+    max_bi = max(bi_mean, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+## Boxplot by Gender
+
+```{r}
+ggplot(data, aes(x = gender, y = bi_mean)) +
+  geom_boxplot() +
+  labs(
+    title = "BI_mean by Gender",
+    x = "Gender",
+    y = "Behavioral Intention"
+  ) +
+  theme_minimal()
+```
+
+## Independent Samples t-test
+
+```{r}
+data |>
+  t_test(bi_mean ~ gender)
+```
+
+## Effect Size: Cohen's d
+
+```{r}
+data |>
+  cohens_d(bi_mean ~ gender)
+```
+
+::: {.callout-important title="Research Application"}
+Nếu `p < 0.05`, có sự khác biệt có ý nghĩa thống kê về `BI_mean` giữa các nhóm giới tính.
+
+Nếu `p >= 0.05`, chưa có đủ bằng chứng thống kê để kết luận rằng `BI_mean` khác nhau theo giới tính.
+:::
+
+------------------------------------------------------------------------
+
+# 3.13 Compare BI_mean by Major
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+ANOVA dùng để so sánh trung bình giữa từ ba nhóm trở lên.
+
+**When?**
+
+Dùng khi:
+
+- Outcome là numeric
+- Grouping variable có từ 3 nhóm trở lên
+
+**Example**
+
+``` text
+BI_mean by Major
+```
+:::
+
+## Descriptive Statistics by Major
+
+```{r}
+data |>
+  group_by(major) |>
+  summarise(
+    n = n(),
+    mean_bi = mean(bi_mean, na.rm = TRUE),
+    sd_bi = sd(bi_mean, na.rm = TRUE),
+    min_bi = min(bi_mean, na.rm = TRUE),
+    max_bi = max(bi_mean, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+## Boxplot by Major
+
+```{r}
+ggplot(data, aes(x = major, y = bi_mean)) +
+  geom_boxplot() +
+  labs(
+    title = "BI_mean by Major",
+    x = "Major",
+    y = "Behavioral Intention"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  )
+```
+
+## One-way ANOVA
+
+```{r}
+anova_result <- data |>
+  anova_test(bi_mean ~ major)
+
+anova_result
+```
+
+## Effect Size: Eta Squared
+
+```{r}
+eta_model <- aov(bi_mean ~ major, data = data)
+
+rstatix::eta_squared(eta_model)
+```
+
+## Post Hoc Test
+
+```{r}
+data |>
+  tukey_hsd(bi_mean ~ major)
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên chạy post hoc nếu ANOVA không có ý nghĩa thống kê, trừ khi có lý do lý thuyết rõ ràng.
+:::
+
+------------------------------------------------------------------------
+
+# 3.14 Academic Reporting
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Academic reporting là cách viết kết quả thống kê thành văn bản học thuật.
+
+**Why?**
+
+Người đọc cần hiểu ý nghĩa kết quả, không chỉ nhìn output R.
+:::
+
+## Template for Descriptive Statistics
+
+``` text
+ENG:
+The sample consisted of [N] respondents. The average Behavioral Intention score was [M] (SD = [SD]). Table 1 presents the demographic and descriptive characteristics of the sample.
+VI:
+Mẫu nghiên cứu bao gồm [N] người trả lời. Điểm trung bình về Ý định Hành vi là [M] (SD = [SD]). Bảng 1 trình bày các đặc điểm nhân khẩu học và mô tả của mẫu nghiên cứu.
+```
+
+## Template for t-test
+
+``` text
+An independent-samples t-test was conducted to compare Behavioral Intention between gender groups. The results showed that the difference was [statistically significant / not statistically significant], t(df) = ..., p = .... This suggests that gender [was / was not] associated with differences in Behavioral Intention.
+```
+
+## Template for ANOVA
+
+``` text
+A one-way ANOVA was conducted to examine whether Behavioral Intention differed across majors. The results indicated that the difference among majors was [statistically significant / not statistically significant], F(df1, df2) = ..., p = .... Post hoc comparisons were conducted to identify specific group differences.
+```
+
+------------------------------------------------------------------------
+
+# Practice Exercise
+
+::: {.callout-important title="Practice Exercise"}
+Sử dụng bộ dữ liệu sạch, hãy thực hiện:
+
+1.  Tạo bảng mô tả mẫu nghiên cứu.
+2.  Tính mean và SD cho `bi_mean`.
+3.  Tính mean và SD cho `bi_mean` theo `gender`.
+4.  Tính mean và SD cho `bi_mean` theo `major`.
+5.  Vẽ boxplot `bi_mean` theo `gender`.
+6.  Vẽ boxplot `bi_mean` theo `major`.
+7.  Thực hiện t-test so sánh `bi_mean` theo `gender`.
+8.  Thực hiện ANOVA so sánh `bi_mean` theo `major`.
+9.  Tính effect size.
+10. Viết đoạn diễn giải kết quả.
+:::
+
+------------------------------------------------------------------------
+
+# Challenge
+
+::: {.callout-warning collapse="true" title="Challenge"}
+## Tình huống
+
+Bạn có một biến outcome là `bi_mean`.
+
+Bạn cần kiểm tra liệu `bi_mean` có khác nhau theo:
+
+- `gender`
+- `major`
+
+## Câu hỏi
+
+1.  Với `gender`, bạn dùng kiểm định nào?
+2.  Với `major`, bạn dùng kiểm định nào?
+3.  Khi nào cần post hoc test?
+4.  Vì sao cần effect size?
+:::
+
+::: {.callout-tip collapse="true" title="Suggested Solution"}
+1.  Với `gender`, dùng independent-samples t-test.
+2.  Với `major`, dùng one-way ANOVA.
+3.  Post hoc test thường dùng khi ANOVA có ý nghĩa thống kê.
+4.  Effect size giúp hiểu mức độ khác biệt, không chỉ ý nghĩa thống kê.
+:::
+
+------------------------------------------------------------------------
+
+# Mini Project 3
+
+::: {.callout-important title="Mini Project 3"}
+## Chủ đề
+
+Descriptive and Group Comparison Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+``` text
+Module3_Descriptive_Group_Comparison_Report.html
+```
+
+## Nội dung báo cáo
+
+1.  Dataset overview
+2.  Variable classification
+3.  Missing value summary
+4.  Table 1
+5.  Descriptive statistics
+6.  Normality check for `bi_mean`
+7.  BI_mean by Gender
+8.  BI_mean by Major
+9.  t-test result
+10. ANOVA result
+11. Effect size
+12. Academic interpretation
+:::
+
+------------------------------------------------------------------------
+
+# Key Takeaways
+
+::: {.callout-tip title="Key Points"}
+- Thống kê mô tả là bước bắt buộc trước hồi quy và SEM.
+- Table 1 giúp mô tả đặc điểm mẫu nghiên cứu.
+- t-test dùng khi so sánh trung bình giữa hai nhóm.
+- ANOVA dùng khi so sánh trung bình giữa từ ba nhóm trở lên.
+- Không chỉ báo cáo p-value; cần báo cáo mean, SD và effect size.
+- Kết quả thống kê cần được diễn giải bằng ngôn ngữ học thuật rõ ràng.
+:::
+
+------------------------------------------------------------------------
+
+# What Next?
+
+::: {.callout-note title="What Next?"}
+Sau khi hoàn thành Module 3, học viên nên:
+
+1.  Lưu Table 1.
+2.  Lưu kết quả t-test và ANOVA.
+3.  Viết đoạn mô tả dữ liệu.
+4.  Chuyển sang **Module 4. Tương quan và Hồi quy**.
+
+Trong Module 4, chúng ta sẽ kiểm tra mô hình:
+
+``` text
+BI_mean ~ PE_mean + EE_mean + SI_mean + FC_mean + DR_mean + TR_mean
+```
+:::

@@ -1,0 +1,921 @@
+---
+title: "Advanced 07. Nghịch lý Simpson"
+subtitle: "Simpson's Paradox and Aggregation Bias"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Hiểu nghịch lý Simpson (Simpson's Paradox)
+- Phân biệt kết quả dữ liệu gộp (Aggregated Data) và dữ liệu theo nhóm (Grouped Data)
+- Hiểu vai trò của biến gây nhiễu (Confounding Variable)
+- Tạo ví dụ Simpson's Paradox bằng R
+- Trực quan hóa xu hướng tổng thể và xu hướng theo nhóm
+- Hiểu vì sao phân tích dữ liệu gộp có thể gây kết luận sai
+- Chạy mô hình hồi quy có và không có biến nhóm
+- Viết kết quả phân tích Simpson's Paradox theo cách thận trọng
+- Áp dụng tư duy này vào nghiên cứu khảo sát và phân tích giáo dục, kinh doanh, y tế hoặc xã hội
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Tại sao kết luận từ dữ liệu gộp đôi khi ngược với kết luận trong từng nhóm con?**
+
+Quy trình:
+
+```text
+Aggregated Data
+↓
+Overall Pattern
+↓
+Group Variable
+↓
+Within-group Pattern
+↓
+Confounding
+↓
+Re-analysis
+↓
+Careful Interpretation
+```
+
+:::
+
+## Minh họa logic Simpson's Paradox
+
+```{mermaid}
+flowchart TD
+
+A[Aggregated Data]
+--> B[Overall Trend]
+
+B --> C{Check Group Variable}
+
+C --> D[Within-group Trend]
+
+D --> E{Same or Different?}
+
+E -->|Same| F[Stable Interpretation]
+
+E -->|Different| G[Possible Simpson's Paradox]
+
+G --> H[Check Confounding]
+
+H --> I[Report Carefully]
+```
+
+# 1. Nghịch lý Simpson là gì?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Nghịch lý Simpson (Simpson's Paradox) xảy ra khi xu hướng trong dữ liệu tổng hợp khác hoặc ngược với xu hướng trong từng nhóm con.
+
+**Tại sao cần? (Why?)**
+
+Nếu chỉ nhìn dữ liệu gộp, nhà nghiên cứu có thể kết luận sai.
+
+Ví dụ:
+
+```text
+Dữ liệu gộp: X có vẻ làm Y giảm
+Trong từng nhóm: X lại làm Y tăng
+```
+
+**Khi nào xuất hiện? (When?)**
+
+Thường xuất hiện khi có một biến nhóm hoặc biến gây nhiễu ảnh hưởng đồng thời đến predictor và outcome.
+
+**Thực hiện kiểm tra thế nào? (How?)**
+
+Ta cần:
+
+- Phân tích dữ liệu tổng thể
+- Phân tích theo nhóm
+- Trực quan hóa theo nhóm
+- Kiểm tra mô hình có kiểm soát biến nhóm
+- Diễn giải dựa trên thiết kế nghiên cứu và lý thuyết
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Simpson's Paradox có thể xuất hiện trong:
+
+- Nghiên cứu giáo dục
+- Phân tích điểm số sinh viên
+- Đánh giá hiệu quả chương trình
+- Nghiên cứu marketing
+- Phân tích khách hàng
+- Nghiên cứu y tế
+- Nghiên cứu chính sách
+- Dữ liệu khảo sát có nhiều nhóm đối tượng
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Người học thường mắc lỗi:
+
+- Chỉ xem kết quả tổng thể
+- Không kiểm tra nhóm con
+- Không trực quan hóa dữ liệu
+- Bỏ qua biến gây nhiễu
+- Diễn giải correlation như causation
+- Kết luận quá nhanh từ một biểu đồ hoặc một mô hình
+
+:::
+
+# 2. Chuẩn bị dữ liệu
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Module này dùng cả dữ liệu từ workbook nếu có và dữ liệu mô phỏng nội bộ để đảm bảo render ổn định.
+
+Dữ liệu workbook:
+
+```text
+data/advance/module7_advanced_data.xlsx
+```
+
+Sheet dự kiến:
+
+```text
+06_Simpsons_Paradox
+```
+
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("broom")
+install.packages("gt")
+install.packages("patchwork")
+```
+
+## Nạp package
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(broom)
+library(gt)
+library(patchwork)
+```
+
+## Thiết lập đường dẫn dữ liệu
+
+```{r}
+advanced_file <- if (file.exists("../data/advance/module7_advanced_data.xlsx")) {
+  "../data/advance/module7_advanced_data.xlsx"
+} else if (file.exists("../data/advanced/module7_advanced_data.xlsx")) {
+  "../data/advanced/module7_advanced_data.xlsx"
+} else if (file.exists("data/advance/module7_advanced_data.xlsx")) {
+  "data/advance/module7_advanced_data.xlsx"
+} else {
+  "data/advanced/module7_advanced_data.xlsx"
+}
+```
+
+## Đọc sheet nếu có
+
+```{r}
+if (file.exists(advanced_file)) {
+  simpson_excel <- tryCatch(
+    {
+      read_excel(
+        advanced_file,
+        sheet = "06_Simpsons_Paradox"
+      ) |>
+        clean_names()
+    },
+    error = function(e) NULL
+  )
+
+  if (!is.null(simpson_excel)) {
+    glimpse(simpson_excel)
+  }
+}
+```
+
+# 3. Tạo dữ liệu minh họa Simpson's Paradox
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Tạo dữ liệu mô phỏng có Simpson's Paradox
+- Hiểu cách biến nhóm làm đảo chiều xu hướng
+- Chuẩn bị dữ liệu cho phân tích tổng thể và phân tích nhóm
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Để minh họa Simpson's Paradox rõ ràng, ta tạo dữ liệu có hai nhóm:
+
+```text
+Program A
+Program B
+```
+
+Trong từng nhóm, `study_hours` có quan hệ dương với `score`.
+
+Nhưng do khác biệt giữa nhóm, xu hướng tổng thể có thể trở nên yếu hoặc ngược chiều.
+
+:::
+
+## Tạo dữ liệu mô phỏng
+
+```{r}
+set.seed(123)
+
+group_a <- tibble(
+  program = "Program A",
+  study_hours = rnorm(250, mean = 2.5, sd = 0.6),
+  score = 85 + 3 * study_hours + rnorm(250, mean = 0, sd = 3)
+)
+
+group_b <- tibble(
+  program = "Program B",
+  study_hours = rnorm(250, mean = 6.5, sd = 0.6),
+  score = 55 + 3 * study_hours + rnorm(250, mean = 0, sd = 3)
+)
+
+simpson_data <- bind_rows(group_a, group_b) |>
+  mutate(
+    program = factor(program)
+  )
+
+glimpse(simpson_data)
+```
+
+## Kiểm tra thống kê mô tả theo nhóm
+
+```{r}
+simpson_data |>
+  group_by(program) |>
+  summarise(
+    n = n(),
+    mean_study_hours = mean(study_hours),
+    mean_score = mean(score),
+    correlation = cor(study_hours, score),
+    .groups = "drop"
+  )
+```
+
+::: {.callout-important title="Diễn giải ban đầu (Initial Interpretation)"}
+
+Trong từng chương trình, `study_hours` có thể tương quan dương với `score`.
+
+Tuy nhiên, vì hai chương trình có mức điểm nền rất khác nhau, phân tích gộp có thể cho xu hướng khác.
+
+:::
+
+# 4. Phân tích dữ liệu gộp
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Phân tích xu hướng tổng thể
+- Tính correlation trên dữ liệu gộp
+- Chạy hồi quy đơn giản không kiểm soát nhóm
+- Nhận diện nguy cơ kết luận sai
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Dữ liệu gộp là gì?**
+
+Dữ liệu gộp là dữ liệu không phân biệt nhóm con.
+
+Ví dụ:
+
+```text
+Tất cả sinh viên từ nhiều chương trình được phân tích chung
+```
+
+**Vấn đề là gì?**
+
+Nếu nhóm có đặc điểm khác nhau, kết quả tổng thể có thể che giấu xu hướng thật trong từng nhóm.
+
+:::
+
+## Correlation tổng thể
+
+```{r}
+overall_correlation <- cor(
+  simpson_data$study_hours,
+  simpson_data$score
+)
+
+overall_correlation
+```
+
+## Hồi quy tổng thể
+
+```{r}
+overall_model <- lm(
+  score ~ study_hours,
+  data = simpson_data
+)
+
+summary(overall_model)
+```
+
+## Bảng hệ số tổng thể
+
+```{r}
+tidy(overall_model, conf.int = TRUE)
+```
+
+## Biểu đồ tổng thể
+
+```{r}
+fig_overall <- ggplot(simpson_data, aes(x = study_hours, y = score)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Aggregated Analysis",
+    subtitle = "Overall relationship without group information",
+    x = "Study hours",
+    y = "Score"
+  ) +
+  theme_minimal()
+
+fig_overall
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Nếu chỉ nhìn biểu đồ tổng thể, ta có thể kết luận rằng tăng study hours liên quan đến điểm thấp hơn hoặc không có lợi.
+
+Nhưng kết luận này có thể sai nếu chưa kiểm tra biến nhóm.
+
+:::
+
+# 5. Phân tích theo nhóm
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Phân tích xu hướng trong từng nhóm
+- So sánh within-group pattern và overall pattern
+- Trực quan hóa xu hướng theo nhóm
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Phân tích theo nhóm là gì?**
+
+Phân tích theo nhóm kiểm tra mối quan hệ giữa predictor và outcome trong từng nhóm con.
+
+**Tại sao cần?**
+
+Nó giúp phát hiện:
+
+- Confounding
+- Heterogeneity
+- Group-specific pattern
+- Simpson's Paradox
+
+:::
+
+## Correlation theo nhóm
+
+```{r}
+group_correlation <- simpson_data |>
+  group_by(program) |>
+  summarise(
+    correlation = cor(study_hours, score),
+    .groups = "drop"
+  )
+
+group_correlation
+```
+
+## Hồi quy theo nhóm
+
+```{r}
+group_models <- simpson_data |>
+  group_by(program) |>
+  group_modify(
+    ~ tidy(
+      lm(score ~ study_hours, data = .x),
+      conf.int = TRUE
+    )
+  ) |>
+  ungroup()
+
+group_models
+```
+
+## Biểu đồ theo nhóm
+
+```{r}
+fig_grouped <- ggplot(
+  simpson_data,
+  aes(x = study_hours, y = score, shape = program)
+) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Grouped Analysis",
+    subtitle = "Relationship within each program",
+    x = "Study hours",
+    y = "Score",
+    shape = "Program"
+  ) +
+  theme_minimal()
+
+fig_grouped
+```
+
+## So sánh hai biểu đồ
+
+```{r}
+fig_overall + fig_grouped
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu hệ số tổng thể khác hoặc ngược với hệ số theo từng nhóm, đây là dấu hiệu của Simpson's Paradox hoặc aggregation bias.
+
+:::
+
+# 6. Vai trò của biến gây nhiễu
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu biến gây nhiễu (Confounding Variable)
+- Biết vì sao program có thể gây nhiễu
+- Chạy mô hình có kiểm soát nhóm
+- So sánh mô hình trước và sau kiểm soát nhóm
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Biến gây nhiễu là gì?**
+
+Biến gây nhiễu (Confounding Variable) là biến liên quan đến cả predictor và outcome, làm sai lệch mối quan hệ quan sát được.
+
+Trong ví dụ này:
+
+```text
+program
+```
+
+liên quan đến:
+
+- study_hours
+- score
+
+nên có thể làm sai kết luận nếu không kiểm soát.
+
+:::
+
+## Mô hình không kiểm soát program
+
+```{r}
+model_without_group <- lm(
+  score ~ study_hours,
+  data = simpson_data
+)
+
+tidy(model_without_group, conf.int = TRUE)
+```
+
+## Mô hình có kiểm soát program
+
+```{r}
+model_with_group <- lm(
+  score ~ study_hours + program,
+  data = simpson_data
+)
+
+tidy(model_with_group, conf.int = TRUE)
+```
+
+## Mô hình có interaction
+
+```{r}
+model_interaction <- lm(
+  score ~ study_hours * program,
+  data = simpson_data
+)
+
+tidy(model_interaction, conf.int = TRUE)
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Khi thêm `program` vào mô hình, hệ số của `study_hours` phản ánh mối quan hệ giữa study hours và score sau khi kiểm soát khác biệt giữa chương trình.
+
+Nếu hệ số thay đổi mạnh so với mô hình gộp, biến nhóm có vai trò quan trọng.
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không phải cứ thêm biến kiểm soát là đúng.
+
+Biến kiểm soát cần có cơ sở lý thuyết và logic nghiên cứu.
+
+:::
+
+# 7. Bảng so sánh mô hình
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Tạo bảng so sánh mô hình
+- So sánh hệ số trước và sau khi kiểm soát nhóm
+- Trình bày kết quả rõ ràng hơn
+
+:::
+
+## Tạo bảng so sánh hệ số
+
+```{r}
+comparison_table <- bind_rows(
+  tidy(model_without_group, conf.int = TRUE) |>
+    mutate(model = "Without group"),
+  tidy(model_with_group, conf.int = TRUE) |>
+    mutate(model = "With group"),
+  tidy(model_interaction, conf.int = TRUE) |>
+    mutate(model = "Interaction model")
+) |>
+  select(
+    model,
+    term,
+    estimate,
+    conf.low,
+    conf.high,
+    p.value
+  )
+
+comparison_table
+```
+
+## Bảng đẹp bằng gt
+
+```{r}
+comparison_table |>
+  gt() |>
+  tab_header(
+    title = "Model Comparison",
+    subtitle = "Effect of controlling for group variable"
+  ) |>
+  fmt_number(
+    columns = c(estimate, conf.low, conf.high, p.value),
+    decimals = 3
+  )
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Một cách kiểm tra Simpson's Paradox là so sánh:
+
+```text
+Model without group
+vs
+Model with group
+vs
+Model with interaction
+```
+
+:::
+
+# 8. Ví dụ dạng tỷ lệ
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu Simpson's Paradox với dữ liệu tỷ lệ
+- Tính success rate tổng thể
+- Tính success rate theo nhóm
+- Trực quan hóa tỷ lệ
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Simpson's Paradox không chỉ xảy ra với hồi quy tuyến tính.
+
+Nó cũng có thể xảy ra với dữ liệu tỷ lệ như:
+
+- Tỷ lệ đậu
+- Tỷ lệ mua hàng
+- Tỷ lệ chấp nhận công nghệ
+- Tỷ lệ phục hồi
+- Tỷ lệ hoàn thành khóa học
+
+:::
+
+## Tạo dữ liệu tỷ lệ
+
+```{r}
+rate_data <- tibble(
+  group = c("Easy", "Easy", "Hard", "Hard"),
+  method = c("Method A", "Method B", "Method A", "Method B"),
+  total = c(900, 100, 100, 900),
+  success = c(720, 85, 30, 360)
+) |>
+  mutate(
+    success_rate = success / total
+  )
+
+rate_data
+```
+
+## Tỷ lệ theo nhóm
+
+```{r}
+rate_data |>
+  select(group, method, total, success, success_rate)
+```
+
+## Tỷ lệ tổng thể
+
+```{r}
+overall_rate <- rate_data |>
+  group_by(method) |>
+  summarise(
+    total = sum(total),
+    success = sum(success),
+    success_rate = success / total,
+    .groups = "drop"
+  )
+
+overall_rate
+```
+
+## Biểu đồ tỷ lệ theo nhóm
+
+```{r}
+ggplot(rate_data, aes(x = group, y = success_rate, shape = method)) +
+  geom_point(size = 4, position = position_dodge(width = 0.4)) +
+  labs(
+    title = "Success Rate by Group and Method",
+    x = "Group",
+    y = "Success rate",
+    shape = "Method"
+  ) +
+  theme_minimal()
+```
+
+## Biểu đồ tỷ lệ tổng thể
+
+```{r}
+ggplot(overall_rate, aes(x = method, y = success_rate)) +
+  geom_col() +
+  labs(
+    title = "Overall Success Rate by Method",
+    x = "Method",
+    y = "Overall success rate"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Một phương pháp có thể tốt hơn trong từng nhóm, nhưng kém hơn ở tổng thể nếu phân bổ số quan sát giữa các nhóm không cân bằng.
+
+Đó là một dạng điển hình của Simpson's Paradox.
+
+:::
+
+# 9. Quy trình kiểm tra Simpson's Paradox
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Khi phân tích dữ liệu, nên kiểm tra theo quy trình sau:
+
+```text
+1. Vẽ dữ liệu tổng thể
+2. Tính kết quả tổng thể
+3. Xác định biến nhóm quan trọng
+4. Vẽ dữ liệu theo nhóm
+5. Tính kết quả theo nhóm
+6. So sánh tổng thể và theo nhóm
+7. Chạy mô hình có kiểm soát nhóm
+8. Diễn giải thận trọng
+```
+
+:::
+
+## Decision tree
+
+```{mermaid}
+flowchart TD
+
+A[Analyze Overall Data]
+--> B{Possible Group Variable?}
+
+B -->|No| C[Report Overall Result Carefully]
+
+B -->|Yes| D[Analyze by Group]
+
+D --> E{Trend Changes?}
+
+E -->|No| F[Pattern is More Stable]
+
+E -->|Yes| G[Possible Simpson's Paradox]
+
+G --> H[Check Confounding]
+
+H --> I[Model with Group Variable]
+
+I --> J[Report Both Overall and Grouped Results]
+```
+
+# 10. Viết kết quả học thuật
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Viết kết quả Simpson's Paradox cần nhấn mạnh rằng kết quả gộp và kết quả theo nhóm có thể khác nhau.
+
+**Nguyên tắc**
+
+- Không chỉ báo cáo kết quả tổng thể
+- Báo cáo rõ biến nhóm
+- Trình bày kết quả theo nhóm
+- Nêu khả năng confounding
+- Tránh diễn giải nhân quả nếu không có thiết kế phù hợp
+
+:::
+
+## Template kết quả tổng thể
+
+```text
+The aggregated analysis suggested a negative association between study hours and scores. However, this pattern changed when the data were disaggregated by program.
+```
+
+## Template kết quả theo nhóm
+
+```text
+Within each program, study hours were positively associated with scores. This indicates that the aggregated association was likely influenced by differences in baseline scores across programs.
+```
+
+## Template diễn giải thận trọng
+
+```text
+These findings illustrate the importance of examining group-level patterns before drawing conclusions from aggregated data. The results should not be interpreted as causal evidence without further design-based support.
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên viết:
+
+```text
+The overall result was wrong.
+```
+
+Nên viết:
+
+```text
+The overall result was incomplete because it masked important group-level patterns.
+```
+
+:::
+
+# 11. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Hãy thực hiện:
+
+1. Tạo dữ liệu mô phỏng gồm hai nhóm.
+2. Tính correlation tổng thể.
+3. Tính correlation theo nhóm.
+4. Chạy hồi quy tổng thể.
+5. Chạy hồi quy có kiểm soát nhóm.
+6. Chạy hồi quy có interaction.
+7. Vẽ scatter plot tổng thể.
+8. Vẽ scatter plot theo nhóm.
+9. Tạo bảng so sánh mô hình.
+10. Tạo ví dụ Simpson's Paradox dạng tỷ lệ.
+11. Viết một đoạn diễn giải kết quả.
+
+:::
+
+# 12. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Một trường học phân tích dữ liệu và thấy rằng sinh viên học nhiều giờ hơn lại có điểm thấp hơn.
+
+Tuy nhiên, khi phân tích riêng từng chương trình học, trong chương trình nào học nhiều giờ hơn cũng có điểm cao hơn.
+
+## Câu hỏi
+
+1. Đây có thể là hiện tượng gì?
+2. Biến nhóm nào có thể gây nhiễu?
+3. Vì sao phân tích gộp gây hiểu sai?
+4. Cần chạy những phân tích nào?
+5. Nên báo cáo kết quả thế nào?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+Một câu trả lời tốt nên nêu:
+
+- Đây có thể là Simpson's Paradox.
+- Program có thể là confounding variable.
+- Phân tích gộp che giấu khác biệt giữa chương trình.
+- Cần phân tích tổng thể, theo nhóm và mô hình có kiểm soát nhóm.
+- Nên báo cáo cả kết quả tổng thể và kết quả theo nhóm.
+
+:::
+
+# 13. Dự án nhỏ
+
+::: {.callout-important title="Dự án nhỏ (Mini Project)"}
+
+## Chủ đề
+
+Simpson's Paradox Diagnostic Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+```text
+Simpsons_Paradox_Report.html
+```
+
+## Nội dung báo cáo
+
+1. Research question
+2. Aggregated analysis
+3. Grouped analysis
+4. Visualization of overall trend
+5. Visualization of within-group trend
+6. Confounding explanation
+7. Regression comparison
+8. Rate-based example
+9. Academic interpretation
+10. Recommendation for reporting
+
+:::
+
+# 14. Điểm cần ghi nhớ
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- Simpson's Paradox xảy ra khi xu hướng tổng thể khác với xu hướng trong nhóm.
+- Phân tích dữ liệu gộp có thể gây kết luận thiếu chính xác.
+- Biến nhóm có thể đóng vai trò confounder.
+- Luôn kiểm tra các nhóm con quan trọng.
+- Visualization rất hữu ích để phát hiện Simpson's Paradox.
+- Nên so sánh mô hình có và không có biến nhóm.
+- Không nên diễn giải correlation hoặc regression cắt ngang như causal evidence.
+- Báo cáo tốt cần trình bày cả overall pattern và group-level pattern.
+
+:::
+
+# 15. Bước tiếp theo
+
+::: {.callout-note title="Bước tiếp theo (What Next?)"}
+
+Sau khi hoàn thành phần này, học viên nên:
+
+1. Biết kiểm tra dữ liệu tổng thể và dữ liệu theo nhóm.
+2. Biết phát hiện aggregation bias.
+3. Biết dùng visualization để kiểm tra xu hướng.
+4. Biết viết kết quả thận trọng.
+5. Chuyển sang:
+
+[Advanced Likert Analysis](adv-08-likert.qmd)
+
+Trong phần tiếp theo, chúng ta sẽ học phân tích và trực quan hóa dữ liệu Likert nâng cao.
+
+:::

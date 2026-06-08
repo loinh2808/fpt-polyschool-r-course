@@ -1,0 +1,222 @@
+---
+title: "Case Study 1: UTAUT and PLS-SEM"
+subtitle: "Students’ Acceptance of ChatGPT in Higher Education"
+format: html
+toc: true
+---
+
+# Overview
+
+## Case Study Information
+
+| Item | Description |
+|--------|--------|
+| Research Area | Technology Acceptance |
+| Method | PLS-SEM |
+| Theory | UTAUT2 |
+| Journal | Innovative Higher Education |
+| Year | 2024 |
+| Sample Size | 503 Students |
+| Software Used | SmartPLS |
+| Replication Tool | R (seminr) |
+
+## Learning Objectives
+
+After completing this case study, learners will be able to:
+
+- Understand the UTAUT2 framework
+- Develop research hypotheses
+- Design latent-variable questionnaires
+- Conduct PLS-SEM analysis in R
+- Interpret measurement and structural models
+- Write academic results sections
+- Replicate published research
+
+# Research Background
+
+Artificial Intelligence tools such as ChatGPT are rapidly transforming higher education.
+
+This study investigates factors influencing students’ acceptance and use of ChatGPT.
+
+# Conceptual Framework
+
+```{mermaid}
+flowchart LR
+
+PE[Performance Expectancy]
+EE[Effort Expectancy]
+SI[Social Influence]
+FC[Facilitating Conditions]
+HM[Hedonic Motivation]
+PV[Price Value]
+HT[Habit]
+PI[Personal Innovativeness]
+
+BI[Behavioral Intention]
+UB[Use Behavior]
+
+PE --> BI
+EE --> BI
+SI --> BI
+FC --> BI
+HM --> BI
+PV --> BI
+HT --> BI
+PI --> BI
+
+BI --> UB
+FC --> UB
+HT --> UB
+```
+
+# Dataset Structure
+
+```{r}
+tibble::tibble(
+PE1 = numeric(),
+PE2 = numeric(),
+EE1 = numeric(),
+SI1 = numeric(),
+FC1 = numeric(),
+HM1 = numeric(),
+PV1 = numeric(),
+HT1 = numeric(),
+PI1 = numeric(),
+BI1 = numeric(),
+UB1 = numeric()
+)
+```
+
+# Step 1: Import Data
+
+```{r}
+library(tidyverse)
+library(readxl)
+
+utaut_data <- read_excel(
+  "data/case-studies/utaut/utaut_dataset.xlsx"
+)
+
+glimpse(utaut_data)
+```
+
+# Step 2: Descriptive Statistics
+
+```{r}
+library(psych)
+describe(utaut_data)
+```
+
+# Step 3: Reliability Analysis
+
+```{r}
+alpha(
+utaut_data[,c("PE1","PE2","PE3","PE4")]
+)
+```
+
+# Step 4: Build PLS-SEM Model
+
+```{r}
+library(seminr)
+
+measurement_model <- constructs(
+composite("PE", multi_items("PE",1:4)),
+composite("EE", multi_items("EE",1:4)),
+composite("SI", multi_items("SI",1:3)),
+composite("FC", multi_items("FC",1:3)),
+composite("HM", multi_items("HM",1:3)),
+composite("PV", multi_items("PV",1:3)),
+composite("HT", multi_items("HT",1:4)),
+composite("PI", multi_items("PI",1:4)),
+composite("BI", multi_items("BI",1:3)),
+composite("UB", single_item("UB1"))
+)
+
+structural_model <- relationships(
+paths(from = c("PE","EE","SI","FC","HM","PV","HT","PI"), to = "BI"),
+paths(from = c("FC","HT","BI"), to = "UB")
+)
+
+pls_model <- estimate_pls(
+data = utaut_data,
+measurement_model,
+structural_model
+)
+```
+
+# Step 5: Bootstrap
+
+```{r}
+boot_model <- bootstrap_model(
+pls_model,
+nboot = 5000
+)
+
+summary(boot_model)
+```
+
+## Step 6: R-Squared
+
+```{r}
+summary(pls_model)$r_squared
+```
+
+## Step 7: Effect Size (f²)
+
+```{r}
+summary(pls_model)$fSquare
+```
+
+## Step 8: Model Fit
+
+```{r}
+summary(pls_model)$validity$htmt
+```
+
+# Results Interpretation
+
+- Indicator Loading > 0.70
+- Composite Reliability > 0.70
+- AVE > 0.50
+- HTMT < 0.85
+
+Published Study:
+
+| Variable | R² |
+|-----------|----|
+| BI | 0.728 |
+| UB | 0.547 |
+
+# Discussion Questions
+
+1. Why might Habit be the strongest predictor?
+2. How would the model differ for teachers?
+3. How might adoption differ across countries?
+
+# Mini Project
+
+Replicate this study using:
+
+- Faculty members
+- High school teachers
+- University lecturers
+- Vocational education students
+
+# Extension Activities
+
+- Module 5: PLS-SEM
+- Module A4: Advanced SEM
+- Module A10: Research Toolkit
+
+# Key Takeaways
+
+✓ Understand UTAUT2
+
+✓ Design SEM research
+
+✓ Conduct PLS-SEM in R
+
+✓ Interpret path coefficients
+
+✓ Replicate published studies

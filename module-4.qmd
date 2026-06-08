@@ -1,0 +1,1029 @@
+---
+title: "Module 4. Tương quan, Hồi quy và Dự đoán trong Nghiên cứu"
+---
+
+# Tổng quan Module
+
+::: {.callout-tip title="Learning Outcomes"}
+Sau khi hoàn thành Module 4, học viên có thể:
+
+- Hiểu sự khác biệt giữa correlation và causation
+- Thực hiện phân tích tương quan Pearson và Spearman
+- Đọc và diễn giải ma trận tương quan
+- Trực quan hóa tương quan giữa các biến
+- Xây dựng mô hình hồi quy tuyến tính đơn
+- Xây dựng mô hình hồi quy tuyến tính đa biến
+- Kiểm tra đa cộng tuyến bằng VIF
+- Kiểm tra giả định hồi quy
+- Dự đoán `bi_mean` từ các biến nghiên cứu
+- Viết kết quả hồi quy theo chuẩn học thuật
+:::
+
+::: {.callout-note title="Module Logic"}
+Module này trả lời câu hỏi:
+
+**Những yếu tố nào dự đoán Behavioral Intention và chúng ta diễn giải kết quả hồi quy như thế nào trong nghiên cứu khoa học?**
+
+Workflow:
+
+``` text
+Dữ liệu sạch
+↓
+Tương quan
+↓
+Hồi quy đơn giản
+↓
+Hồi quy đa biến
+↓
+Chẩn đoán mô hình
+↓
+Dự đoán
+↓
+Báo cáo học thuật
+```
+:::
+
+------------------------------------------------------------------------
+
+# 4.1 Why Regression Matters?
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Hồi quy là phương pháp dùng để kiểm tra mối quan hệ giữa một biến phụ thuộc và một hoặc nhiều biến độc lập.
+
+**Why?**
+
+Trong nghiên cứu định lượng, hồi quy giúp trả lời:
+
+- Biến nào có liên quan đến outcome?
+- Biến nào là predictor mạnh hơn?
+- Mô hình giải thích được bao nhiêu phần trăm biến thiên?
+- Có thể dự đoán outcome từ các predictor không?
+
+**When?**
+
+Dùng hồi quy khi outcome là biến định lượng, ví dụ:
+
+``` text
+Behavioral Intention
+GPA
+Satisfaction
+Adoption Score
+Performance Score
+```
+
+**How do we use it in research?**
+
+Hồi quy thường dùng trong:
+
+- UTAUT
+- TAM
+- TPB
+- Educational research
+- Adoption studies
+- Behavioral intention studies
+- Survey-based research
+:::
+
+::: {.callout-important title="Research Application"}
+Trong khóa học này, mô hình hồi quy chính là:
+
+``` text
+bi_mean ~ pe_mean + ee_mean + si_mean + fc_mean + dr_mean + tr_mean
+```
+
+Ý nghĩa nghiên cứu:
+
+``` text
+Ý định hành vi
+↑
+Kỳ vọng về hiệu suất
+Kỳ vọng về nỗ lực
+Ảnh hưởng xã hội
+Điều kiện thuận lợi
+Sự sẵn sàng về kỹ thuật số
+Niềm tin
+```
+:::
+
+::: {.callout-warning title="Common Mistakes"}
+Người học thường mắc lỗi:
+
+- Diễn giải tương quan thành quan hệ nhân quả
+- Chỉ nhìn p-value mà bỏ qua effect size
+- Không kiểm tra đa cộng tuyến
+- Không kiểm tra giả định hồi quy
+- Không báo cáo R-squared
+- Không giải thích ý nghĩa thực tiễn của hệ số hồi quy
+:::
+
+------------------------------------------------------------------------
+
+# 4.2 Load Packages
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Module này sử dụng các package phục vụ phân tích tương quan, hồi quy, kiểm tra giả định và trình bày bảng kết quả.
+
+**Main packages**
+
+- `tidyverse`: xử lý dữ liệu và biểu đồ
+- `readxl`: đọc file Excel
+- `janitor`: làm sạch tên biến
+- `car`: kiểm tra VIF và Durbin-Watson
+- `performance`: kiểm tra giả định mô hình
+- `gtsummary`: tạo bảng hồi quy
+- `broom`: chuyển output mô hình thành bảng
+:::
+
+## Install Packages
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("car")
+install.packages("performance")
+install.packages("gtsummary")
+install.packages("broom")
+install.packages("gt")
+```
+
+## Load Packages
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(car)
+library(performance)
+library(gtsummary)
+library(broom)
+library(gt)
+```
+
+------------------------------------------------------------------------
+
+# 4.3 Import Clean Dataset
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Module 4 sử dụng dữ liệu sạch từ Module 2.
+
+**When?**
+
+Sau khi đã hoàn thành data cleaning và descriptive statistics.
+
+**How?**
+
+Ưu tiên đọc:
+
+``` text
+output/03_Clean_Data.xlsx
+```
+
+Nếu chưa có file này, hệ thống đọc sheet `03_Clean_Data` trong file demo ban đầu.
+:::
+
+```{r}
+if (file.exists("output/03_Clean_Data.xlsx")) {
+  data <- read_excel("output/03_Clean_Data.xlsx")
+} else {
+  data <- read_excel(
+    "data/FPT_PolySchool_R_Training_Demo_Dataset.xlsx",
+    sheet = "03_Clean_Data"
+  )
+}
+
+data <- data |>
+  clean_names()
+```
+
+## Check Data
+
+```{r}
+glimpse(data)
+```
+
+------------------------------------------------------------------------
+
+# 4.4 Prepare Regression Variables
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Hồi quy trong module này sử dụng các biến trung bình của các cấu trúc nghiên cứu.
+
+**Main variables**
+
+| Variable  | Meaning                 |
+|-----------|-------------------------|
+| `bi_mean` | Behavioral Intention    |
+| `pe_mean` | Performance Expectancy  |
+| `ee_mean` | Effort Expectancy       |
+| `si_mean` | Social Influence        |
+| `fc_mean` | Facilitating Conditions |
+| `dr_mean` | Digital Readiness       |
+| `tr_mean` | Trust                   |
+:::
+
+## Create Mean Variables if Needed
+
+```{r}
+needed_mean_vars <- c(
+  "pe_mean", "ee_mean", "si_mean", "fc_mean",
+  "dr_mean", "tr_mean", "bi_mean", "au_mean"
+)
+
+if (!all(needed_mean_vars %in% names(data))) {
+  data <- data |>
+    mutate(
+      pe_mean = rowMeans(pick(pe1, pe2, pe3, pe4), na.rm = TRUE),
+      ee_mean = rowMeans(pick(ee1, ee2, ee3, ee4), na.rm = TRUE),
+      si_mean = rowMeans(pick(si1, si2, si3, si4), na.rm = TRUE),
+      fc_mean = rowMeans(pick(fc1, fc2, fc3, fc4), na.rm = TRUE),
+      dr_mean = rowMeans(pick(dr1, dr2, dr3, dr4), na.rm = TRUE),
+      tr_mean = rowMeans(pick(tr1, tr2, tr3, tr4), na.rm = TRUE),
+      bi_mean = rowMeans(pick(bi1, bi2, bi3), na.rm = TRUE),
+      au_mean = rowMeans(pick(au1, au2, au3), na.rm = TRUE)
+    )
+}
+```
+
+## Select Regression Dataset
+
+```{r}
+reg_data <- data |>
+  select(
+    bi_mean,
+    pe_mean,
+    ee_mean,
+    si_mean,
+    fc_mean,
+    dr_mean,
+    tr_mean
+  ) |>
+  drop_na()
+```
+
+```{r}
+glimpse(reg_data)
+```
+
+------------------------------------------------------------------------
+
+# 4.5 Correlation Fundamentals
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Correlation đo mức độ liên hệ tuyến tính giữa hai biến.
+
+**Range**
+
+``` text
+-1 to +1
+```
+
+**Interpretation**
+
+|    r | Meaning |
+|-----:|---------|
+| 0.10 | Small   |
+| 0.30 | Medium  |
+| 0.50 | Large   |
+
+**Important**
+
+Correlation does not imply causation.
+:::
+
+## Pearson Correlation Matrix
+
+```{r}
+cor_matrix <- reg_data |>
+  cor(use = "pairwise.complete.obs")
+
+round(cor_matrix, 3)
+```
+
+## Correlation with BI
+
+```{r}
+reg_data |>
+  summarise(
+    cor_pe = cor(bi_mean, pe_mean, use = "pairwise.complete.obs"),
+    cor_ee = cor(bi_mean, ee_mean, use = "pairwise.complete.obs"),
+    cor_si = cor(bi_mean, si_mean, use = "pairwise.complete.obs"),
+    cor_fc = cor(bi_mean, fc_mean, use = "pairwise.complete.obs"),
+    cor_dr = cor(bi_mean, dr_mean, use = "pairwise.complete.obs"),
+    cor_tr = cor(bi_mean, tr_mean, use = "pairwise.complete.obs")
+  )
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không được viết:
+
+``` text
+PE causes BI because r is significant.
+```
+
+Nên viết:
+
+``` text
+PE was positively associated with BI.
+```
+:::
+
+------------------------------------------------------------------------
+
+# 4.6 Visualize Relationships
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Biểu đồ giúp kiểm tra nhanh hướng và dạng quan hệ giữa hai biến.
+
+**When?**
+
+Nên vẽ trước khi chạy hồi quy.
+
+**How?**
+
+Dùng `geom_point()` và `geom_smooth(method = "lm")`.
+:::
+
+## PE and BI
+
+```{r}
+ggplot(reg_data, aes(x = pe_mean, y = bi_mean)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "Relationship between PE and BI",
+    x = "Performance Expectancy",
+    y = "Behavioral Intention"
+  ) +
+  theme_minimal()
+```
+
+## Trust and BI
+
+```{r}
+ggplot(reg_data, aes(x = tr_mean, y = bi_mean)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "Relationship between Trust and BI",
+    x = "Trust",
+    y = "Behavioral Intention"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+# 4.7 Simple Linear Regression
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Simple linear regression kiểm tra quan hệ giữa một predictor và một outcome.
+
+**Formula**
+
+``` text
+Y = a + bX + e
+```
+
+**Example**
+
+``` text
+BI = a + b(PE) + e
+```
+:::
+
+## Estimate Simple Regression
+
+```{r}
+model_simple <- lm(
+  bi_mean ~ pe_mean,
+  data = reg_data
+)
+
+summary(model_simple)
+```
+
+## Tidy Output
+
+```{r}
+tidy(model_simple)
+```
+
+## Model Fit
+
+```{r}
+glance(model_simple)
+```
+
+::: {.callout-important title="Research Application"}
+Nếu hệ số `pe_mean` dương và có ý nghĩa thống kê, có thể nói rằng Performance Expectancy có liên hệ tích cực với Behavioral Intention.
+:::
+
+------------------------------------------------------------------------
+
+# 4.8 Multiple Regression
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Multiple regression kiểm tra tác động đồng thời của nhiều biến độc lập lên một biến phụ thuộc
+
+**Why?**
+
+Trong nghiên cứu hành vi, biến phụ thuộc thường chịu ảnh hưởng bởi nhiều yếu tố cùng lúc.
+
+**Model**
+
+``` text
+BI = b0 + b1PE + b2EE + b3SI + b4FC + b5DR + b6TR + e
+```
+:::
+
+## Estimate Main Regression Model
+
+```{r}
+model_reg <- lm(
+  bi_mean ~ pe_mean + ee_mean + si_mean + fc_mean + dr_mean + tr_mean,
+  data = reg_data
+)
+
+summary(model_reg)
+```
+
+## Tidy Coefficients
+
+```{r}
+regression_coefficients <- tidy(
+  model_reg,
+  conf.int = TRUE
+)
+
+regression_coefficients
+```
+
+## Model Fit
+
+```{r}
+model_fit <- glance(model_reg)
+
+model_fit
+```
+
+------------------------------------------------------------------------
+
+# 4.9 Regression Table
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Bảng hồi quy giúp trình bày hệ số, sai số chuẩn, p-value và khoảng tin cậy.
+
+**Why?**
+
+Bài báo khoa học cần bảng kết quả rõ ràng, không chỉ copy output từ R console.
+:::
+
+```{r}
+reg_table <- tbl_regression(
+  model_reg,
+  intercept = TRUE
+) |>
+  add_glance_source_note() |>
+  bold_labels()
+
+reg_table
+```
+
+::: {.callout-tip title="Key Points"}
+Một bảng hồi quy tốt nên có:
+
+- Coefficient
+- Confidence interval
+- p-value
+- R-squared
+- Sample size
+- Model notes
+:::
+
+------------------------------------------------------------------------
+
+# 4.10 Interpreting Regression Coefficients
+
+::: {.callout-note title="Knowledge Notes"}
+**Estimate**
+
+Mức thay đổi kỳ vọng của outcome khi biến độc lập tăng 1 đơn vị, giữ các biến khác không đổi.
+
+**p-value**
+
+Cho biết bằng chứng thống kê về việc hệ số khác 0.
+
+**R-squared**
+
+Tỷ lệ phương sai của biến phụ thuộc được giải thích bởi mô hình.
+:::
+
+## Extract Coefficients
+
+```{r}
+coef(summary(model_reg))
+```
+
+## Extract R-squared
+
+```{r}
+summary(model_reg)$r.squared
+```
+
+## Extract Adjusted R-squared
+
+```{r}
+summary(model_reg)$adj.r.squared
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên chỉ viết:
+
+``` text
+PE is significant.
+```
+
+Nên viết:
+
+``` text
+PE was positively associated with BI, suggesting that higher perceived performance benefits were linked to stronger behavioral intention.
+```
+:::
+
+------------------------------------------------------------------------
+
+# 4.11 Multicollinearity Check
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Multicollinearity xảy ra khi các biến độc lập tương quan quá cao với nhau.
+
+**Why?**
+
+Đa cộng tuyến có thể làm hệ số hồi quy không ổn định.
+
+**How?**
+
+Dùng VIF.
+:::
+
+## VIF
+
+```{r}
+car::vif(model_reg)
+```
+
+## VIF Interpretation
+
+|   VIF | Interpretation       |
+|------:|----------------------|
+|  \< 3 | Good                 |
+|   3–5 | Acceptable but check |
+|  \> 5 | Potential problem    |
+| \> 10 | Serious problem      |
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên bỏ qua VIF khi các biến độc lập đều là các thang đo có liên quan gần nhau, như PE, EE, SI, FC, DR và TR.
+:::
+
+------------------------------------------------------------------------
+
+# 4.12 Regression Assumptions
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Hồi quy tuyến tính có các giả định quan trọng:
+
+1.  Linearity
+2.  Independence
+3.  Homoscedasticity
+4.  Normality of residuals
+5.  No serious multicollinearity
+6.  No influential outliers
+
+**Why?**
+
+Nếu giả định bị vi phạm nghiêm trọng, kết quả hồi quy có thể không đáng tin cậy.
+:::
+
+## Check Model
+
+```{r}
+#| fig-width: 14
+#| fig-height: 12
+#| out-width: "100%"
+
+performance::check_model(model_reg)
+```
+
+------------------------------------------------------------------------
+
+# 4.13 Residual Diagnostics
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Residual là phần sai khác giữa giá trị quan sát và giá trị dự đoán.
+
+**Why?**
+
+Kiểm tra residual giúp đánh giá mô hình có phù hợp không.
+:::
+
+## Add Residuals and Fitted Values
+
+```{r}
+diagnostic_data <- reg_data |>
+  mutate(
+    fitted_values = fitted(model_reg),
+    residuals = residuals(model_reg)
+  )
+```
+
+## Residuals vs Fitted
+
+```{r}
+ggplot(diagnostic_data, aes(x = fitted_values, y = residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Residuals vs Fitted Values",
+    x = "Fitted Values",
+    y = "Residuals"
+  ) +
+  theme_minimal()
+```
+
+## Histogram of Residuals
+
+```{r}
+ggplot(diagnostic_data, aes(x = residuals)) +
+  geom_histogram(bins = 20) +
+  labs(
+    title = "Distribution of Residuals",
+    x = "Residuals",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+```
+
+## Q-Q Plot
+
+```{r}
+qqnorm(diagnostic_data$residuals)
+qqline(diagnostic_data$residuals)
+```
+
+------------------------------------------------------------------------
+
+# 4.14 Additional Assumption Tests
+
+## Normality of Residuals
+
+```{r}
+performance::check_normality(model_reg)
+```
+
+## Heteroscedasticity
+
+```{r}
+performance::check_heteroscedasticity(model_reg)
+```
+
+## Outliers
+
+```{r}
+performance::check_outliers(model_reg)
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Với mẫu lớn, kiểm định thống kê có thể rất nhạy.
+
+Cần kết hợp:
+
+- Biểu đồ
+- Kiểm định
+- Kiến thức thực tế
+- Mục tiêu nghiên cứu
+:::
+
+------------------------------------------------------------------------
+
+# 4.15 Prediction
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Prediction dùng mô hình hồi quy đã ước lượng để dự đoán giá trị outcome cho trường hợp mới.
+
+**When?**
+
+Dùng khi muốn ước lượng Behavioral Intention dựa trên mức PE, EE, SI, FC, DR và TR.
+:::
+
+## Create New Data
+
+```{r}
+new_case <- tibble(
+  pe_mean = 4.2,
+  ee_mean = 3.8,
+  si_mean = 3.5,
+  fc_mean = 4.0,
+  dr_mean = 4.1,
+  tr_mean = 4.3
+)
+```
+
+## Predict BI
+
+```{r}
+predict(
+  model_reg,
+  newdata = new_case,
+  interval = "confidence"
+)
+```
+
+::: {.callout-important title="Research Application"}
+Prediction hữu ích khi muốn minh họa mô hình cho một hồ sơ người học hoặc người dùng cụ thể.
+
+Tuy nhiên, prediction không đồng nghĩa với quan hệ nhân quả.
+:::
+
+------------------------------------------------------------------------
+
+# 4.16 Model Comparison
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Model comparison giúp xem mô hình nào giải thích outcome tốt hơn.
+
+**Why?**
+
+Trong nghiên cứu, ta có thể so sánh mô hình cơ bản và mô hình mở rộng.
+:::
+
+## Model 1: PE and EE
+
+```{r}
+model_1 <- lm(
+  bi_mean ~ pe_mean + ee_mean,
+  data = reg_data
+)
+```
+
+## Model 2: Add SI and FC
+
+```{r}
+model_2 <- lm(
+  bi_mean ~ pe_mean + ee_mean + si_mean + fc_mean,
+  data = reg_data
+)
+```
+
+## Model 3: Full Model
+
+```{r}
+model_3 <- lm(
+  bi_mean ~ pe_mean + ee_mean + si_mean + fc_mean + dr_mean + tr_mean,
+  data = reg_data
+)
+```
+
+## Compare R-squared
+
+```{r}
+model_comparison <- tibble(
+  model = c("Model 1", "Model 2", "Model 3"),
+  r_squared = c(
+    summary(model_1)$r.squared,
+    summary(model_2)$r.squared,
+    summary(model_3)$r.squared
+  ),
+  adj_r_squared = c(
+    summary(model_1)$adj.r.squared,
+    summary(model_2)$adj.r.squared,
+    summary(model_3)$adj.r.squared
+  )
+)
+
+model_comparison
+```
+
+------------------------------------------------------------------------
+
+# 4.17 Academic Reporting
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Academic reporting là cách chuyển output thống kê thành diễn giải học thuật.
+
+**Why?**
+
+Bài báo cần giải thích ý nghĩa kết quả, không chỉ trình bày bảng.
+:::
+
+## Correlation Template
+
+``` text
+Performance Expectancy was positively associated with Behavioral Intention (r = ..., p = ...), suggesting that respondents who perceived higher performance benefits tended to report stronger behavioral intention.
+```
+
+## Regression Template
+
+``` text
+A multiple linear regression was conducted to examine the predictors of Behavioral Intention. The model included Performance Expectancy, Effort Expectancy, Social Influence, Facilitating Conditions, Digital Readiness, and Trust as predictors. The model explained ...% of the variance in Behavioral Intention. Among the predictors, ... was significantly associated with Behavioral Intention.
+```
+
+## Non-significant Predictor Template
+
+``` text
+The effect of [predictor] on Behavioral Intention was not statistically significant (β = ..., p = ...), suggesting that this factor may not be a key predictor in the current sample.
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên viết:
+
+``` text
+PE affects BI
+```
+
+nếu thiết kế nghiên cứu là khảo sát cắt ngang.
+
+Nên viết:
+
+``` text
+PE was associated with BI
+```
+:::
+
+------------------------------------------------------------------------
+
+# 4.18 Export Results
+
+Để tránh lỗi khi render website, các lệnh xuất file được đặt `eval: false`.
+
+## Export Regression Table
+
+```{r}
+#| eval: false
+
+reg_table |>
+  as_gt() |>
+  gt::gtsave("output/module4_regression_table.html")
+```
+
+## Export Model Comparison
+
+```{r}
+#| eval: false
+
+write_csv(
+  model_comparison,
+  "output/module4_model_comparison.csv"
+)
+```
+
+------------------------------------------------------------------------
+
+# Practice Exercise
+
+::: {.callout-important title="Practice Exercise"}
+Sử dụng bộ dữ liệu sạch, hãy thực hiện:
+
+1.  Tạo ma trận tương quan giữa các biến trung bình.
+2.  Vẽ biểu đồ quan hệ giữa `pe_mean` và `bi_mean`.
+3.  Chạy hồi quy đơn: `bi_mean ~ pe_mean`.
+4.  Chạy hồi quy đa biến: `bi_mean ~ pe_mean + ee_mean + si_mean + fc_mean + dr_mean + tr_mean`.
+5.  Kiểm tra VIF.
+6.  Kiểm tra phần dư.
+7.  Kiểm tra phương sai thay đổi.
+8.  Kiểm tra phân phối chuẩn của phần dư.
+9.  Dự đoán `bi_mean` cho một trường hợp mới.
+10. Viết đoạn diễn giải kết quả.
+:::
+
+------------------------------------------------------------------------
+
+# Challenge
+
+::: {.callout-warning collapse="true" title="Challenge"}
+## Câu hỏi
+
+Trong mô hình:
+
+``` text
+bi_mean ~ pe_mean + ee_mean + si_mean + fc_mean + dr_mean + tr_mean
+```
+
+hãy xác định:
+
+1.  Biến nào có hệ số lớn nhất?
+2.  Biến nào có ý nghĩa thống kê?
+3.  Mô hình giải thích được bao nhiêu phần trăm phương sai của `bi_mean`?
+4.  Có vấn đề đa cộng tuyến không?
+5.  Có nên diễn giải kết quả này là nhân quả không?
+:::
+
+::: {.callout-tip collapse="true" title="Suggested Solution"}
+Một câu trả lời tốt cần dựa trên:
+
+- `summary(model_reg)`
+- `tbl_regression(model_reg)`
+- `car::vif(model_reg)`
+- `performance::check_model(model_reg)`
+- R-squared và adjusted R-squared
+
+Không nên diễn giải nhân quả nếu dữ liệu là khảo sát cắt ngang.
+:::
+
+------------------------------------------------------------------------
+
+# Mini Project 4
+
+::: {.callout-important title="Mini Project 4"}
+## Chủ đề
+
+Regression Analysis Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+``` text
+Module4_Regression_Report.html
+```
+
+## Nội dung báo cáo
+
+1.  Research model
+2.  Correlation matrix
+3.  Scatterplots
+4.  Simple regression
+5.  Multiple regression
+6.  Regression table
+7.  VIF table
+8.  Model diagnostics
+9.  Prediction example
+10. Academic interpretation
+11. Conclusion
+:::
+
+------------------------------------------------------------------------
+
+# Key Takeaways
+
+::: {.callout-tip title="Key Points"}
+- Correlation không đồng nghĩa với causation.
+- Regression giúp kiểm tra các predictors của outcome.
+- R-squared cho biết mức độ giải thích của mô hình.
+- VIF giúp kiểm tra đa cộng tuyến.
+- Residual diagnostics giúp đánh giá giả định mô hình.
+- Prediction có thể hữu ích nhưng không nên bị hiểu là quan hệ nhân quả.
+- Kết quả hồi quy cần được diễn giải bằng ngôn ngữ học thuật rõ ràng.
+:::
+
+------------------------------------------------------------------------
+
+# What Next?
+
+::: {.callout-note title="What Next?"}
+Sau khi hoàn thành Module 4, học viên nên:
+
+1.  Lưu regression table.
+2.  Ghi chú các biến độc lập có ý nghĩa thống kê.
+3.  Kiểm tra VIF và giả định mô hình.
+4.  Viết phần regression results.
+5.  Chuyển sang **Module 5. PLS-SEM bằng R**.
+
+Trong Module 5, chúng ta sẽ mở rộng từ hồi quy quan sát sang mô hình có biến tiềm ẩn:
+
+``` text
+PE, EE, SI, FC, DR, TR → BI → AU
+```
+:::

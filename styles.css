@@ -1,0 +1,387 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+body {
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #1f2937;
+}
+
+h1, h2, h3 {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+pre, code {
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+.navbar {
+  min-height: 92px;
+}
+
+.navbar-brand img {
+  max-height: 70px;
+  width: auto;
+}
+
+.navbar-title {
+  font-weight: 800;
+}
+
+/* =========================================================
+   HARD FIX QUARTO LAYOUT
+   Sidebar must NOT cover main content.
+========================================================= */
+
+@media (min-width: 992px) {
+
+  #quarto-content.page-columns {
+    display: grid !important;
+    grid-template-columns: 285px minmax(0, 1180px) 0px !important;
+    column-gap: 2rem !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  #quarto-sidebar {
+    grid-column: 1 !important;
+    width: 285px !important;
+    min-width: 285px !important;
+    max-width: 285px !important;
+    background: #ffffff;
+    border-right: 1px solid rgba(148, 163, 184, 0.25);
+    z-index: 10;
+  }
+
+  main.content {
+    grid-column: 2 !important;
+    width: 100% !important;
+    max-width: 1180px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #quarto-margin-sidebar,
+  aside.sidebar.margin-sidebar {
+    display: none !important;
+    width: 0 !important;
+  }
+
+  #quarto-document-content {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+@media (min-width: 1400px) {
+  #quarto-content.page-columns {
+    grid-template-columns: 285px minmax(0, 1280px) 0px !important;
+    column-gap: 2.25rem !important;
+  }
+
+  main.content {
+    max-width: 1280px !important;
+  }
+}
+
+/* =========================================================
+   SIDEBAR STYLE
+========================================================= */
+
+.sidebar {
+  background: #ffffff;
+}
+
+.sidebar-menu-container {
+  padding-top: 1rem;
+}
+
+.sidebar-item {
+  margin: 0.15rem 0.75rem;
+  border-radius: 10px;
+}
+
+.sidebar-item-text {
+  font-size: 0.95rem;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.sidebar-item a {
+  padding: 0.48rem 0.7rem;
+  border-radius: 10px;
+}
+
+.sidebar-item a:hover {
+  background: #eef6ff;
+  color: #0b5ed7;
+}
+
+.sidebar-item.active,
+.sidebar-item .active,
+.sidebar-item-container .active {
+  background: #e7f1ff;
+  color: #0b5ed7;
+  font-weight: 700;
+}
+
+/* =========================================================
+   HOME HERO
+========================================================= */
+
+.home-hero {
+  width: 100%;
+  margin: 2rem 0 3rem 0;
+  padding: 4rem;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(42, 111, 255, 0.16), transparent 35%),
+    linear-gradient(135deg, #f7fbff 0%, #eef5ff 45%, #ffffff 100%);
+  box-shadow: 0 18px 50px rgba(30, 64, 175, 0.10);
+  overflow: hidden;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+  gap: 3rem;
+  align-items: center;
+}
+
+.hero-logo {
+  width: 280px;
+  margin-bottom: 1.5rem;
+}
+
+.hero-left h1 {
+  font-size: clamp(3rem, 4.3vw, 4.8rem);
+  line-height: 1.02;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  color: #0b2559;
+  margin-bottom: 1rem;
+}
+
+.hero-left h3 {
+  font-size: clamp(1.15rem, 1.8vw, 1.55rem);
+  line-height: 1.4;
+  color: #263b63;
+  font-weight: 500;
+}
+
+.hero-left p {
+  font-size: 1.08rem;
+  color: #334155;
+  max-width: 760px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.8rem;
+}
+
+.btn-lg {
+  padding: 0.8rem 1.35rem;
+  font-size: 1.05rem;
+  border-radius: 10px;
+}
+
+/* =========================================================
+   HERO VISUAL
+========================================================= */
+
+.hero-visual {
+  position: relative;
+  min-height: 420px;
+}
+
+.r-badge {
+  position: absolute;
+  top: 1rem;
+  left: 4rem;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 5rem;
+  font-weight: 900;
+  color: #1d4ed8;
+  background: linear-gradient(145deg, #ffffff, #e8f1ff);
+  box-shadow: 0 20px 45px rgba(37, 99, 235, 0.18);
+}
+
+.laptop-card {
+  position: absolute;
+  left: 0;
+  bottom: 2rem;
+  width: 78%;
+  padding: 1.5rem;
+  border-radius: 20px;
+  background: #0f172a;
+  color: #dbeafe;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.25);
+  font-size: 0.86rem;
+}
+
+.laptop-card pre {
+  background: transparent;
+  color: #dbeafe;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.chart-card,
+.pie-card {
+  position: absolute;
+  right: 0;
+  width: 190px;
+  height: 120px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  box-shadow: 0 14px 35px rgba(37, 99, 235, 0.13);
+  display: grid;
+  place-items: center;
+  color: #2563eb;
+  font-size: 3rem;
+  font-weight: 800;
+}
+
+.chart-card { top: 5rem; }
+.pie-card { top: 15rem; font-size: 4.5rem; }
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.feature-grid,
+.audience-grid,
+.outcome-grid {
+  width: 100%;
+  display: grid;
+  gap: 1.4rem;
+  margin: 2rem 0 3rem 0;
+}
+
+.feature-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.audience-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.outcome-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.feature-card,
+.audience-card,
+.outcome-card,
+.capstone-box,
+.start-box {
+  padding: 1.8rem;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+}
+
+.feature-card { min-height: 235px; }
+.audience-card { min-height: 210px; }
+.outcome-card { min-height: 260px; }
+
+.feature-card h2,
+.audience-card h2,
+.outcome-card h2 {
+  font-size: 1.25rem;
+  margin-top: 0;
+}
+
+.capstone-box,
+.start-box {
+  margin: 2rem 0;
+  background: linear-gradient(135deg, #f8fbff, #eef6ff);
+  border-color: rgba(37, 99, 235, 0.22);
+}
+
+/* =========================================================
+   TABLES / OUTPUTS
+========================================================= */
+
+table {
+  width: 100%;
+}
+
+pre,
+table,
+.cell-output-display {
+  overflow-x: auto;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 992px) {
+  .navbar {
+    min-height: auto;
+  }
+
+  .navbar-brand img {
+    max-height: 54px;
+  }
+
+  .home-hero {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .hero-grid,
+  .feature-grid,
+  .audience-grid,
+  .outcome-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-logo {
+    width: 220px;
+  }
+
+  .hero-visual {
+    min-height: 340px;
+  }
+
+  .laptop-card {
+    width: 100%;
+  }
+
+  .chart-card,
+  .pie-card {
+    display: none;
+  }
+
+  .r-badge {
+    left: auto;
+    right: 1rem;
+    top: 0;
+    width: 110px;
+    height: 110px;
+    font-size: 3.8rem;
+  }
+}

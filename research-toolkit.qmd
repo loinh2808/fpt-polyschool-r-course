@@ -1,0 +1,552 @@
+---
+title: "Research Toolkit"
+subtitle: "From Research Idea to Reproducible Report"
+---
+
+# Research Toolkit
+
+::: callout-note
+Trang này là **bản đồ vận hành nghiên cứu** cho toàn bộ khóa học **R for Research and Data Analytics**.
+
+Mục tiêu không chỉ là biết chạy code, mà là biết:
+
+- Bắt đầu từ một ý tưởng nghiên cứu
+- Chuyển ý tưởng thành câu hỏi nghiên cứu
+- Xác định dữ liệu cần thu thập
+- Chọn phương pháp phân tích phù hợp
+- Chọn module cần học
+- Tạo bảng, hình và báo cáo
+- Kết thúc bằng một sản phẩm nghiên cứu tái lập
+:::
+
+# 1. Ý tưởng nghiên cứu xuyên suốt
+
+## Case Study: Student Digital Learning Experience
+
+::: callout-tip
+**Trải nghiệm học tập số của sinh viên**
+
+**Research question**
+
+``` text
+What factors influence student satisfaction with digital learning platforms?
+```
+
+**Câu hỏi nghiên cứu**
+
+``` text
+Những yếu tố nào ảnh hưởng đến sự hài lòng của sinh viên đối với nền tảng học tập số?
+```
+:::
+
+## Dữ liệu minh họa
+
+| Variable       | Type           | Meaning                          |
+|----------------|----------------|----------------------------------|
+| student_id     | ID             | Mã sinh viên                     |
+| gender         | Categorical    | Giới tính                        |
+| faculty        | Categorical    | Khoa/ngành                       |
+| digital_skill  | Numeric        | Kỹ năng số                       |
+| ease_of_use    | Likert         | Cảm nhận dễ sử dụng              |
+| usefulness     | Likert         | Cảm nhận hữu ích                 |
+| learning_value | Likert         | Giá trị học tập                  |
+| satisfaction   | Numeric/Likert | Mức độ hài lòng                  |
+| recommendation | Binary         | Có giới thiệu nền tảng hay không |
+
+## Research logic
+
+```{mermaid}
+flowchart TD
+
+A[Research Problem]
+--> B[Research Question]
+
+B --> C[Variables]
+
+C --> D[Data Collection]
+
+D --> E[Data Cleaning]
+
+E --> F[Descriptive Analysis]
+
+F --> G[Visualization]
+
+G --> H[Regression / SEM]
+
+H --> I[Advanced Analytics]
+
+I --> J[Research Report]
+```
+
+# 2. Từ ý tưởng đến câu hỏi nghiên cứu
+
+::: callout-note
+Một nghiên cứu tốt bắt đầu từ vấn đề thực tế, không bắt đầu từ phần mềm hay mô hình thống kê.
+:::
+
+## Ví dụ chuyển hóa ý tưởng
+
+| Step | Example |
+|------------------------------------|------------------------------------|
+| Problem | Sinh viên dùng nền tảng học tập số nhưng mức độ hài lòng khác nhau |
+| Research Gap | Chưa rõ yếu tố nào ảnh hưởng mạnh nhất |
+| Research Question | Digital skill, ease of use và usefulness có ảnh hưởng đến satisfaction không? |
+| Objective 1 | Mô tả trải nghiệm học tập số |
+| Objective 2 | Kiểm tra yếu tố ảnh hưởng đến satisfaction |
+| Objective 3 | Đề xuất cải thiện trải nghiệm người học |
+
+## Module liên quan
+
+- [Module 1. Nhập môn R](module-1.qmd)
+- [Module 2. Làm sạch dữ liệu](module-2.qmd)
+- [Module A10. Bộ Công cụ Nghiên cứu](advanced/adv-10-toolkit.qmd)
+
+# 3. Bản đồ học tập từ cơ bản đến nâng cao
+
+::: callout-tip
+Người học có thể đi theo 3 lộ trình:
+
+1.  Học theo trình tự khóa học
+2.  Học theo mục tiêu nghiên cứu
+3.  Học theo case study
+:::
+
+## Full learning pathway
+
+```{mermaid}
+flowchart TD
+
+M1[Module 1: Introduction to R]
+--> M2[Module 2: Data Cleaning]
+
+M2 --> M3[Module 3: Descriptive Statistics]
+
+M3 --> M4[Module 4: Correlation and Regression]
+
+M4 --> M5[Module 5: PLS-SEM]
+
+M5 --> M6[Module 6: Visualization and Reporting]
+
+M6 --> A1[Module A1: Descriptive Diagnostics]
+
+A1 --> A2[Module A2: Advanced Regression]
+
+A2 --> A3[Module A3: Regularized Regression]
+
+A3 --> A4[Module A4: Advanced SEM]
+
+A4 --> A5[Module A5: Bayesian Statistics]
+
+A5 --> A6[Module A6: Monte Carlo Simulation]
+
+A6 --> A7[Module A7: Simpson's Paradox]
+
+A7 --> A8[Module A8: Advanced Likert Analysis]
+
+A8 --> A9[Module A9: Visualization Gallery]
+
+A9 --> A15[Module A15: Reproducible Research]
+```
+
+# 4. Giai đoạn 1: Chuẩn bị dữ liệu
+
+## Research task
+
+``` text
+Import survey data
+Clean variable names
+Check missing values
+Check variable types
+Create analysis-ready dataset
+```
+
+## Questions to ask
+
+- Dataset có bao nhiêu dòng?
+- Có bao nhiêu biến?
+- Biến nào là categorical?
+- Biến nào là numeric?
+- Có missing values không?
+- Có outliers không?
+- Dữ liệu có cần reshape không?
+
+## Recommended modules
+
+- [Module 1. Nhập môn R](module-1.qmd)
+- [Module 2. Làm sạch dữ liệu](module-2.qmd)
+- [Module A1. Chẩn đoán Thống kê Mô tả](advanced/adv-01-descriptive.qmd)
+
+## Suggested outputs
+
+| Output                        | Purpose                     |
+|-------------------------------|-----------------------------|
+| Clean dataset                 | Dữ liệu sẵn sàng phân tích  |
+| Data dictionary               | Mô tả biến                  |
+| Missing value table           | Kiểm tra chất lượng dữ liệu |
+| Descriptive diagnostic report | Báo cáo chẩn đoán ban đầu   |
+
+# 5. Giai đoạn 2: Hiểu dữ liệu
+
+## Research task
+
+``` text
+Describe respondents
+Summarize key variables
+Understand distributions
+Compare basic groups
+```
+
+## Example questions
+
+- Sinh viên có mức digital skill trung bình bao nhiêu?
+- Satisfaction có phân phối lệch không?
+- Faculty nào có satisfaction cao hơn?
+- Có nhóm nào có số quan sát quá ít không?
+
+## Recommended modules
+
+- [Module 3. Thống kê mô tả](module-3.qmd)
+- [Module 6. Trực quan hóa dữ liệu và Viết kết quả](module-6.qmd)
+- [Module A1. Chẩn đoán Thống kê Mô tả](advanced/adv-01-descriptive.qmd)
+- [Module A9. Thư viện Trực quan hóa](advanced/adv-09-visualization.qmd)
+
+## Suggested figures
+
+| Question                             | Figure              |
+|--------------------------------------|---------------------|
+| Satisfaction phân phối ra sao?       | Histogram / Density |
+| Satisfaction khác nhau theo faculty? | Boxplot / Violin    |
+| Likert items phân bố thế nào?        | Likert stacked bar  |
+| Missing values ở đâu?                | Missingness plot    |
+
+# 6. Giai đoạn 3: Kiểm tra quan hệ giữa các biến
+
+## Research task
+
+``` text
+Explore correlations
+Build regression models
+Interpret predictors
+Check assumptions
+```
+
+## Example hypotheses
+
+| Hypothesis | Statement                                       |
+|------------|-------------------------------------------------|
+| H1         | Digital skill positively affects satisfaction   |
+| H2         | Ease of use positively affects satisfaction     |
+| H3         | Usefulness positively affects satisfaction      |
+| H4         | Satisfaction increases recommendation intention |
+
+## Recommended modules
+
+- [Module 4. Tương quan và Hồi quy](module-4.qmd)
+- [Module A2. Hồi quy Nâng cao](advanced/adv-02-regression.qmd)
+- [Module A3. Hồi quy Chính quy hóa](advanced/adv-03-regularized.qmd)
+
+## Model choice
+
+| Outcome                  | Recommended method          |
+|--------------------------|-----------------------------|
+| Satisfaction as numeric  | Linear regression           |
+| Recommendation as yes/no | Logistic regression         |
+| Many predictors          | Ridge / LASSO / Elastic Net |
+| Nonlinear prediction     | Machine learning            |
+
+# 7. Giai đoạn 4: Xây dựng mô hình lý thuyết
+
+## Conceptual model
+
+```{mermaid}
+flowchart LR
+
+A[Ease of Use]
+--> B[Usefulness]
+
+B --> C[Satisfaction]
+
+A --> C
+
+C --> D[Recommendation Intention]
+
+E[Digital Skill] --> A
+E --> B
+```
+
+## Research task
+
+``` text
+Define constructs
+Check reliability
+Check validity
+Estimate structural paths
+Report model results
+```
+
+## Recommended modules
+
+- [Module 5. PLS-SEM](module-5.qmd)
+- [Module A4. Mô hình Phương trình Cấu trúc Nâng cao](advanced/adv-04-sem.qmd)
+- [Module A8. Phân tích Likert Nâng cao](advanced/adv-08-likert.qmd)
+
+## Suggested outputs
+
+| Output                 | Purpose                                  |
+|------------------------|------------------------------------------|
+| Reliability table      | Cronbach's Alpha / Composite Reliability |
+| Validity table         | AVE / discriminant validity              |
+| Path coefficient table | Hypothesis testing                       |
+| SEM diagram            | Visual model presentation                |
+
+# 8. Giai đoạn 5: Phân tích nâng cao
+
+## Khi nào cần advanced analytics?
+
+| Problem | Recommended method | Module |
+|------------------------|------------------------|------------------------|
+| Có quá nhiều predictors | Regularized regression | [Module A3](advanced/adv-03-regularized.qmd) |
+| Muốn diễn giải xác suất posterior | Bayesian statistics | [Module A5](advanced/adv-05-bayesian.qmd) |
+| Muốn kiểm tra độ ổn định kết quả | Monte Carlo simulation | [Module A6](advanced/adv-06-monte-carlo.qmd) |
+| Kết quả tổng thể khác theo nhóm | Simpson's Paradox | [Module A7](advanced/adv-07-simpson.qmd) |
+| Dữ liệu Likert nhiều item | Advanced Likert analysis | [Module A8](advanced/adv-08-likert.qmd) |
+| Dữ liệu phân cấp/lặp lại | Mixed models | [Module A14](advanced/adv-14-mixed-models.qmd) |
+
+## Advanced decision tree
+
+```{mermaid}
+flowchart TD
+
+A[Do you need advanced analysis?]
+--> B{Main challenge?}
+
+B -->|Many predictors| C[Module A3: Regularized Regression]
+
+B -->|Uncertainty| D[Module A5 or A6]
+
+B -->|Grouped patterns| E[Module A7]
+
+B -->|Likert survey| F[Module A8]
+
+B -->|Nested or repeated data| G[Module A14]
+
+B -->|Publication-ready figures| H[Module A9]
+```
+
+# 9. Giai đoạn 6: Literature and evidence synthesis
+
+## Research task
+
+``` text
+Map the literature
+Identify key themes
+Synthesize prior evidence
+Position the study
+```
+
+## Khi nào dùng bibliometric analysis?
+
+Dùng khi muốn trả lời:
+
+- Lĩnh vực phát triển ra sao?
+- Tác giả nào nổi bật?
+- Tạp chí nào quan trọng?
+- Từ khóa nào đang nổi lên?
+- Chủ đề nào là motor themes?
+
+## Khi nào dùng meta-analysis?
+
+Dùng khi muốn trả lời:
+
+- Hiệu ứng trung bình từ nhiều nghiên cứu là bao nhiêu?
+- Có heterogeneity không?
+- Có publication bias không?
+- Moderator nào giải thích khác biệt giữa nghiên cứu?
+
+## Recommended modules
+
+- [Module A11. Phân tích Tổng hợp](advanced/adv-11-meta-analysis.qmd)
+- [Module A12. Phân tích Trắc lượng Thư mục](advanced/adv-12-bibliometric.qmd)
+
+# 10. Giai đoạn 7: Báo cáo và công bố
+
+## Research task
+
+``` text
+Create tables
+Create figures
+Write interpretation
+Build Quarto report
+Render HTML/PDF/website
+```
+
+## Recommended modules
+
+- [Module 6. Trực quan hóa dữ liệu và Viết kết quả](module-6.qmd)
+- [Module A9. Thư viện Trực quan hóa](advanced/adv-09-visualization.qmd)
+- [Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật](advanced/adv-15-reproducible.qmd)
+
+## Final research output
+
+```{mermaid}
+flowchart LR
+
+A[Clean Data]
+--> B[Tables]
+
+A --> C[Figures]
+
+B --> D[Quarto Report]
+
+C --> D
+
+D --> E[HTML Report]
+
+D --> F[PDF Report]
+
+D --> G[Website]
+```
+
+# 11. Method selection guide
+
+## Choose method by research goal
+
+| Research goal | Recommended method | Module |
+|------------------------|------------------------|------------------------|
+| Describe data | Descriptive statistics | [Module 3](module-3.qmd) |
+| Diagnose data quality | Descriptive diagnostics | [Module A1](advanced/adv-01-descriptive.qmd) |
+| Visualize patterns | ggplot2 | [Module 6](module-6.qmd), [Module A9](advanced/adv-09-visualization.qmd) |
+| Test relationship | Correlation / Regression | [Module 4](module-4.qmd), [Module A2](advanced/adv-02-regression.qmd) |
+| Predict outcome | Regression / ML | [Module A3](advanced/adv-03-regularized.qmd) |
+| Model constructs | PLS-SEM / SEM | [Module 5](module-5.qmd), [Module A4](advanced/adv-04-sem.qmd) |
+| Compare groups | ANOVA | [Module A13](advanced/adv-13-anova.qmd) |
+| Analyze repeated data | Mixed models | [Module A14](advanced/adv-14-mixed-models.qmd) |
+| Analyze Likert items | Likert analysis | [Module A8](advanced/adv-08-likert.qmd) |
+| Simulate uncertainty | Monte Carlo | [Module A6](advanced/adv-06-monte-carlo.qmd) |
+| Synthesize evidence | Meta-analysis | [Module A11](advanced/adv-11-meta-analysis.qmd) |
+| Map literature | Bibliometric analysis | [Module A12](advanced/adv-12-bibliometric.qmd) |
+| Report reproducibly | Quarto | [Module A15](advanced/adv-15-reproducible.qmd) |
+
+# 12. Figure selection guide
+
+| Data question | Recommended figure | Module |
+|------------------------|------------------------|------------------------|
+| One numeric variable | Histogram / Density | [Module A9](advanced/adv-09-visualization.qmd) |
+| Numeric by group | Boxplot / Violin | [Module A9](advanced/adv-09-visualization.qmd) |
+| Two numeric variables | Scatter plot | [Module A9](advanced/adv-09-visualization.qmd) |
+| Time trend | Line plot | [Module A9](advanced/adv-09-visualization.qmd) |
+| Likert items | Likert stacked / Diverging | [Module A8](advanced/adv-08-likert.qmd) |
+| Many variables | Heatmap / PCA | [Module A9](advanced/adv-09-visualization.qmd) |
+| Meta-analysis | Forest plot / Funnel plot | [Module A11](advanced/adv-11-meta-analysis.qmd) |
+| Bibliometric | Keyword map / Thematic map | [Module A12](advanced/adv-12-bibliometric.qmd) |
+
+# 13. Table selection guide
+
+| Table | Purpose | Module |
+|------------------------|------------------------|------------------------|
+| Table 1 | Sample characteristics | [Module 3](module-3.qmd) |
+| Table 2 | Descriptive statistics | [Module 3](module-3.qmd) |
+| Table 3 | Correlation matrix | [Module 4](module-4.qmd) |
+| Table 4 | Regression table | [Module A2](advanced/adv-02-regression.qmd) |
+| Table 5 | Reliability and validity | [Module 5](module-5.qmd) |
+| Table 6 | SEM path coefficients | [Module A4](advanced/adv-04-sem.qmd) |
+| Table 7 | ANOVA results | [Module A13](advanced/adv-13-anova.qmd) |
+| Table 8 | Mixed model results | [Module A14](advanced/adv-14-mixed-models.qmd) |
+
+# 14. Capstone workflow
+
+::: callout-important
+Người học nên kết thúc khóa học bằng một **Research Analytics Portfolio**.
+:::
+
+## Capstone project structure
+
+``` text
+Research Question
+↓
+Dataset
+↓
+Data Cleaning
+↓
+Descriptive Analysis
+↓
+Visualization
+↓
+Main Model
+↓
+Advanced Analysis
+↓
+Tables and Figures
+↓
+Quarto Report
+↓
+Final Presentation
+```
+
+## Required outputs
+
+| Output               | Description          |
+|----------------------|----------------------|
+| Clean dataset        | Dữ liệu đã xử lý     |
+| Data dictionary      | Mô tả biến           |
+| Descriptive table    | Bảng thống kê mô tả  |
+| Main figure          | Hình chính           |
+| Regression/SEM table | Bảng mô hình         |
+| Interpretation       | Diễn giải học thuật  |
+| Quarto report        | Báo cáo tái lập      |
+| Website page         | Trang báo cáo online |
+
+# 15. Recommended resources
+
+## Internal resources
+
+- [Resources](resources.qmd)
+- [Glossary](glossary.qmd)
+- [Learning Roadmap](roadmap.qmd)
+
+## Recommended books
+
+- [Statistics for Business and Economics](resources/Books/Statistics%20for%20Business%20and%20economics.pdf)
+- [Psychometrics](resources/Books/Psychometrics.pdf)
+- [R with ggplot2 Using Shiny App](resources/Books/R%20with%20ggplot2%20Using%20Shiny%20App.pdf)
+- [R for Marketing](resources/Books/R%20for%20Marketing.pdf)
+- [R for Random Forest](resources/Books/R%20for%20random%20forest.pdf)
+
+# 16. Final research checklist
+
+::: callout-success
+Trước khi hoàn thành một dự án nghiên cứu, hãy kiểm tra:
+
+- Câu hỏi nghiên cứu rõ ràng.
+
+- Bộ dữ liệu sạch.
+
+- Các biến được ghi chép đầy đủ.
+
+- Thống kê mô tả được báo cáo.
+
+- Hình ảnh phù hợp.
+
+- Mô hình chính phù hợp với câu hỏi nghiên cứu.
+
+- Các giả định hoặc chẩn đoán được kiểm tra.
+
+- Kết quả được diễn giải cẩn thận.
+
+- Bảng và hình ảnh sẵn sàng để xuất bản.
+
+- Báo cáo có thể tái tạo.
+
+- Quarto hiển thị không có lỗi.
+:::
+
+# What Next?
+
+::: callout-tip
+Sau trang này, người học nên tiếp tục với:
+
+- [Learning Roadmap](roadmap.qmd)
+- [Glossary](glossary.qmd)
+- [Resources](resources.qmd)
+- [Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật](advanced/adv-15-reproducible.qmd)
+:::

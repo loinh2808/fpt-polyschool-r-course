@@ -1,0 +1,1101 @@
+---
+title: "Advanced 05. Thống kê Bayes"
+subtitle: "Bayesian Statistics with R"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Hiểu tư duy thống kê Bayes (Bayesian Statistics)
+- Phân biệt thống kê tần suất (Frequentist Statistics) và thống kê Bayes
+- Hiểu prior, likelihood và posterior
+- Hiểu khoảng tin cậy Bayes (Credible Interval)
+- Mô phỏng phân phối posterior bằng R
+- Chạy hồi quy Bayes cơ bản bằng `rstanarm` nếu package đã được cài
+- Kiểm tra trực quan posterior distribution
+- Hiểu chẩn đoán MCMC ở mức nhập môn
+- Viết kết quả Bayes theo chuẩn học thuật
+- Tránh các sai lầm phổ biến khi dùng Bayesian analysis
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Thống kê Bayes giúp chúng ta cập nhật niềm tin về tham số như thế nào sau khi quan sát dữ liệu?**
+
+Quy trình:
+
+```text
+Prior Belief
+↓
+Observed Data
+↓
+Likelihood
+↓
+Posterior Belief
+↓
+Credible Interval
+↓
+Decision and Reporting
+```
+
+:::
+
+## Minh họa tư duy Bayes
+
+```{mermaid}
+flowchart LR
+
+A[Prior Belief]
+--> B[Observed Data]
+
+B --> C[Likelihood]
+
+C --> D[Posterior Distribution]
+
+D --> E[Credible Interval]
+
+E --> F[Research Interpretation]
+```
+
+# 1. Vì sao cần thống kê Bayes?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Thống kê Bayes (Bayesian Statistics) là cách tiếp cận thống kê trong đó nhà nghiên cứu cập nhật niềm tin ban đầu về một tham số sau khi quan sát dữ liệu.
+
+**Tại sao cần? (Why?)**
+
+Bayesian analysis hữu ích vì nó cho phép:
+
+- Kết hợp dữ liệu mới với kiến thức trước đó
+- Diễn giải kết quả dưới dạng xác suất trực quan hơn
+- Làm việc tốt trong một số tình huống mẫu nhỏ
+- Trình bày uncertainty bằng posterior distribution
+- Trả lời câu hỏi xác suất về tham số
+
+**Khi nào dùng? (When?)**
+
+Dùng khi:
+
+- Có kiến thức trước từ nghiên cứu trước
+- Cần diễn giải xác suất trực tiếp
+- Cần mô hình hóa uncertainty rõ ràng
+- Cần mô hình linh hoạt hơn frequentist methods
+- Muốn dùng simulation-based inference
+
+**Thực hiện thế nào? (How?)**
+
+Bayesian analysis dùng công thức:
+
+```text
+Posterior ∝ Prior × Likelihood
+```
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Thống kê Bayes có thể dùng trong:
+
+- Nghiên cứu giáo dục
+- Nghiên cứu hành vi
+- Nghiên cứu y tế
+- Nghiên cứu quản trị
+- Dự đoán adoption hoặc usage
+- Nghiên cứu có mẫu nhỏ
+- Nghiên cứu cần kết hợp bằng chứng trước đó
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Người học thường mắc lỗi:
+
+- Dùng Bayesian chỉ vì nghe hiện đại
+- Chọn prior quá mạnh nhưng không giải thích
+- Không kiểm tra convergence
+- Nhầm credible interval với confidence interval
+- Diễn giải posterior quá mức
+- Không báo cáo prior đã dùng
+
+:::
+
+# 2. Chuẩn bị dữ liệu
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Dữ liệu sử dụng**
+
+```text
+data/advance/module7_advanced_data.xlsx
+```
+
+Sheet sử dụng:
+
+```text
+05_Bayesian_MonteCarlo
+```
+
+Trong module này, ta dùng phần dữ liệu Bayes để minh họa:
+
+- Prior
+- Likelihood
+- Posterior
+- Bayesian regression
+- Posterior visualization
+
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("bayesplot")
+install.packages("posterior")
+install.packages("rstanarm")
+install.packages("gt")
+install.packages("patchwork")
+```
+
+## Nạp package
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(gt)
+library(patchwork)
+```
+
+## Thiết lập đường dẫn dữ liệu
+
+```{r}
+advanced_file <- if (file.exists("../data/advance/module7_advanced_data.xlsx")) {
+  "../data/advance/module7_advanced_data.xlsx"
+} else if (file.exists("../data/advanced/module7_advanced_data.xlsx")) {
+  "../data/advanced/module7_advanced_data.xlsx"
+} else if (file.exists("data/advance/module7_advanced_data.xlsx")) {
+  "data/advance/module7_advanced_data.xlsx"
+} else {
+  "data/advanced/module7_advanced_data.xlsx"
+}
+```
+
+## Nhập dữ liệu
+
+```{r}
+bayes_data <- read_excel(
+  advanced_file,
+  sheet = "05_Bayesian_MonteCarlo"
+) |>
+  clean_names()
+```
+
+## Kiểm tra dữ liệu
+
+```{r}
+glimpse(bayes_data)
+```
+
+```{r}
+names(bayes_data)
+```
+
+## Tạo dữ liệu minh họa ổn định cho Bayesian regression
+
+```{r}
+set.seed(123)
+
+bayes_model_data <- tibble(
+  predictor_x = rnorm(300, mean = 0, sd = 1),
+  predictor_z = rnorm(300, mean = 0, sd = 1),
+  observed_mean = 2 +
+    0.60 * predictor_x -
+    0.25 * predictor_z +
+    rnorm(300, mean = 0, sd = 1)
+)
+
+glimpse(bayes_model_data)
+```
+
+# 3. Frequentist và Bayesian khác nhau thế nào?
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Phân biệt tư duy frequentist và Bayesian
+- Hiểu vì sao Bayesian cho phép nói về xác suất của tham số
+- Biết khi nào Bayesian interpretation dễ hiểu hơn
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Frequentist Statistics**
+
+Trong thống kê tần suất, tham số thường được xem là giá trị cố định nhưng chưa biết. Dữ liệu được xem là ngẫu nhiên.
+
+**Bayesian Statistics**
+
+Trong thống kê Bayes, tham số được xem là bất định và có thể được mô tả bằng phân phối xác suất.
+
+**So sánh nhanh**
+
+| Nội dung | Frequentist | Bayesian |
+|---|---|---|
+| Tham số | Cố định nhưng chưa biết | Có phân phối xác suất |
+| Dữ liệu | Ngẫu nhiên | Đã quan sát |
+| Khoảng ước lượng | Confidence Interval | Credible Interval |
+| Diễn giải | Dựa trên lặp lại dài hạn | Dựa trên xác suất posterior |
+| Kiến thức trước | Ít đưa trực tiếp | Đưa vào qua prior |
+
+:::
+
+::: {.callout-important title="Ví dụ diễn giải (Interpretation Example)"}
+
+Frequentist thường nói:
+
+```text
+Nếu lặp lại nghiên cứu nhiều lần, 95% khoảng tin cậy được tạo ra sẽ chứa tham số thật.
+```
+
+Bayesian có thể nói:
+
+```text
+Với dữ liệu và prior đã dùng, có 95% xác suất tham số nằm trong khoảng credible interval.
+```
+
+:::
+
+# 4. Prior, Likelihood và Posterior
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu prior
+- Hiểu likelihood
+- Hiểu posterior
+- Vẽ minh họa prior và posterior bằng R
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Prior là gì?**
+
+Prior là niềm tin hoặc thông tin trước khi quan sát dữ liệu.
+
+**Likelihood là gì?**
+
+Likelihood cho biết dữ liệu quan sát được phù hợp như thế nào với các giá trị tham số khác nhau.
+
+**Posterior là gì?**
+
+Posterior là niềm tin sau khi kết hợp prior và dữ liệu.
+
+:::
+
+## Minh họa bằng dữ liệu mô phỏng
+
+```{r}
+set.seed(123)
+
+theta_grid <- seq(-3, 3, length.out = 500)
+
+prior <- dnorm(theta_grid, mean = 0, sd = 1)
+likelihood <- dnorm(theta_grid, mean = 1.2, sd = 0.6)
+posterior_unnormalized <- prior * likelihood
+posterior <- posterior_unnormalized / max(posterior_unnormalized) * max(prior)
+
+bayes_demo <- tibble(
+  theta = theta_grid,
+  prior = prior,
+  likelihood = likelihood,
+  posterior = posterior
+) |>
+  pivot_longer(
+    cols = c(prior, likelihood, posterior),
+    names_to = "distribution",
+    values_to = "density"
+  )
+```
+
+## Vẽ prior, likelihood và posterior
+
+```{r}
+ggplot(bayes_demo, aes(x = theta, y = density, linetype = distribution)) +
+  geom_line(linewidth = 1) +
+  labs(
+    title = "Prior, Likelihood and Posterior",
+    x = "Parameter value",
+    y = "Density",
+    linetype = "Distribution"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- Prior là thông tin trước dữ liệu.
+- Likelihood đến từ dữ liệu.
+- Posterior là kết quả sau khi cập nhật.
+- Posterior là trung tâm của Bayesian inference.
+
+:::
+
+# 5. Các loại prior
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Phân biệt weakly informative prior và informative prior
+- Biết khi nào nên dùng prior mạnh hoặc yếu
+- Hiểu vì sao prior cần được báo cáo minh bạch
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Non-informative prior**
+
+Prior rất rộng, ít ảnh hưởng đến kết quả.
+
+**Weakly informative prior**
+
+Prior có định hướng nhẹ, giúp mô hình ổn định nhưng không áp đặt quá mạnh.
+
+**Informative prior**
+
+Prior dựa trên bằng chứng mạnh từ nghiên cứu trước hoặc chuyên gia.
+
+:::
+
+## Minh họa ba loại prior
+
+```{r}
+prior_demo <- tibble(
+  theta = theta_grid,
+  non_informative = dnorm(theta_grid, 0, 10),
+  weakly_informative = dnorm(theta_grid, 0, 2),
+  informative = dnorm(theta_grid, 0.8, 0.3)
+) |>
+  pivot_longer(
+    cols = -theta,
+    names_to = "prior_type",
+    values_to = "density"
+  )
+```
+
+```{r}
+ggplot(prior_demo, aes(x = theta, y = density, linetype = prior_type)) +
+  geom_line(linewidth = 1) +
+  labs(
+    title = "Examples of Prior Distributions",
+    x = "Parameter value",
+    y = "Density",
+    linetype = "Prior type"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên dùng informative prior nếu không có lý do rõ ràng.
+
+Nếu dùng prior mạnh, cần giải thích:
+
+- Nguồn prior từ đâu?
+- Dựa trên nghiên cứu nào?
+- Có kiểm tra sensitivity analysis không?
+
+:::
+
+# 6. Credible Interval và Confidence Interval
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu credible interval
+- Phân biệt credible interval và confidence interval
+- Diễn giải credible interval đúng cách
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Credible Interval là gì?**
+
+Khoảng tin cậy Bayes (Credible Interval) là khoảng chứa một tỷ lệ xác suất posterior nhất định của tham số.
+
+**Confidence Interval là gì?**
+
+Confidence Interval là khái niệm frequentist dựa trên ý tưởng lặp lại nghiên cứu nhiều lần.
+
+| Nội dung | Confidence Interval | Credible Interval |
+|---|---|---|
+| Cách tiếp cận | Frequentist | Bayesian |
+| Diễn giải | Dài hạn qua lặp lại | Xác suất trực tiếp |
+| Có thể nói tham số có 95% xác suất trong khoảng? | Không | Có |
+| Phụ thuộc prior? | Không trực tiếp | Có |
+
+:::
+
+## Tính credible interval từ posterior mô phỏng
+
+```{r}
+set.seed(123)
+
+posterior_draws <- rnorm(
+  10000,
+  mean = 0.75,
+  sd = 0.25
+)
+
+credible_interval <- quantile(
+  posterior_draws,
+  probs = c(0.025, 0.975)
+)
+
+credible_interval
+```
+
+## Vẽ posterior và credible interval
+
+```{r}
+posterior_df <- tibble(beta = posterior_draws)
+
+ggplot(posterior_df, aes(x = beta)) +
+  geom_density() +
+  geom_vline(xintercept = credible_interval, linetype = "dashed") +
+  labs(
+    title = "Posterior Distribution with 95% Credible Interval",
+    x = "Beta",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Có thể viết:
+
+```text
+Với dữ liệu và prior đã dùng, có 95% xác suất hệ số nằm trong khoảng [0.26, 1.24].
+```
+
+Không nên dùng cách diễn giải này cho confidence interval frequentist.
+
+:::
+
+# 7. Bayesian Regression bằng mô phỏng đơn giản
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu posterior của hệ số hồi quy
+- Mô phỏng posterior draws
+- Trực quan hóa posterior coefficient
+- Viết diễn giải xác suất
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Trong mô hình hồi quy Bayes, mỗi hệ số có một posterior distribution.
+
+Thay vì chỉ có một estimate và p-value, ta có phân phối của hệ số.
+
+:::
+
+## Mô hình frequentist để lấy điểm khởi đầu
+
+```{r}
+freq_model <- lm(
+  observed_mean ~ predictor_x + predictor_z,
+  data = bayes_model_data
+)
+
+summary(freq_model)
+```
+
+## Tạo posterior mô phỏng từ hệ số frequentist
+
+```{r}
+coef_table <- summary(freq_model)$coefficients
+
+beta_x_mean <- coef_table["predictor_x", "Estimate"]
+beta_x_se <- coef_table["predictor_x", "Std. Error"]
+
+set.seed(123)
+
+beta_x_posterior <- rnorm(
+  10000,
+  mean = beta_x_mean,
+  sd = beta_x_se
+)
+
+beta_x_summary <- tibble(
+  mean = mean(beta_x_posterior),
+  median = median(beta_x_posterior),
+  lower_95 = quantile(beta_x_posterior, 0.025),
+  upper_95 = quantile(beta_x_posterior, 0.975),
+  prob_positive = mean(beta_x_posterior > 0)
+)
+
+beta_x_summary
+```
+
+## Vẽ posterior của hệ số
+
+```{r}
+tibble(beta_x = beta_x_posterior) |>
+  ggplot(aes(x = beta_x)) +
+  geom_density() +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Posterior Distribution of Predictor X",
+    x = "Beta for predictor_x",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu `prob_positive = 0.97`, có thể viết:
+
+```text
+The posterior probability that the coefficient of predictor_x is positive was 0.97.
+```
+
+Cách diễn giải này khác với p-value.
+
+:::
+
+# 8. Bayesian Regression bằng `rstanarm`
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Biết cách chạy Bayesian regression bằng `rstanarm`
+- Hiểu vì sao chunk này có thể cần thời gian chạy lâu hơn
+- Biết cách đặt `eval: false` nếu máy chưa cài package
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+`rstanarm` là package giúp chạy mô hình Bayes với cú pháp gần giống `lm()` và `glm()`.
+
+Tuy nhiên, package này có thể cần cài đặt backend Stan và chạy chậm hơn các mô hình thông thường.
+
+Vì vậy, trong khóa học, phần này để `eval: false` nhằm tránh lỗi render nếu máy chưa cài `rstanarm`.
+
+:::
+
+## Bayesian linear regression
+
+```{r}
+#| eval: false
+
+library(rstanarm)
+
+bayes_lm <- stan_glm(
+  observed_mean ~ predictor_x + predictor_z,
+  data = bayes_model_data,
+  family = gaussian(),
+  prior = normal(0, 2),
+  prior_intercept = normal(0, 5),
+  chains = 2,
+  iter = 1000,
+  seed = 123
+)
+
+summary(bayes_lm)
+```
+
+## Posterior intervals
+
+```{r}
+#| eval: false
+
+posterior_interval(
+  bayes_lm,
+  prob = 0.95
+)
+```
+
+## Posterior plot
+
+```{r}
+#| eval: false
+
+plot(bayes_lm)
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Nếu máy chưa cài `rstanarm`, không nên bật `eval: true`.
+
+Với khóa học public, nên giữ phần này là code tham khảo, còn mô phỏng posterior ở Section 7 là phần render ổn định.
+
+:::
+
+# 9. Bayesian Logistic Regression
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu Bayesian Logistic Regression
+- Biết khi nào dùng mô hình Bernoulli
+- Thấy cú pháp cơ bản bằng `rstanarm`
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Bayesian Logistic Regression dùng khi outcome là nhị phân.
+
+Ví dụ:
+
+```text
+0 = No
+1 = Yes
+```
+
+Trong `rstanarm`, có thể dùng:
+
+```r
+family = binomial()
+```
+
+:::
+
+```{r}
+#| eval: false
+
+bayes_logit <- stan_glm(
+  binary_outcome ~ predictor_x + predictor_z,
+  data = bayes_model_data,
+  family = binomial(),
+  prior = normal(0, 2),
+  prior_intercept = normal(0, 5),
+  chains = 2,
+  iter = 1000,
+  seed = 123
+)
+
+summary(bayes_logit)
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Trong Bayesian Logistic Regression, hệ số posterior thường ở dạng log-odds.
+
+Có thể chuyển sang odds ratio bằng:
+
+```r
+exp(coef)
+```
+
+:::
+
+# 10. MCMC Diagnostics
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu MCMC ở mức nhập môn
+- Biết Rhat là gì
+- Biết Effective Sample Size là gì
+- Hiểu trace plot dùng để làm gì
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**MCMC là gì?**
+
+MCMC (Markov Chain Monte Carlo) là phương pháp mô phỏng để lấy mẫu từ posterior distribution.
+
+**Rhat là gì?**
+
+Rhat giúp kiểm tra các chains đã hội tụ hay chưa.
+
+Quy tắc thường dùng:
+
+```text
+Rhat < 1.01
+```
+
+**Effective Sample Size là gì?**
+
+Effective Sample Size cho biết số lượng mẫu posterior hiệu quả sau khi xét đến tương quan giữa draws.
+
+:::
+
+## Minh họa trace plot bằng dữ liệu mô phỏng
+
+```{r}
+set.seed(123)
+
+mcmc_demo <- tibble(
+  iteration = rep(1:1000, 3),
+  chain = rep(c("Chain 1", "Chain 2", "Chain 3"), each = 1000),
+  value = c(
+    cumsum(rnorm(1000, 0, 0.05)) + 0.7,
+    cumsum(rnorm(1000, 0, 0.05)) + 0.75,
+    cumsum(rnorm(1000, 0, 0.05)) + 0.72
+  )
+)
+
+ggplot(mcmc_demo, aes(x = iteration, y = value, linetype = chain)) +
+  geom_line(alpha = 0.7) +
+  labs(
+    title = "Illustrative MCMC Trace Plot",
+    x = "Iteration",
+    y = "Parameter value",
+    linetype = "Chain"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên chỉ đọc posterior summary mà bỏ qua convergence diagnostics.
+
+Nếu chains chưa hội tụ, kết quả Bayesian có thể không đáng tin cậy.
+
+:::
+
+# 11. Posterior Predictive Check
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu posterior predictive check
+- Biết mục tiêu của `pp_check()`
+- Hiểu vì sao Bayesian không chỉ nhìn hệ số
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Posterior predictive check kiểm tra liệu mô hình có thể tạo ra dữ liệu mô phỏng giống với dữ liệu quan sát hay không.
+
+Nếu dữ liệu mô phỏng từ posterior khác xa dữ liệu thật, mô hình có thể chưa phù hợp.
+
+:::
+
+```{r}
+#| eval: false
+
+pp_check(bayes_lm)
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu posterior predictive distribution tương tự dữ liệu quan sát, mô hình có thể mô tả dữ liệu tốt hơn.
+
+Nếu khác biệt lớn, cần xem lại:
+
+- Mô hình
+- Biến đưa vào
+- Prior
+- Phân phối outcome
+- Outliers
+
+:::
+
+# 12. Bayes Factor
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Hiểu Bayes Factor
+- Biết cách diễn giải BF10
+- Biết hạn chế của Bayes Factor
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Bayes Factor so sánh mức độ bằng chứng giữa hai mô hình hoặc hai giả thuyết.
+
+Ví dụ:
+
+```text
+BF10 = evidence for H1 relative to H0
+```
+
+Quy tắc tham khảo:
+
+| BF10 | Diễn giải |
+|---:|---|
+| 1–3 | Bằng chứng yếu |
+| 3–10 | Bằng chứng vừa |
+| > 10 | Bằng chứng mạnh |
+| > 30 | Bằng chứng rất mạnh |
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Bayes Factor nhạy với prior.
+
+Không nên báo cáo Bayes Factor mà không nói rõ mô hình và prior.
+
+:::
+
+# 13. Trực quan hóa Bayesian
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Vẽ posterior density
+- Vẽ posterior interval
+- Vẽ xác suất hệ số dương hoặc âm
+- Dùng visualization để diễn giải kết quả Bayes
+
+:::
+
+## Posterior area plot
+
+```{r}
+posterior_area <- tibble(beta = beta_x_posterior) |>
+  mutate(
+    positive = beta > 0
+  )
+
+ggplot(posterior_area, aes(x = beta, fill = positive)) +
+  geom_density(alpha = 0.5) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Posterior Probability of a Positive Effect",
+    x = "Beta",
+    y = "Density",
+    fill = "Beta > 0"
+  ) +
+  theme_minimal()
+```
+
+## Posterior interval plot
+
+```{r}
+posterior_interval_df <- tibble(
+  parameter = "predictor_x",
+  mean = mean(beta_x_posterior),
+  lower = quantile(beta_x_posterior, 0.025),
+  upper = quantile(beta_x_posterior, 0.975)
+)
+
+ggplot(posterior_interval_df, aes(x = mean, y = parameter)) +
+  geom_point(size = 3) +
+  geom_errorbarh(aes(xmin = lower, xmax = upper), height = 0.15) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Posterior Mean and 95% Credible Interval",
+    x = "Posterior estimate",
+    y = "Parameter"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Bayesian visualization giúp người đọc hiểu uncertainty tốt hơn so với chỉ nhìn bảng số liệu.
+
+:::
+
+# 14. Viết kết quả học thuật
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Viết kết quả Bayesian cần báo cáo:
+
+- Mô hình đã dùng
+- Prior
+- Posterior estimate
+- Credible interval
+- Probability statement nếu phù hợp
+- Diagnostics nếu có MCMC
+
+:::
+
+## Template Bayesian regression
+
+```text
+A Bayesian regression model was estimated using weakly informative priors. The posterior distribution suggested a positive association between predictor_x and the outcome, with a posterior mean of [value] and a 95% credible interval of [lower, upper].
+```
+
+## Template probability statement
+
+```text
+The posterior probability that the coefficient of predictor_x was positive was [probability], suggesting strong evidence for a positive association under the specified model and prior.
+```
+
+## Template MCMC reporting
+
+```text
+Model convergence was assessed using trace plots and Rhat values. All Rhat values were below 1.01, indicating acceptable convergence.
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên viết:
+
+```text
+The Bayesian model proved the hypothesis.
+```
+
+Nên viết:
+
+```text
+The posterior distribution provided evidence consistent with the hypothesized positive association.
+```
+
+:::
+
+# 15. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Sử dụng dữ liệu minh họa trong module và sheet `05_Bayesian_MonteCarlo`, hãy thực hiện:
+
+1. Nhập dữ liệu.
+2. Vẽ prior, likelihood và posterior.
+3. Tạo posterior draws cho một hệ số.
+4. Tính credible interval 95%.
+5. Tính xác suất posterior rằng hệ số lớn hơn 0.
+6. Vẽ posterior density.
+7. Vẽ posterior interval plot.
+8. So sánh confidence interval và credible interval.
+9. Nếu máy có `rstanarm`, chạy Bayesian regression.
+10. Viết một đoạn kết quả Bayesian.
+
+:::
+
+# 16. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Một nhà nghiên cứu chạy mô hình Bayesian regression và nhận được:
+
+```text
+Posterior mean = 0.42
+95% CrI = [0.10, 0.76]
+P(beta > 0) = 0.98
+```
+
+## Câu hỏi
+
+1. Kết quả này nên diễn giải thế nào?
+2. Có thể nói hệ số có 98% xác suất dương không?
+3. Có nên gọi đây là bằng chứng nhân quả không?
+4. Cần báo cáo thêm thông tin gì?
+5. Prior có vai trò gì?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+Một câu trả lời tốt nên nêu:
+
+- Posterior mean là 0.42.
+- 95% credible interval nằm hoàn toàn trên 0.
+- Có thể nói xác suất posterior rằng hệ số dương là 0.98.
+- Không nên tự động diễn giải là quan hệ nhân quả.
+- Cần báo cáo prior, mô hình, diagnostics và dữ liệu sử dụng.
+
+:::
+
+# 17. Dự án nhỏ
+
+::: {.callout-important title="Dự án nhỏ (Mini Project)"}
+
+## Chủ đề
+
+Bayesian Analysis Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+```text
+Bayesian_Analysis_Report.html
+```
+
+## Nội dung báo cáo
+
+1. Research question
+2. Prior specification
+3. Data overview
+4. Posterior simulation
+5. Credible interval
+6. Posterior probability
+7. Bayesian regression example
+8. Posterior visualization
+9. Academic interpretation
+10. Limitations and next steps
+
+:::
+
+# 18. Điểm cần ghi nhớ
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- Bayesian analysis cập nhật prior bằng dữ liệu để tạo posterior.
+- Posterior distribution là trung tâm của Bayesian inference.
+- Credible interval khác confidence interval.
+- Bayesian results cần báo cáo prior.
+- MCMC diagnostics rất quan trọng khi dùng mô hình Bayesian thật.
+- Bayesian không tự động tốt hơn frequentist; nó phù hợp cho một số câu hỏi nhất định.
+- Không nên dùng Bayesian chỉ vì xu hướng.
+- Diễn giải Bayesian cần minh bạch về model, prior và dữ liệu.
+
+:::
+
+# 19. Bước tiếp theo
+
+::: {.callout-note title="Bước tiếp theo (What Next?)"}
+
+Sau khi hoàn thành phần này, học viên nên:
+
+1. Hiểu prior, likelihood và posterior.
+2. Biết diễn giải credible interval.
+3. Biết trực quan hóa posterior distribution.
+4. Biết khi nào cần kiểm tra MCMC diagnostics.
+5. Chuyển sang:
+
+[Monte Carlo Simulation](adv-06-monte-carlo.qmd)
+
+Trong phần tiếp theo, chúng ta sẽ học mô phỏng Monte Carlo, bootstrap và cách dùng simulation để hiểu uncertainty.
+
+:::

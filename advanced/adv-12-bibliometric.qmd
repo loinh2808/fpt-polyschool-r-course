@@ -1,0 +1,1119 @@
+---
+title: "Advanced 12. Phân tích Thư mục Khoa học"
+subtitle: "Bibliometric Analysis with R and Bibliometrix"
+---
+
+# Tổng quan bài học
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau khi hoàn thành bài học này, học viên có thể:
+
+- Hiểu phân tích thư mục khoa học (Bibliometric Analysis)
+- Phân biệt bibliometric review và systematic review
+- Hiểu cấu trúc dữ liệu Scopus/Web of Science
+- Biết dùng `bibliometrix` và `biblioshiny`
+- Phân tích tăng trưởng công bố theo năm
+- Xác định nguồn xuất bản hàng đầu
+- Xác định tác giả, quốc gia và tổ chức nổi bật
+- Phân tích từ khóa và xu hướng chủ đề
+- Hiểu co-authorship, co-citation và co-word analysis
+- Tạo biểu đồ bibliometric bằng `ggplot2`
+- Viết kết quả bibliometric theo chuẩn học thuật
+
+:::
+
+::: {.callout-note title="Logic bài học (Module Logic)"}
+
+Bài học này trả lời câu hỏi:
+
+**Làm thế nào để dùng dữ liệu thư mục khoa học để hiểu cấu trúc, xu hướng và bản đồ tri thức của một lĩnh vực nghiên cứu?**
+
+Quy trình:
+
+```text
+Search Strategy
+↓
+Database Export
+↓
+Data Import
+↓
+Descriptive Bibliometrics
+↓
+Sources / Authors / Countries
+↓
+Keyword Analysis
+↓
+Science Mapping
+↓
+Thematic Interpretation
+↓
+Academic Reporting
+```
+
+:::
+
+## Quy trình bibliometric analysis
+
+```{mermaid}
+flowchart TD
+
+A[Research Topic]
+--> B[Search Query]
+
+B --> C[Scopus / Web of Science Export]
+
+C --> D[Import to R]
+
+D --> E[Descriptive Analysis]
+
+E --> F[Source and Author Analysis]
+
+F --> G[Keyword Analysis]
+
+G --> H[Network Analysis]
+
+H --> I[Thematic Interpretation]
+
+I --> J[Bibliometric Report]
+```
+
+# 1. Bibliometric analysis là gì?
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+**Là gì? (What?)**
+
+Phân tích thư mục khoa học (Bibliometric Analysis) là phương pháp định lượng dùng dữ liệu công bố khoa học để phân tích cấu trúc, xu hướng và sự phát triển của một lĩnh vực nghiên cứu.
+
+**Tại sao cần? (Why?)**
+
+Bibliometric analysis giúp trả lời:
+
+- Lĩnh vực này phát triển như thế nào theo thời gian?
+- Tạp chí nào công bố nhiều nhất?
+- Tác giả nào nổi bật?
+- Quốc gia nào đóng góp nhiều?
+- Từ khóa nào phổ biến?
+- Chủ đề nào đang nổi lên?
+- Các nhóm nghiên cứu liên kết với nhau ra sao?
+
+**Khi nào dùng? (When?)**
+
+Dùng khi muốn:
+
+- Tổng quan một lĩnh vực lớn
+- Xác định xu hướng nghiên cứu
+- Tìm khoảng trống nghiên cứu
+- Hỗ trợ systematic review
+- Chuẩn bị phần introduction/literature review
+- Viết bibliometric review
+
+**Thực hiện thế nào? (How?)**
+
+Trong R thường dùng:
+
+```r
+bibliometrix
+biblioshiny()
+```
+
+và có thể kết hợp `tidyverse`, `ggplot2`.
+
+:::
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+Bibliometric analysis phù hợp cho:
+
+- Tổng quan nghiên cứu giáo dục
+- Nghiên cứu công nghệ giáo dục
+- AI in education
+- Sustainability
+- Management
+- Marketing
+- Agriculture
+- Climate change
+- Health sciences
+- Digital transformation
+
+:::
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Người học thường mắc lỗi:
+
+- Không mô tả rõ search query
+- Trộn dữ liệu nhiều nguồn nhưng không xử lý trùng lặp
+- Chỉ chạy Biblioshiny mà không diễn giải
+- Nhầm bibliometric analysis với systematic review
+- Không kiểm tra dữ liệu thiếu
+- Diễn giải network quá mức
+- Không nêu ngày truy xuất dữ liệu
+
+:::
+
+# 2. Bibliometric review và systematic review
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể phân biệt bibliometric review và systematic review.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+| Tiêu chí | Bibliometric Review | Systematic Review |
+|---|---|---|
+| Mục tiêu | Bản đồ lĩnh vực | Tổng hợp nội dung bằng chứng |
+| Dữ liệu | Metadata công bố | Full text / nội dung nghiên cứu |
+| Câu hỏi | Ai, ở đâu, khi nào, chủ đề gì | Bằng chứng nói gì |
+| Phương pháp | Quantitative mapping | Thematic / evidence synthesis |
+| Công cụ | Bibliometrix, VOSviewer | PRISMA, coding, synthesis |
+| Kết quả | Networks, trends, maps | Themes, gaps, implications |
+
+:::
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Bibliometric analysis rất tốt để thấy cấu trúc và xu hướng của lĩnh vực, nhưng không thay thế hoàn toàn systematic review nếu mục tiêu là tổng hợp nội dung nghiên cứu.
+
+:::
+
+# 3. Chuẩn bị dữ liệu
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Module này dùng dữ liệu mô phỏng để render ổn định.
+
+Trong nghiên cứu thật, bạn có thể export dữ liệu từ:
+
+- Scopus
+- Web of Science
+- Dimensions
+- PubMed
+- Crossref
+
+Sau đó nhập vào R bằng `bibliometrix::convert2df()`.
+
+:::
+
+## Cài đặt package
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("bibliometrix")
+install.packages("gt")
+install.packages("patchwork")
+install.packages("scales")
+install.packages("igraph")
+install.packages("ggraph")
+```
+
+## Nạp package
+
+```{r}
+library(tidyverse)
+library(gt)
+library(patchwork)
+library(scales)
+```
+
+## Kiểm tra bibliometrix
+
+```{r}
+has_bibliometrix <- requireNamespace("bibliometrix", quietly = TRUE)
+has_bibliometrix
+```
+
+## Tạo dữ liệu thư mục mô phỏng
+
+```{r}
+set.seed(123)
+
+journals <- c(
+  "Computers & Education",
+  "Education and Information Technologies",
+  "International Journal of Educational Technology",
+  "Journal of Learning Analytics",
+  "Sustainability",
+  "Technology, Pedagogy and Education"
+)
+
+countries <- c(
+  "Vietnam", "Thailand", "Indonesia", "China", "United States",
+  "United Kingdom", "Australia", "Norway", "Malaysia", "India"
+)
+
+keywords_pool <- c(
+  "artificial intelligence",
+  "digital learning",
+  "teacher readiness",
+  "student engagement",
+  "learning analytics",
+  "technology adoption",
+  "online learning",
+  "digital transformation",
+  "educational technology",
+  "AI literacy",
+  "assessment",
+  "higher education"
+)
+
+bib_data <- tibble(
+  paper_id = 1:320,
+  year = sample(2010:2026, 320, replace = TRUE, prob = seq(1, 4, length.out = 17)),
+  source = sample(journals, 320, replace = TRUE),
+  country = sample(countries, 320, replace = TRUE),
+  citations = rpois(320, lambda = 12),
+  authors = paste0(
+    "Author_", sample(1:90, 320, replace = TRUE),
+    "; Author_", sample(1:90, 320, replace = TRUE)
+  ),
+  keyword_1 = sample(keywords_pool, 320, replace = TRUE),
+  keyword_2 = sample(keywords_pool, 320, replace = TRUE),
+  keyword_3 = sample(keywords_pool, 320, replace = TRUE)
+) |>
+  mutate(
+    title = paste("Study on", keyword_1, "and", keyword_2)
+  )
+
+glimpse(bib_data)
+```
+
+# 4. Import dữ liệu Scopus/Web of Science bằng bibliometrix
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên biết cú pháp nhập dữ liệu bibliometric thật.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Trong nghiên cứu thật, bạn thường export file từ Scopus hoặc Web of Science.
+
+Ví dụ:
+
+```text
+scopus_export.bib
+wos_export.txt
+```
+
+Sau đó dùng:
+
+```r
+convert2df()
+```
+
+:::
+
+## Import Scopus file
+
+```{r}
+#| eval: false
+
+library(bibliometrix)
+
+M <- convert2df(
+  file = "data/raw/scopus_export.bib",
+  dbsource = "scopus",
+  format = "bibtex"
+)
+```
+
+## Import Web of Science file
+
+```{r}
+#| eval: false
+
+library(bibliometrix)
+
+M <- convert2df(
+  file = "data/raw/wos_export.txt",
+  dbsource = "wos",
+  format = "plaintext"
+)
+```
+
+## Mở Biblioshiny
+
+```{r}
+#| eval: false
+
+biblioshiny()
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên chỉnh sửa thủ công file export nếu không cần thiết.
+
+Nên lưu file raw gốc để đảm bảo tính tái lập.
+
+:::
+
+# 5. Annual scientific production
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Tính số công bố theo năm
+- Vẽ xu hướng tăng trưởng công bố
+- Diễn giải tốc độ phát triển của lĩnh vực
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Annual scientific production cho biết số bài công bố mỗi năm.
+
+Đây là kết quả rất thường gặp trong bibliometric review.
+
+:::
+
+## Tính số công bố theo năm
+
+```{r}
+annual_production <- bib_data |>
+  count(year, name = "articles") |>
+  arrange(year)
+
+annual_production
+```
+
+## Vẽ annual production
+
+```{r}
+fig_annual <- ggplot(annual_production, aes(x = year, y = articles)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  labs(
+    title = "Annual Scientific Production",
+    x = "Year",
+    y = "Number of articles"
+  ) +
+  theme_minimal()
+
+fig_annual
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Nếu số công bố tăng nhanh sau một mốc thời gian, có thể lĩnh vực đang nhận được sự quan tâm ngày càng lớn.
+
+Tuy nhiên, cần kiểm tra liệu dữ liệu năm gần nhất có chưa đầy đủ hay không.
+
+:::
+
+# 6. Top sources
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể xác định các nguồn xuất bản nổi bật.
+
+:::
+
+## Top journals
+
+```{r}
+top_sources <- bib_data |>
+  count(source, sort = TRUE) |>
+  slice_head(n = 10)
+
+top_sources
+```
+
+## Biểu đồ top sources
+
+```{r}
+fig_sources <- ggplot(top_sources, aes(x = n, y = reorder(source, n))) +
+  geom_col() +
+  labs(
+    title = "Top Sources",
+    x = "Number of articles",
+    y = "Source"
+  ) +
+  theme_minimal()
+
+fig_sources
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Nguồn có nhiều bài nhất không nhất thiết là nguồn có ảnh hưởng cao nhất.
+
+Cần phân biệt:
+
+- Productivity
+- Impact
+- Citation influence
+
+:::
+
+# 7. Top authors
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể tách tác giả và đếm tác giả năng suất nhất.
+
+:::
+
+## Tách tác giả
+
+```{r}
+author_data <- bib_data |>
+  separate_rows(authors, sep = "; ") |>
+  count(authors, sort = TRUE)
+
+top_authors <- author_data |>
+  slice_head(n = 10)
+
+top_authors
+```
+
+## Biểu đồ top authors
+
+```{r}
+ggplot(top_authors, aes(x = n, y = reorder(authors, n))) +
+  geom_col() +
+  labs(
+    title = "Top Authors by Number of Publications",
+    x = "Number of articles",
+    y = "Author"
+  ) +
+  theme_minimal()
+```
+
+# 8. Country production
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể phân tích đóng góp theo quốc gia.
+
+:::
+
+## Country production
+
+```{r}
+country_production <- bib_data |>
+  count(country, sort = TRUE)
+
+country_production
+```
+
+## Biểu đồ country production
+
+```{r}
+fig_country <- ggplot(
+  country_production,
+  aes(x = n, y = reorder(country, n))
+) +
+  geom_col() +
+  labs(
+    title = "Country Scientific Production",
+    x = "Number of articles",
+    y = "Country"
+  ) +
+  theme_minimal()
+
+fig_country
+```
+
+# 9. Citation analysis
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Tính citation theo paper
+- Xác định bài có citation cao
+- Tính citation theo source hoặc country
+
+:::
+
+## Top cited papers
+
+```{r}
+top_cited <- bib_data |>
+  arrange(desc(citations)) |>
+  select(title, year, source, country, citations) |>
+  slice_head(n = 10)
+
+top_cited
+```
+
+## Bảng top cited
+
+```{r}
+top_cited |>
+  gt() |>
+  tab_header(
+    title = "Top Cited Papers",
+    subtitle = "Simulated bibliometric data"
+  )
+```
+
+## Citation by source
+
+```{r}
+citation_by_source <- bib_data |>
+  group_by(source) |>
+  summarise(
+    articles = n(),
+    total_citations = sum(citations),
+    mean_citations = mean(citations),
+    .groups = "drop"
+  ) |>
+  arrange(desc(total_citations))
+
+citation_by_source
+```
+
+# 10. Keyword analysis
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể:
+
+- Tập hợp keywords
+- Đếm tần suất keywords
+- Vẽ keyword frequency
+- Diễn giải chủ đề phổ biến
+
+:::
+
+## Tạo keyword long data
+
+```{r}
+keyword_data <- bib_data |>
+  select(paper_id, year, starts_with("keyword")) |>
+  pivot_longer(
+    cols = starts_with("keyword"),
+    names_to = "keyword_position",
+    values_to = "keyword"
+  ) |>
+  filter(!is.na(keyword))
+
+top_keywords <- keyword_data |>
+  count(keyword, sort = TRUE) |>
+  slice_head(n = 15)
+
+top_keywords
+```
+
+## Biểu đồ top keywords
+
+```{r}
+fig_keywords <- ggplot(
+  top_keywords,
+  aes(x = n, y = reorder(keyword, n))
+) +
+  geom_col() +
+  labs(
+    title = "Most Frequent Keywords",
+    x = "Frequency",
+    y = "Keyword"
+  ) +
+  theme_minimal()
+
+fig_keywords
+```
+
+::: {.callout-important title="Diễn giải kết quả (Interpretation)"}
+
+Keywords có tần suất cao thường đại diện cho các chủ đề trung tâm của lĩnh vực.
+
+Tuy nhiên, cần xử lý đồng nghĩa trước khi kết luận.
+
+Ví dụ:
+
+```text
+AI
+artificial intelligence
+machine intelligence
+```
+
+có thể cần gộp.
+
+:::
+
+# 11. Keyword evolution
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên có thể phân tích xu hướng từ khóa theo thời gian.
+
+:::
+
+## Tạo giai đoạn
+
+```{r}
+keyword_evolution <- keyword_data |>
+  mutate(
+    period = case_when(
+      year <= 2015 ~ "2010–2015",
+      year <= 2020 ~ "2016–2020",
+      TRUE ~ "2021–2026"
+    )
+  ) |>
+  count(period, keyword) |>
+  group_by(period) |>
+  slice_max(n, n = 8) |>
+  ungroup()
+
+keyword_evolution
+```
+
+## Biểu đồ keyword evolution
+
+```{r}
+ggplot(
+  keyword_evolution,
+  aes(x = n, y = reorder(keyword, n))
+) +
+  geom_col() +
+  facet_wrap(~ period, scales = "free_y") +
+  labs(
+    title = "Keyword Evolution by Period",
+    x = "Frequency",
+    y = "Keyword"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+Keyword evolution giúp phát hiện chủ đề mới nổi và sự dịch chuyển trọng tâm nghiên cứu.
+
+:::
+
+# 12. Co-word analysis
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên hiểu logic co-word analysis ở mức nhập môn.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Co-word analysis kiểm tra các từ khóa thường xuất hiện cùng nhau trong cùng bài báo.
+
+Nếu hai từ khóa thường đi cùng nhau, chúng có thể đại diện cho một cụm chủ đề.
+
+:::
+
+## Tạo keyword pairs
+
+```{r}
+keyword_pairs <- keyword_data |>
+  select(paper_id, keyword) |>
+  distinct() |>
+  inner_join(
+    keyword_data |> select(paper_id, keyword) |> distinct(),
+    by = "paper_id",
+    suffix = c("_1", "_2")
+  ) |>
+  filter(keyword_1 < keyword_2) |>
+  count(keyword_1, keyword_2, sort = TRUE)
+
+keyword_pairs |>
+  slice_head(n = 15)
+```
+
+## Biểu đồ top keyword pairs
+
+```{r}
+top_pairs <- keyword_pairs |>
+  slice_head(n = 12) |>
+  mutate(pair = paste(keyword_1, keyword_2, sep = " + "))
+
+ggplot(top_pairs, aes(x = n, y = reorder(pair, n))) +
+  geom_col() +
+  labs(
+    title = "Top Keyword Co-occurrences",
+    x = "Co-occurrence frequency",
+    y = "Keyword pair"
+  ) +
+  theme_minimal()
+```
+
+# 13. Collaboration network logic
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên hiểu logic mạng lưới hợp tác khoa học.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Collaboration network biểu diễn quan hệ hợp tác giữa:
+
+- Tác giả
+- Tổ chức
+- Quốc gia
+
+Trong module này, ta minh họa bằng country co-occurrence đơn giản.
+
+:::
+
+## Tạo dữ liệu hợp tác quốc gia mô phỏng
+
+```{r}
+set.seed(123)
+
+collab_data <- tibble(
+  paper_id = 1:180,
+  country_1 = sample(countries, 180, replace = TRUE),
+  country_2 = sample(countries, 180, replace = TRUE)
+) |>
+  filter(country_1 != country_2) |>
+  mutate(
+    pair = paste(
+      pmin(country_1, country_2),
+      pmax(country_1, country_2),
+      sep = " - "
+    )
+  ) |>
+  count(pair, sort = TRUE)
+
+collab_data |>
+  slice_head(n = 10)
+```
+
+## Biểu đồ collaboration pairs
+
+```{r}
+collab_data |>
+  slice_head(n = 12) |>
+  ggplot(aes(x = n, y = reorder(pair, n))) +
+  geom_col() +
+  labs(
+    title = "Top Country Collaboration Pairs",
+    x = "Number of collaborations",
+    y = "Country pair"
+  ) +
+  theme_minimal()
+```
+
+# 14. Bibliometrix basic workflow
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên biết workflow cơ bản với `bibliometrix`.
+
+:::
+
+## Basic bibliometrix workflow
+
+```{r}
+#| eval: false
+
+library(bibliometrix)
+
+M <- convert2df(
+  file = "data/raw/scopus_export.bib",
+  dbsource = "scopus",
+  format = "bibtex"
+)
+
+results <- biblioAnalysis(M)
+
+summary_results <- summary(
+  object = results,
+  k = 10,
+  pause = FALSE
+)
+
+plot(results, k = 10)
+```
+
+## Biblioshiny
+
+```{r}
+#| eval: false
+
+biblioshiny()
+```
+
+::: {.callout-important title="Ứng dụng trong nghiên cứu (Research Application)"}
+
+`biblioshiny()` rất hữu ích cho người mới vì có giao diện point-and-click.
+
+Tuy nhiên, để tái lập kết quả, nên lưu lại code hoặc mô tả rõ từng bước đã thực hiện.
+
+:::
+
+# 15. Science mapping outputs
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Các đầu ra thường gặp trong science mapping:
+
+| Output | Ý nghĩa |
+|---|---|
+| Co-authorship network | Mạng hợp tác tác giả |
+| Country collaboration map | Hợp tác quốc gia |
+| Co-citation network | Cấu trúc tri thức nền |
+| Bibliographic coupling | Nghiên cứu gần nhau về tài liệu tham khảo |
+| Co-word network | Cụm chủ đề |
+| Thematic map | Chủ đề motor/basic/emerging |
+| Thematic evolution | Sự phát triển chủ đề theo thời gian |
+
+:::
+
+# 16. Thematic map interpretation
+
+::: {.callout-tip title="Kết quả học tập (Learning Outcomes)"}
+
+Sau phần này, học viên hiểu cách đọc thematic map.
+
+:::
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Thematic map thường chia chủ đề thành bốn vùng:
+
+| Quadrant | Ý nghĩa |
+|---|---|
+| Motor themes | Chủ đề phát triển mạnh và quan trọng |
+| Basic themes | Chủ đề nền tảng |
+| Niche themes | Chủ đề chuyên biệt |
+| Emerging/declining themes | Chủ đề mới nổi hoặc suy giảm |
+
+:::
+
+## Minh họa thematic map bằng dữ liệu mô phỏng
+
+```{r}
+set.seed(123)
+
+theme_data <- tibble(
+  theme = c(
+    "AI literacy",
+    "digital learning",
+    "learning analytics",
+    "teacher readiness",
+    "online learning",
+    "assessment",
+    "student engagement",
+    "technology adoption"
+  ),
+  centrality = runif(8, 0.2, 1),
+  density = runif(8, 0.2, 1)
+)
+
+ggplot(theme_data, aes(x = centrality, y = density, label = theme)) +
+  geom_point(size = 3) +
+  geom_text(nudge_y = 0.04, size = 3) +
+  geom_vline(xintercept = median(theme_data$centrality), linetype = "dashed") +
+  geom_hline(yintercept = median(theme_data$density), linetype = "dashed") +
+  labs(
+    title = "Illustrative Thematic Map",
+    x = "Centrality",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên diễn giải thematic map như bằng chứng tuyệt đối.
+
+Nó là công cụ hỗ trợ phát hiện cấu trúc chủ đề, cần đọc cùng nội dung bài báo tiêu biểu.
+
+:::
+
+# 17. Viết kết quả học thuật
+
+::: {.callout-note title="Kiến thức nền tảng (Knowledge Notes)"}
+
+Khi viết bibliometric results, cần trình bày:
+
+- Dữ liệu lấy từ đâu
+- Search query
+- Ngày truy xuất
+- Số lượng tài liệu
+- Phân bố theo năm
+- Nguồn, tác giả, quốc gia
+- Keyword trends
+- Science mapping
+- Giới hạn của dữ liệu
+
+:::
+
+## Template data source
+
+```text
+The bibliometric dataset was retrieved from [database] on [date] using the search query [query]. After screening and data cleaning, [N] documents were retained for analysis.
+```
+
+## Template annual production
+
+```text
+Annual scientific production increased substantially over the study period, indicating growing scholarly attention to the topic.
+```
+
+## Template sources
+
+```text
+The most productive sources were [source names], suggesting that these journals represent key publication outlets in the field.
+```
+
+## Template keywords
+
+```text
+Keyword analysis showed that [keyword 1], [keyword 2], and [keyword 3] were among the most frequent terms, indicating the central themes of the literature.
+```
+
+## Template thematic map
+
+```text
+The thematic map indicated that [theme] emerged as a motor theme, while [theme] appeared as an emerging or declining theme. These results suggest a shift in the intellectual structure of the field.
+```
+
+::: {.callout-warning title="Sai lầm thường gặp (Common Mistakes)"}
+
+Không nên viết:
+
+```text
+Bibliometric analysis proves that this topic is important.
+```
+
+Nên viết:
+
+```text
+The growth in publications suggests increasing scholarly attention to this topic.
+```
+
+:::
+
+# 18. Bài tập thực hành
+
+::: {.callout-important title="Bài tập thực hành (Practice Exercise)"}
+
+Hãy thực hiện:
+
+1. Tạo hoặc nhập dữ liệu bibliometric.
+2. Tính annual scientific production.
+3. Vẽ annual production.
+4. Xác định top sources.
+5. Xác định top authors.
+6. Xác định top countries.
+7. Tạo keyword frequency plot.
+8. Tạo keyword evolution theo giai đoạn.
+9. Tạo co-word pairs.
+10. Tạo collaboration pairs.
+11. Viết đoạn kết quả bibliometric.
+
+:::
+
+# 19. Thử thách
+
+::: {.callout-warning collapse="true" title="Thử thách (Challenge)"}
+
+## Tình huống
+
+Bạn có 1,200 bài báo từ Scopus về AI in Education.
+
+Kết quả cho thấy:
+
+- Công bố tăng mạnh sau 2020
+- Một số tạp chí chiếm tỷ trọng lớn
+- Keywords về generative AI xuất hiện nhiều sau 2022
+- Collaboration network tập trung ở vài quốc gia
+
+## Câu hỏi
+
+1. Bạn sẽ trình bày kết quả nào trước?
+2. Cần kiểm tra gì trong search strategy?
+3. Keyword evolution nên diễn giải thế nào?
+4. Có thể kết luận lĩnh vực này đã trưởng thành chưa?
+5. Những giới hạn nào cần nêu?
+
+:::
+
+::: {.callout-tip collapse="true" title="Gợi ý trả lời (Suggested Solution)"}
+
+Một câu trả lời tốt nên nêu:
+
+- Bắt đầu từ data source và search strategy.
+- Trình bày annual production, sources, authors/countries.
+- Sau đó trình bày keyword và thematic analysis.
+- Diễn giải generative AI như chủ đề mới nổi nếu dữ liệu hỗ trợ.
+- Cần nêu giới hạn database, search query, indexing bias và metadata quality.
+
+:::
+
+# 20. Dự án nhỏ
+
+::: {.callout-important title="Dự án nhỏ (Mini Project)"}
+
+## Chủ đề
+
+Bibliometric Analysis Report
+
+## Sản phẩm đầu ra
+
+Học viên cần tạo:
+
+```text
+Bibliometric_Analysis_Report.html
+```
+
+## Nội dung báo cáo
+
+1. Research topic
+2. Search strategy
+3. Database and retrieval date
+4. Data cleaning
+5. Annual scientific production
+6. Top sources
+7. Top authors
+8. Country production
+9. Citation analysis
+10. Keyword analysis
+11. Keyword evolution
+12. Science mapping interpretation
+13. Limitations
+14. Future research directions
+
+:::
+
+# 21. Điểm cần ghi nhớ
+
+::: {.callout-success title="Điểm cần ghi nhớ (Key Points)"}
+
+- Bibliometric analysis dùng metadata để phân tích cấu trúc lĩnh vực.
+- Search query và database quyết định chất lượng kết quả.
+- Annual production cho thấy xu hướng phát triển.
+- Top sources/authors/countries cho thấy năng suất, không nhất thiết là chất lượng.
+- Keyword analysis giúp xác định chủ đề trung tâm.
+- Keyword evolution giúp phát hiện chủ đề mới nổi.
+- Science mapping cần được diễn giải cùng nội dung học thuật.
+- Bibliometric review không thay thế hoàn toàn systematic review.
+- Cần báo cáo rõ ngày truy xuất và giới hạn dữ liệu.
+
+:::
+
+# 22. Bước tiếp theo
+
+::: {.callout-note title="Bước tiếp theo (What Next?)"}
+
+Sau khi hoàn thành phần này, học viên nên:
+
+1. Biết cấu trúc dữ liệu bibliometric.
+2. Biết chạy phân tích mô tả thư mục.
+3. Biết tạo biểu đồ annual production, top sources và keywords.
+4. Biết hiểu science mapping outputs.
+5. Chuyển sang:
+
+[Experimental Design and ANOVA](adv-13-anova.qmd)
+
+Trong phần tiếp theo, chúng ta sẽ học thiết kế thí nghiệm, ANOVA và so sánh nghiệm thức bằng R.
+
+:::

@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>R for Research and Data Analytics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./module-1.html" rel="next">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-bb4a769157aaef605685c494e8ab9261.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-63063ebcd863433c756140ee81e42adf.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-bb4a769157aaef605685c494e8ab9261.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<meta name="mermaid-theme" content="forest">
+<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    <img src="./images/LogoFPS.png" alt="" class="navbar-logo light-content">
+    <img src="./images/LogoFPS.png" alt="" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">R for Research and Data Analytics</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./index.html" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./research-toolkit.html"> 
+<span class="menu-text">Research Toolkit</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./roadmap.html"> 
+<span class="menu-text">Learning Roadmap</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./resources.html"> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Course Home</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Course Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Foundation Modules</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 1. Nhập môn R (Introduction to R)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 2. Làm sạch dữ liệu (Data Cleaning and Wrangling)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 3. Thống kê mô tả (Descriptive Statistics)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 4. Tương quan và Hồi quy (Correlation and Regression)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 5. PLS-SEM</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./module-6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module 6. Trực quan hóa và Viết kết quả (Visualization and Reporting)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Advanced Analytics Modules</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/advanced-home.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Advanced Overview</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-01-descriptive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A1. Chẩn đoán Thống kê Mô tả (Descriptive Diagnostics)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-02-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A2. Hồi quy Nâng cao (Advanced Regression)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-03-regularized.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A3. Hồi quy Chính quy hóa (Regularized Regression)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-04-sem.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A4. SEM Nâng cao (Advanced SEM)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-05-bayesian.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A5. Thống kê Bayes (Bayesian Statistics)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-06-monte-carlo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A6. Mô phỏng Monte Carlo (Monte Carlo Simulation)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-07-simpson.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A7. Nghịch lý Simpson (Simpson’s Paradox)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-08-likert.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A8. Phân tích Likert Nâng cao (Advanced Likert Analysis)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-09-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A9. Thư viện Trực quan hóa (Visualization Gallery)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-10-toolkit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A10. Bộ Công cụ Nghiên cứu (Research Toolkit)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-11-meta-analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A11. Phân tích Tổng hợp (Meta-analysis)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-12-bibliometric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A12. Phân tích Trắc lượng Thư mục (Bibliometric Analysis)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-13-anova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A13. Thiết kế Thí nghiệm và ANOVA (Experimental Design and ANOVA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-14-mixed-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A14. Mô hình Hỗn hợp và Dữ liệu Dọc (Mixed Models)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced/adv-15-reproducible.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Module A15. Nghiên cứu Tái lập và Báo cáo Học thuật (Reproducible Research)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Learning Support</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./research-toolkit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Research Toolkit</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./roadmap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Learning Roadmap</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Glossary</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./resources.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Resources</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Case Studies</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./case-study-utaut.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Case Study 1. UTAUT &amp; PLS-SEM</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./case-study-cdio.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Case Study 2. CDIO &amp; Digital Assessment Adoption</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+
+<div class="home-hero">
+<div class="hero-grid">
+<div class="hero-left">
+<p><img src="images/LogoFPS.png" class="hero-logo img-fluid"></p>
+<section id="r-for-research-and-data-analytics" class="level1">
+<h1>R for Research and Data Analytics</h1>
+<section id="project-based-learning-for-research-statistics-data-analytics-visualization-and-academic-reporting" class="level3">
+<h3 class="anchored" data-anchor-id="project-based-learning-for-research-statistics-data-analytics-visualization-and-academic-reporting">Project-Based Learning for Research, Statistics, Data Analytics, Visualization and Academic Reporting</h3>
+<p>R for Research and Data Analytics là chương trình đào tạo phân tích dữ liệu bằng R dành cho giảng viên, nghiên cứu viên và học viên có nhu cầu ứng dụng R trong nghiên cứu khoa học, giảng dạy và công bố học thuật.</p>
+<div class="hero-actions">
+<p><a href="./module-1.html" class="btn btn-primary btn-lg">🚀 Start Learning</a> <a href="./research-toolkit.html" class="btn btn-outline-primary btn-lg">🧭 Research Toolkit</a></p>
+</div>
+</section>
+</section>
+</div>
+<div class="hero-right">
+<div class="hero-visual">
+<div class="r-badge">
+<p>R</p>
+</div>
+<div class="laptop-card">
+<pre class="text"><code>library(tidyverse)
+
+data |&gt;
+  clean_names() |&gt;
+  ggplot(aes(x, y)) +
+  geom_point() +
+  geom_smooth()</code></pre>
+</div>
+<div class="chart-card">
+<p>▁ ▃ ▅ ▆ █</p>
+</div>
+<div class="pie-card">
+<p>◔</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<section id="why-this-course" class="level1">
+<h1>Why This Course?</h1>
+<div class="feature-grid">
+<section id="learn-systematically" class="level2 feature-card">
+<h2 class="anchored" data-anchor-id="learn-systematically">🎓 Learn Systematically</h2>
+<p>Từ nền tảng R đến các phương pháp phân tích nâng cao theo một lộ trình rõ ràng.</p>
+<p><a href="./roadmap.html" class="btn btn-sm btn-outline-primary">View Roadmap</a></p>
+</section>
+<section id="hands-on-practice" class="level2 feature-card">
+<h2 class="anchored" data-anchor-id="hands-on-practice">📊 Hands-on Practice</h2>
+<p>Học thông qua dữ liệu thực hành, bài tập theo module và dự án nghiên cứu mô phỏng.</p>
+<p><a href="./module-1.html" class="btn btn-sm btn-outline-primary">Start Module 1</a></p>
+</section>
+<section id="research-workflow" class="level2 feature-card">
+<h2 class="anchored" data-anchor-id="research-workflow">🔬 Research Workflow</h2>
+<p>Đi theo quy trình nghiên cứu hoàn chỉnh từ câu hỏi nghiên cứu đến báo cáo học thuật.</p>
+<p><a href="./research-toolkit.html" class="btn btn-sm btn-outline-primary">Research Toolkit</a></p>
+</section>
+<section id="advanced-analytics" class="level2 feature-card">
+<h2 class="anchored" data-anchor-id="advanced-analytics">🚀 Advanced Analytics</h2>
+<p>Bao gồm SEM, Bayesian, Monte Carlo, Meta-analysis, Bibliometric và Mixed Models.</p>
+<p><a href="./advanced/advanced-home.html" class="btn btn-sm btn-outline-primary">Advanced Modules</a></p>
+</section>
+<section id="reproducible-research" class="level2 feature-card">
+<h2 class="anchored" data-anchor-id="reproducible-research">📄 Reproducible Research</h2>
+<p>Tạo báo cáo có khả năng tái lập bằng Quarto, bảng, hình và quy trình phân tích rõ ràng.</p>
+<p><a href="./advanced/adv-15-reproducible.html" class="btn btn-sm btn-outline-primary">Module A15</a></p>
+</section>
+<section id="academic-standards" class="level2 feature-card">
+<h2 class="anchored" data-anchor-id="academic-standards">🌍 Academic Standards</h2>
+<p>Tập trung vào diễn giải kết quả, viết báo cáo và tạo sản phẩm phục vụ công bố học thuật.</p>
+<p><a href="./resources.html" class="btn btn-sm btn-outline-primary">Resources</a></p>
+</section>
+</div>
+</section>
+<section id="learning-path" class="level1">
+<h1>Learning Path</h1>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Khóa học gồm 6 module nền tảng và 15 module nâng cao. Người học có thể đi theo lộ trình tuyến tính hoặc chọn module theo mục tiêu nghiên cứu.</p>
+</div>
+</div>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+
+M1["Module 1&lt;br/&gt;Introduction to R"]
+--&gt; M2["Module 2&lt;br/&gt;Data Cleaning"]
+
+M2 --&gt; M3["Module 3&lt;br/&gt;Descriptive Statistics"]
+
+M3 --&gt; M4["Module 4&lt;br/&gt;Correlation &amp; Regression"]
+
+M4 --&gt; M5["Module 5&lt;br/&gt;PLS-SEM"]
+
+M5 --&gt; M6["Module 6&lt;br/&gt;Visualization &amp; Reporting"]
+
+M6 --&gt; A1["Module A1&lt;br/&gt;Diagnostics"]
+
+A1 --&gt; A2["Module A2&lt;br/&gt;Advanced Regression"]
+
+A2 --&gt; A9["Module A9&lt;br/&gt;Visualization Gallery"]
+
+A9 --&gt; A15["Module A15&lt;br/&gt;Reproducible Research"]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="course-structure" class="level1">
+<h1>Course Structure</h1>
+<section id="foundation-modules" class="level2">
+<h2 class="anchored" data-anchor-id="foundation-modules">Foundation Modules</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Module</th>
+<th>Title</th>
+<th>Main Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="./module-1.html">Module 1</a></td>
+<td>Nhập môn R (Introduction to R)</td>
+<td>Data Import and Diagnostic Check</td>
+</tr>
+<tr class="even">
+<td><a href="./module-2.html">Module 2</a></td>
+<td>Làm sạch dữ liệu (Data Cleaning and Wrangling)</td>
+<td>Clean Dataset</td>
+</tr>
+<tr class="odd">
+<td><a href="./module-3.html">Module 3</a></td>
+<td>Thống kê mô tả (Descriptive Statistics)</td>
+<td>Descriptive Report</td>
+</tr>
+<tr class="even">
+<td><a href="./module-4.html">Module 4</a></td>
+<td>Tương quan và Hồi quy (Correlation and Regression)</td>
+<td>Regression Report</td>
+</tr>
+<tr class="odd">
+<td><a href="./module-5.html">Module 5</a></td>
+<td>PLS-SEM</td>
+<td>SEM Results Tables</td>
+</tr>
+<tr class="even">
+<td><a href="./module-6.html">Module 6</a></td>
+<td>Trực quan hóa và Viết kết quả (Visualization and Reporting)</td>
+<td>Figure Set and Results Draft</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="advanced-analytics-modules" class="level2">
+<h2 class="anchored" data-anchor-id="advanced-analytics-modules">Advanced Analytics Modules</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Module</th>
+<th>Title</th>
+<th>Main Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="./advanced/adv-01-descriptive.html">Module A1</a></td>
+<td>Chẩn đoán Thống kê Mô tả (Descriptive Diagnostics)</td>
+<td>Diagnostic Report</td>
+</tr>
+<tr class="even">
+<td><a href="./advanced/adv-02-regression.html">Module A2</a></td>
+<td>Hồi quy Nâng cao (Advanced Regression)</td>
+<td>Academic Regression Tables</td>
+</tr>
+<tr class="odd">
+<td><a href="./advanced/adv-03-regularized.html">Module A3</a></td>
+<td>Hồi quy Chính quy hóa (Regularized Regression)</td>
+<td>Prediction Model</td>
+</tr>
+<tr class="even">
+<td><a href="./advanced/adv-04-sem.html">Module A4</a></td>
+<td>SEM Nâng cao (Advanced SEM)</td>
+<td>Measurement and Structural Model</td>
+</tr>
+<tr class="odd">
+<td><a href="./advanced/adv-05-bayesian.html">Module A5</a></td>
+<td>Thống kê Bayes (Bayesian Statistics)</td>
+<td>Posterior Interpretation</td>
+</tr>
+<tr class="even">
+<td><a href="./advanced/adv-06-monte-carlo.html">Module A6</a></td>
+<td>Mô phỏng Monte Carlo (Monte Carlo Simulation)</td>
+<td>Simulation Report</td>
+</tr>
+<tr class="odd">
+<td><a href="./advanced/adv-07-simpson.html">Module A7</a></td>
+<td>Nghịch lý Simpson (Simpson’s Paradox)</td>
+<td>Grouped Data Insight</td>
+</tr>
+<tr class="even">
+<td><a href="./advanced/adv-08-likert.html">Module A8</a></td>
+<td>Phân tích Likert Nâng cao (Advanced Likert Analysis)</td>
+<td>Likert Visualization Report</td>
+</tr>
+<tr class="odd">
+<td><a href="./advanced/adv-09-visualization.html">Module A9</a></td>
+<td>Thư viện Trực quan hóa (Visualization Gallery)</td>
+<td>Publication-ready Figures</td>
+</tr>
+<tr class="even">
+<td><a href="./advanced/adv-10-toolkit.html">Module A10</a></td>
+<td>Bộ Công cụ Nghiên cứu (Research Toolkit)</td>
+<td>Method Decision Framework</td>
+</tr>
+<tr class="odd">
+<td><a href="./advanced/adv-11-meta-analysis.html">Module A11</a></td>
+<td>Phân tích Tổng hợp (Meta-analysis)</td>
+<td>Forest and Funnel Plots</td>
+</tr>
+<tr class="even">
+<td><a href="./advanced/adv-12-bibliometric.html">Module A12</a></td>
+<td>Phân tích Trắc lượng Thư mục (Bibliometric Analysis)</td>
+<td>Science Mapping Report</td>
+</tr>
+<tr class="odd">
+<td><a href="./advanced/adv-13-anova.html">Module A13</a></td>
+<td>Thiết kế Thí nghiệm và ANOVA (Experimental Design and ANOVA)</td>
+<td>ANOVA Report</td>
+</tr>
+<tr class="even">
+<td><a href="./advanced/adv-14-mixed-models.html">Module A14</a></td>
+<td>Mô hình Hỗn hợp và Dữ liệu Dọc (Mixed Models)</td>
+<td>Longitudinal Model Report</td>
+</tr>
+<tr class="odd">
+<td><a href="./advanced/adv-15-reproducible.html">Module A15</a></td>
+<td>Nghiên cứu Tái lập và Báo cáo Học thuật (Reproducible Research)</td>
+<td>Quarto Research Report</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="research-workflow-1" class="level1">
+<h1>Research Workflow</h1>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+
+A[Import Data]
+--&gt; B[Clean Data]
+
+B --&gt; C[Describe Data]
+
+C --&gt; D[Visualize Patterns]
+
+D --&gt; E[Model Relationships]
+
+E --&gt; F[Test Theoretical Models]
+
+F --&gt; G[Advanced Analytics]
+
+G --&gt; H[Write Results]
+
+H --&gt; I[Reproducible Report]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="who-should-take-this-course" class="level1">
+<h1>Who Should Take This Course?</h1>
+<div class="audience-grid">
+<section id="giảng-viên" class="level2 audience-card">
+<h2 class="anchored" data-anchor-id="giảng-viên">👩‍🏫 Giảng viên</h2>
+<p>Ứng dụng R trong giảng dạy, nghiên cứu và hướng dẫn học viên.</p>
+</section>
+<section id="nghiên-cứu-viên" class="level2 audience-card">
+<h2 class="anchored" data-anchor-id="nghiên-cứu-viên">🔬 Nghiên cứu viên</h2>
+<p>Phân tích dữ liệu định lượng, tạo bảng/hình và viết kết quả học thuật.</p>
+</section>
+<section id="học-viên-cao-học" class="level2 audience-card">
+<h2 class="anchored" data-anchor-id="học-viên-cao-học">🎓 Học viên cao học</h2>
+<p>Xây dựng năng lực phân tích dữ liệu phục vụ luận văn, luận án và công bố.</p>
+</section>
+<section id="data-analyst" class="level2 audience-card">
+<h2 class="anchored" data-anchor-id="data-analyst">📈 Data Analyst</h2>
+<p>Nâng cao năng lực xử lý dữ liệu, visualization và báo cáo tái lập.</p>
+</section>
+</div>
+</section>
+<section id="expected-learning-outcomes" class="level1">
+<h1>Expected Learning Outcomes</h1>
+<div class="outcome-grid">
+<section id="technical-skills" class="level2 outcome-card">
+<h2 class="anchored" data-anchor-id="technical-skills">Technical Skills</h2>
+<ul>
+<li>Quản lý project nghiên cứu bằng R</li>
+<li>Nhập dữ liệu từ Excel</li>
+<li>Làm sạch dữ liệu khảo sát</li>
+<li>Tạo thống kê mô tả</li>
+<li>Thực hiện hồi quy và kiểm tra mô hình</li>
+</ul>
+</section>
+<section id="research-skills" class="level2 outcome-card">
+<h2 class="anchored" data-anchor-id="research-skills">Research Skills</h2>
+<ul>
+<li>Hiểu quy trình phân tích định lượng</li>
+<li>Diễn giải kết quả thống kê đúng cách</li>
+<li>Viết phần Results dựa trên output từ R</li>
+<li>Tạo bảng và hình phục vụ công bố</li>
+</ul>
+</section>
+<section id="advanced-skills" class="level2 outcome-card">
+<h2 class="anchored" data-anchor-id="advanced-skills">Advanced Skills</h2>
+<ul>
+<li>SEM nâng cao</li>
+<li>Bayesian statistics</li>
+<li>Monte Carlo simulation</li>
+<li>Meta-analysis</li>
+<li>Bibliometric analysis</li>
+<li>Mixed models</li>
+</ul>
+</section>
+</div>
+</section>
+<section id="final-capstone" class="level1">
+<h1>Final Capstone</h1>
+<section id="final-research-analytics-report" class="level2 capstone-box">
+<h2 class="anchored" data-anchor-id="final-research-analytics-report">Final Research Analytics Report</h2>
+<p>Ở cuối khóa học, học viên xây dựng một báo cáo hoàn chỉnh:</p>
+<pre class="text"><code>Final_Research_Analytics_Report.html</code></pre>
+<p>Báo cáo bao gồm dataset overview, data cleaning summary, descriptive statistics, regression model, PLS-SEM results, publication-ready figures và advanced analytics extension.</p>
+<p><a href="./research-toolkit.html" class="btn btn-primary">📄 Start Capstone with Research Toolkit</a></p>
+</section>
+</section>
+<section id="start-learning" class="level1">
+<h1>Start Learning</h1>
+<div class="start-box">
+<p>Bắt đầu với:</p>
+<p><a href="./module-1.html" class="btn btn-primary btn-lg">Module 1. Nhập môn R (Introduction to R)</a></p>
+<p>Hoặc đi theo mục tiêu nghiên cứu:</p>
+<p><a href="./research-toolkit.html" class="btn btn-outline-primary btn-lg">Research Toolkit</a></p>
+</div>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./module-1.html" class="pagination-link" aria-label="Module 1. Nhập môn R (Introduction to R)">
+        <span class="nav-page-text">Module 1. Nhập môn R (Introduction to R)</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> ""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="an">toc:</span><span class="co"> false</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="an">page-layout:</span><span class="co"> article</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>:::::::::::: home-hero</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>::::::::::: hero-grid</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>:::: hero-left</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/LogoFPS.png)</span>{.hero-logo}</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu"># R for Research and Data Analytics</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Project-Based Learning for Research, Statistics, Data Analytics, Visualization and Academic Reporting</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>R for Research and Data Analytics là chương trình đào tạo phân tích dữ liệu bằng R dành cho giảng viên, nghiên cứu viên và học viên có nhu cầu ứng dụng R trong nghiên cứu khoa học, giảng dạy và công bố học thuật.</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>::: hero-actions</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">🚀 Start Learning</span><span class="co">](module-1.qmd)</span>{.btn .btn-primary .btn-lg} <span class="co">[</span><span class="ot">🧭 Research Toolkit</span><span class="co">](research-toolkit.qmd)</span>{.btn .btn-outline-primary .btn-lg}</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>::::</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>:::::::: hero-right</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>::::::: hero-visual</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>::: r-badge</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>R</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>::: laptop-card</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="in">``` text</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyverse)</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="in">data |&gt;</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="in">  clean_names() |&gt;</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="in">  ggplot(aes(x, y)) +</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_point() +</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_smooth()</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>::: chart-card</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>▁ ▃ ▅ ▆ █</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>::: pie-card</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>◔</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>:::::::</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>::::::::</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>:::::::::::</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>::::::::::::</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="fu"># Why This Course?</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>::::::::: feature-grid</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>::: feature-card</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a><span class="fu">## 🎓 Learn Systematically</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>Từ nền tảng R đến các phương pháp phân tích nâng cao theo một lộ trình rõ ràng.</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">View Roadmap</span><span class="co">](roadmap.qmd)</span>{.btn .btn-sm .btn-outline-primary}</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>::: feature-card</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="fu">## 📊 Hands-on Practice</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>Học thông qua dữ liệu thực hành, bài tập theo module và dự án nghiên cứu mô phỏng.</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Start Module 1</span><span class="co">](module-1.qmd)</span>{.btn .btn-sm .btn-outline-primary}</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>::: feature-card</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a><span class="fu">## 🔬 Research Workflow</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>Đi theo quy trình nghiên cứu hoàn chỉnh từ câu hỏi nghiên cứu đến báo cáo học thuật.</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Research Toolkit</span><span class="co">](research-toolkit.qmd)</span>{.btn .btn-sm .btn-outline-primary}</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>::: feature-card</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a><span class="fu">## 🚀 Advanced Analytics</span></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>Bao gồm SEM, Bayesian, Monte Carlo, Meta-analysis, Bibliometric và Mixed Models.</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Advanced Modules</span><span class="co">](advanced/advanced-home.qmd)</span>{.btn .btn-sm .btn-outline-primary}</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>::: feature-card</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a><span class="fu">## 📄 Reproducible Research</span></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>Tạo báo cáo có khả năng tái lập bằng Quarto, bảng, hình và quy trình phân tích rõ ràng.</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Module A15</span><span class="co">](advanced/adv-15-reproducible.qmd)</span>{.btn .btn-sm .btn-outline-primary}</span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>::: feature-card</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a><span class="fu">## 🌍 Academic Standards</span></span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>Tập trung vào diễn giải kết quả, viết báo cáo và tạo sản phẩm phục vụ công bố học thuật.</span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Resources</span><span class="co">](resources.qmd)</span>{.btn .btn-sm .btn-outline-primary}</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>:::::::::</span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a><span class="fu"># Learning Path</span></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>::: callout-note</span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>Khóa học gồm 6 module nền tảng và 15 module nâng cao. Người học có thể đi theo lộ trình tuyến tính hoặc chọn module theo mục tiêu nghiên cứu.</span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>flowchart LR</span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>M1[<span class="ot">"</span><span class="st">Module 1&lt;br/&gt;Introduction to R</span><span class="ot">"</span>]</span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>--&gt; M2[<span class="ot">"</span><span class="st">Module 2&lt;br/&gt;Data Cleaning</span><span class="ot">"</span>]</span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>M2 --&gt; M3[<span class="ot">"</span><span class="st">Module 3&lt;br/&gt;Descriptive Statistics</span><span class="ot">"</span>]</span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>M3 --&gt; M4[<span class="ot">"</span><span class="st">Module 4&lt;br/&gt;Correlation &amp; Regression</span><span class="ot">"</span>]</span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a>M4 --&gt; M5[<span class="ot">"</span><span class="st">Module 5&lt;br/&gt;PLS-SEM</span><span class="ot">"</span>]</span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>M5 --&gt; M6[<span class="ot">"</span><span class="st">Module 6&lt;br/&gt;Visualization &amp; Reporting</span><span class="ot">"</span>]</span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>M6 --&gt; A1[<span class="ot">"</span><span class="st">Module A1&lt;br/&gt;Diagnostics</span><span class="ot">"</span>]</span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>A1 --&gt; A2[<span class="ot">"</span><span class="st">Module A2&lt;br/&gt;Advanced Regression</span><span class="ot">"</span>]</span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a>A2 --&gt; A9[<span class="ot">"</span><span class="st">Module A9&lt;br/&gt;Visualization Gallery</span><span class="ot">"</span>]</span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>A9 --&gt; A15[<span class="ot">"</span><span class="st">Module A15&lt;br/&gt;Reproducible Research</span><span class="ot">"</span>]</span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a><span class="fu"># Course Structure</span></span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a><span class="fu">## Foundation Modules</span></span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Module <span class="pp">|</span> Title <span class="pp">|</span> Main Output <span class="pp">|</span></span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a><span class="pp">|----|----|----|</span></span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module 1</span><span class="co">](module-1.qmd)</span> <span class="pp">|</span> Nhập môn R (Introduction to R) <span class="pp">|</span> Data Import and Diagnostic Check <span class="pp">|</span></span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module 2</span><span class="co">](module-2.qmd)</span> <span class="pp">|</span> Làm sạch dữ liệu (Data Cleaning and Wrangling) <span class="pp">|</span> Clean Dataset <span class="pp">|</span></span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module 3</span><span class="co">](module-3.qmd)</span> <span class="pp">|</span> Thống kê mô tả (Descriptive Statistics) <span class="pp">|</span> Descriptive Report <span class="pp">|</span></span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module 4</span><span class="co">](module-4.qmd)</span> <span class="pp">|</span> Tương quan và Hồi quy (Correlation and Regression) <span class="pp">|</span> Regression Report <span class="pp">|</span></span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module 5</span><span class="co">](module-5.qmd)</span> <span class="pp">|</span> PLS-SEM <span class="pp">|</span> SEM Results Tables <span class="pp">|</span></span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module 6</span><span class="co">](module-6.qmd)</span> <span class="pp">|</span> Trực quan hóa và Viết kết quả (Visualization and Reporting) <span class="pp">|</span> Figure Set and Results Draft <span class="pp">|</span></span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a><span class="fu">## Advanced Analytics Modules</span></span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Module <span class="pp">|</span> Title <span class="pp">|</span> Main Output <span class="pp">|</span></span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a><span class="pp">|----|----|----|</span></span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A1</span><span class="co">](advanced/adv-01-descriptive.qmd)</span> <span class="pp">|</span> Chẩn đoán Thống kê Mô tả (Descriptive Diagnostics) <span class="pp">|</span> Diagnostic Report <span class="pp">|</span></span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A2</span><span class="co">](advanced/adv-02-regression.qmd)</span> <span class="pp">|</span> Hồi quy Nâng cao (Advanced Regression) <span class="pp">|</span> Academic Regression Tables <span class="pp">|</span></span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A3</span><span class="co">](advanced/adv-03-regularized.qmd)</span> <span class="pp">|</span> Hồi quy Chính quy hóa (Regularized Regression) <span class="pp">|</span> Prediction Model <span class="pp">|</span></span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A4</span><span class="co">](advanced/adv-04-sem.qmd)</span> <span class="pp">|</span> SEM Nâng cao (Advanced SEM) <span class="pp">|</span> Measurement and Structural Model <span class="pp">|</span></span>
+<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A5</span><span class="co">](advanced/adv-05-bayesian.qmd)</span> <span class="pp">|</span> Thống kê Bayes (Bayesian Statistics) <span class="pp">|</span> Posterior Interpretation <span class="pp">|</span></span>
+<span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A6</span><span class="co">](advanced/adv-06-monte-carlo.qmd)</span> <span class="pp">|</span> Mô phỏng Monte Carlo (Monte Carlo Simulation) <span class="pp">|</span> Simulation Report <span class="pp">|</span></span>
+<span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A7</span><span class="co">](advanced/adv-07-simpson.qmd)</span> <span class="pp">|</span> Nghịch lý Simpson (Simpson's Paradox) <span class="pp">|</span> Grouped Data Insight <span class="pp">|</span></span>
+<span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A8</span><span class="co">](advanced/adv-08-likert.qmd)</span> <span class="pp">|</span> Phân tích Likert Nâng cao (Advanced Likert Analysis) <span class="pp">|</span> Likert Visualization Report <span class="pp">|</span></span>
+<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A9</span><span class="co">](advanced/adv-09-visualization.qmd)</span> <span class="pp">|</span> Thư viện Trực quan hóa (Visualization Gallery) <span class="pp">|</span> Publication-ready Figures <span class="pp">|</span></span>
+<span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A10</span><span class="co">](advanced/adv-10-toolkit.qmd)</span> <span class="pp">|</span> Bộ Công cụ Nghiên cứu (Research Toolkit) <span class="pp">|</span> Method Decision Framework <span class="pp">|</span></span>
+<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A11</span><span class="co">](advanced/adv-11-meta-analysis.qmd)</span> <span class="pp">|</span> Phân tích Tổng hợp (Meta-analysis) <span class="pp">|</span> Forest and Funnel Plots <span class="pp">|</span></span>
+<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A12</span><span class="co">](advanced/adv-12-bibliometric.qmd)</span> <span class="pp">|</span> Phân tích Trắc lượng Thư mục (Bibliometric Analysis) <span class="pp">|</span> Science Mapping Report <span class="pp">|</span></span>
+<span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A13</span><span class="co">](advanced/adv-13-anova.qmd)</span> <span class="pp">|</span> Thiết kế Thí nghiệm và ANOVA (Experimental Design and ANOVA) <span class="pp">|</span> ANOVA Report <span class="pp">|</span></span>
+<span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A14</span><span class="co">](advanced/adv-14-mixed-models.qmd)</span> <span class="pp">|</span> Mô hình Hỗn hợp và Dữ liệu Dọc (Mixed Models) <span class="pp">|</span> Longitudinal Model Report <span class="pp">|</span></span>
+<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">Module A15</span><span class="co">](advanced/adv-15-reproducible.qmd)</span> <span class="pp">|</span> Nghiên cứu Tái lập và Báo cáo Học thuật (Reproducible Research) <span class="pp">|</span> Quarto Research Report <span class="pp">|</span></span>
+<span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a><span class="fu"># Research Workflow</span></span>
+<span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb3-174"><a href="#cb3-174" aria-hidden="true" tabindex="-1"></a>flowchart TD</span>
+<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-176"><a href="#cb3-176" aria-hidden="true" tabindex="-1"></a>A[Import Data]</span>
+<span id="cb3-177"><a href="#cb3-177" aria-hidden="true" tabindex="-1"></a>--&gt; B[Clean Data]</span>
+<span id="cb3-178"><a href="#cb3-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-179"><a href="#cb3-179" aria-hidden="true" tabindex="-1"></a>B --&gt; C[Describe Data]</span>
+<span id="cb3-180"><a href="#cb3-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-181"><a href="#cb3-181" aria-hidden="true" tabindex="-1"></a>C --&gt; D[Visualize Patterns]</span>
+<span id="cb3-182"><a href="#cb3-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-183"><a href="#cb3-183" aria-hidden="true" tabindex="-1"></a>D --&gt; E[Model Relationships]</span>
+<span id="cb3-184"><a href="#cb3-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-185"><a href="#cb3-185" aria-hidden="true" tabindex="-1"></a>E --&gt; F[Test Theoretical Models]</span>
+<span id="cb3-186"><a href="#cb3-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-187"><a href="#cb3-187" aria-hidden="true" tabindex="-1"></a>F --&gt; G[Advanced Analytics]</span>
+<span id="cb3-188"><a href="#cb3-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-189"><a href="#cb3-189" aria-hidden="true" tabindex="-1"></a>G --&gt; H[Write Results]</span>
+<span id="cb3-190"><a href="#cb3-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-191"><a href="#cb3-191" aria-hidden="true" tabindex="-1"></a>H --&gt; I[Reproducible Report]</span>
+<span id="cb3-192"><a href="#cb3-192" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-193"><a href="#cb3-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-194"><a href="#cb3-194" aria-hidden="true" tabindex="-1"></a><span class="fu"># Who Should Take This Course?</span></span>
+<span id="cb3-195"><a href="#cb3-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-196"><a href="#cb3-196" aria-hidden="true" tabindex="-1"></a>::::::: audience-grid</span>
+<span id="cb3-197"><a href="#cb3-197" aria-hidden="true" tabindex="-1"></a>::: audience-card</span>
+<span id="cb3-198"><a href="#cb3-198" aria-hidden="true" tabindex="-1"></a><span class="fu">## 👩‍🏫 Giảng viên</span></span>
+<span id="cb3-199"><a href="#cb3-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-200"><a href="#cb3-200" aria-hidden="true" tabindex="-1"></a>Ứng dụng R trong giảng dạy, nghiên cứu và hướng dẫn học viên.</span>
+<span id="cb3-201"><a href="#cb3-201" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-202"><a href="#cb3-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-203"><a href="#cb3-203" aria-hidden="true" tabindex="-1"></a>::: audience-card</span>
+<span id="cb3-204"><a href="#cb3-204" aria-hidden="true" tabindex="-1"></a><span class="fu">## 🔬 Nghiên cứu viên</span></span>
+<span id="cb3-205"><a href="#cb3-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-206"><a href="#cb3-206" aria-hidden="true" tabindex="-1"></a>Phân tích dữ liệu định lượng, tạo bảng/hình và viết kết quả học thuật.</span>
+<span id="cb3-207"><a href="#cb3-207" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-208"><a href="#cb3-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-209"><a href="#cb3-209" aria-hidden="true" tabindex="-1"></a>::: audience-card</span>
+<span id="cb3-210"><a href="#cb3-210" aria-hidden="true" tabindex="-1"></a><span class="fu">## 🎓 Học viên cao học</span></span>
+<span id="cb3-211"><a href="#cb3-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-212"><a href="#cb3-212" aria-hidden="true" tabindex="-1"></a>Xây dựng năng lực phân tích dữ liệu phục vụ luận văn, luận án và công bố.</span>
+<span id="cb3-213"><a href="#cb3-213" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-214"><a href="#cb3-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-215"><a href="#cb3-215" aria-hidden="true" tabindex="-1"></a>::: audience-card</span>
+<span id="cb3-216"><a href="#cb3-216" aria-hidden="true" tabindex="-1"></a><span class="fu">## 📈 Data Analyst</span></span>
+<span id="cb3-217"><a href="#cb3-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-218"><a href="#cb3-218" aria-hidden="true" tabindex="-1"></a>Nâng cao năng lực xử lý dữ liệu, visualization và báo cáo tái lập.</span>
+<span id="cb3-219"><a href="#cb3-219" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-220"><a href="#cb3-220" aria-hidden="true" tabindex="-1"></a>:::::::</span>
+<span id="cb3-221"><a href="#cb3-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-222"><a href="#cb3-222" aria-hidden="true" tabindex="-1"></a><span class="fu"># Expected Learning Outcomes</span></span>
+<span id="cb3-223"><a href="#cb3-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-224"><a href="#cb3-224" aria-hidden="true" tabindex="-1"></a>:::::: outcome-grid</span>
+<span id="cb3-225"><a href="#cb3-225" aria-hidden="true" tabindex="-1"></a>::: outcome-card</span>
+<span id="cb3-226"><a href="#cb3-226" aria-hidden="true" tabindex="-1"></a><span class="fu">## Technical Skills</span></span>
+<span id="cb3-227"><a href="#cb3-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-228"><a href="#cb3-228" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Quản lý project nghiên cứu bằng R</span>
+<span id="cb3-229"><a href="#cb3-229" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Nhập dữ liệu từ Excel</span>
+<span id="cb3-230"><a href="#cb3-230" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Làm sạch dữ liệu khảo sát</span>
+<span id="cb3-231"><a href="#cb3-231" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Tạo thống kê mô tả</span>
+<span id="cb3-232"><a href="#cb3-232" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Thực hiện hồi quy và kiểm tra mô hình</span>
+<span id="cb3-233"><a href="#cb3-233" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-234"><a href="#cb3-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-235"><a href="#cb3-235" aria-hidden="true" tabindex="-1"></a>::: outcome-card</span>
+<span id="cb3-236"><a href="#cb3-236" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research Skills</span></span>
+<span id="cb3-237"><a href="#cb3-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-238"><a href="#cb3-238" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Hiểu quy trình phân tích định lượng</span>
+<span id="cb3-239"><a href="#cb3-239" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Diễn giải kết quả thống kê đúng cách</span>
+<span id="cb3-240"><a href="#cb3-240" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Viết phần Results dựa trên output từ R</span>
+<span id="cb3-241"><a href="#cb3-241" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Tạo bảng và hình phục vụ công bố</span>
+<span id="cb3-242"><a href="#cb3-242" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-243"><a href="#cb3-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-244"><a href="#cb3-244" aria-hidden="true" tabindex="-1"></a>::: outcome-card</span>
+<span id="cb3-245"><a href="#cb3-245" aria-hidden="true" tabindex="-1"></a><span class="fu">## Advanced Skills</span></span>
+<span id="cb3-246"><a href="#cb3-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-247"><a href="#cb3-247" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>SEM nâng cao</span>
+<span id="cb3-248"><a href="#cb3-248" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Bayesian statistics</span>
+<span id="cb3-249"><a href="#cb3-249" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Monte Carlo simulation</span>
+<span id="cb3-250"><a href="#cb3-250" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Meta-analysis</span>
+<span id="cb3-251"><a href="#cb3-251" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Bibliometric analysis</span>
+<span id="cb3-252"><a href="#cb3-252" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Mixed models</span>
+<span id="cb3-253"><a href="#cb3-253" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-254"><a href="#cb3-254" aria-hidden="true" tabindex="-1"></a>::::::</span>
+<span id="cb3-255"><a href="#cb3-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-256"><a href="#cb3-256" aria-hidden="true" tabindex="-1"></a><span class="fu"># Final Capstone</span></span>
+<span id="cb3-257"><a href="#cb3-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-258"><a href="#cb3-258" aria-hidden="true" tabindex="-1"></a>::: capstone-box</span>
+<span id="cb3-259"><a href="#cb3-259" aria-hidden="true" tabindex="-1"></a><span class="fu">## Final Research Analytics Report</span></span>
+<span id="cb3-260"><a href="#cb3-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-261"><a href="#cb3-261" aria-hidden="true" tabindex="-1"></a>Ở cuối khóa học, học viên xây dựng một báo cáo hoàn chỉnh:</span>
+<span id="cb3-262"><a href="#cb3-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-263"><a href="#cb3-263" aria-hidden="true" tabindex="-1"></a><span class="in">``` text</span></span>
+<span id="cb3-264"><a href="#cb3-264" aria-hidden="true" tabindex="-1"></a><span class="in">Final_Research_Analytics_Report.html</span></span>
+<span id="cb3-265"><a href="#cb3-265" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-266"><a href="#cb3-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-267"><a href="#cb3-267" aria-hidden="true" tabindex="-1"></a>Báo cáo bao gồm dataset overview, data cleaning summary, descriptive statistics, regression model, PLS-SEM results, publication-ready figures và advanced analytics extension.</span>
+<span id="cb3-268"><a href="#cb3-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-269"><a href="#cb3-269" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">📄 Start Capstone with Research Toolkit</span><span class="co">](research-toolkit.qmd)</span>{.btn .btn-primary}</span>
+<span id="cb3-270"><a href="#cb3-270" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb3-271"><a href="#cb3-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-272"><a href="#cb3-272" aria-hidden="true" tabindex="-1"></a><span class="fu"># Start Learning</span></span>
+<span id="cb3-273"><a href="#cb3-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-274"><a href="#cb3-274" aria-hidden="true" tabindex="-1"></a>::: start-box</span>
+<span id="cb3-275"><a href="#cb3-275" aria-hidden="true" tabindex="-1"></a>Bắt đầu với:</span>
+<span id="cb3-276"><a href="#cb3-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-277"><a href="#cb3-277" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Module 1. Nhập môn R (Introduction to R)</span><span class="co">](module-1.qmd)</span>{.btn .btn-primary .btn-lg}</span>
+<span id="cb3-278"><a href="#cb3-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-279"><a href="#cb3-279" aria-hidden="true" tabindex="-1"></a>Hoặc đi theo mục tiêu nghiên cứu:</span>
+<span id="cb3-280"><a href="#cb3-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-281"><a href="#cb3-281" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Research Toolkit</span><span class="co">](research-toolkit.qmd)</span>{.btn .btn-outline-primary .btn-lg}</span>
+<span id="cb3-282"><a href="#cb3-282" aria-hidden="true" tabindex="-1"></a>:::</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 FPT PolySchool</p>
+</div>   
+    <div class="nav-footer-center">
+<p>R for Research and Data Analytics</p>
+</div>
+    <div class="nav-footer-right">
+<p>Developed by Nguyen Huu Loi · Built with Quarto</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

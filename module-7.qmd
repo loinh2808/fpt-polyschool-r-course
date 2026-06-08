@@ -1,0 +1,1416 @@
+---
+title: "Module 7. Advanced Analytics for Research"
+---
+
+# Tổng quan Module
+
+::: {.callout-tip title="Learning Outcomes"}
+Sau khi hoàn thành Module 7, học viên có thể:
+
+- Thực hiện thống kê mô tả nâng cao
+- Áp dụng mô hình hồi quy nâng cao cho nhiều loại biến phụ thuộc
+- Thực hiện Ridge, LASSO và Elastic Net Regression
+- Hiểu logic cơ bản của SEM nâng cao
+- Làm quen với Bayesian thinking
+- Thực hiện Monte Carlo simulation
+- Giải thích Simpson's Paradox
+- Tạo biểu đồ Likert nâng cao
+- Xây dựng visualization gallery bằng `ggplot2`
+- Chọn đúng phương pháp phân tích theo câu hỏi nghiên cứu
+:::
+
+::: {.callout-note title="Module Logic"}
+Module 7 là **Advanced Research Lab**.
+
+Module 1–6 trả lời:
+
+``` text
+How do we analyze research data?
+```
+
+Module 7 trả lời:
+
+``` text
+How do we extend research analysis to advanced methods and publication-ready outputs?
+```
+
+Workflow:
+
+``` text
+Advanced data
+↓
+Advanced descriptive statistics
+↓
+Advanced regression
+↓
+Regularized regression
+↓
+SEM extension
+↓
+Bayesian thinking
+↓
+Monte Carlo simulation
+↓
+Simpson's Paradox
+↓
+Likert visualization
+↓
+Advanced ggplot2 gallery
+↓
+Research method selection
+```
+:::
+
+------------------------------------------------------------------------
+
+# 7.1 Load Packages and Data
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Module 7 sử dụng một workbook dữ liệu mô phỏng công khai, phù hợp cho đào tạo phân tích nâng cao.
+
+**Data file**
+
+``` text
+data/advance/module7_advanced_data.xlsx
+```
+
+**Why?**
+
+Một workbook nhiều sheet giúp mỗi kỹ thuật có một dataset riêng, tránh trộn mục tiêu phân tích.
+:::
+
+## Install Packages
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("janitor")
+install.packages("broom")
+install.packages("MASS")
+install.packages("glmnet")
+install.packages("moments")
+install.packages("ineq")
+install.packages("vegan")
+install.packages("lavaan")
+install.packages("boot")
+install.packages("ggridges")
+install.packages("ggalluvial")
+install.packages("igraph")
+install.packages("ggraph")
+install.packages("patchwork")
+```
+
+## Load Core Packages
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(broom)
+library(patchwork)
+```
+
+## Set Data Path
+
+```{r}
+advanced_file <- if (file.exists("data/advance/module7_advanced_data.xlsx")) {
+  "data/advance/module7_advanced_data.xlsx"
+} else {
+  "data/advanced/module7_advanced_data.xlsx"
+}
+```
+
+## Check Available Sheets
+
+```{r}
+excel_sheets(advanced_file)
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Nếu Quarto báo không tìm thấy file, kiểm tra chính xác thư mục:
+
+``` text
+data/advance/module7_advanced_data.xlsx
+```
+
+khác với:
+
+``` text
+data/advanced/module7_advanced_data.xlsx
+```
+:::
+
+------------------------------------------------------------------------
+
+# 7.2 Advanced Descriptive Statistics
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Advanced descriptive statistics mở rộng beyond mean and SD.
+
+**Includes**
+
+- Missing data audit
+- Skewness
+- Kurtosis
+- Outlier screening
+- Gini index
+- Diversity index
+
+**When?**
+
+Dùng khi muốn hiểu sâu hơn về chất lượng và hình dạng dữ liệu.
+:::
+
+## Import Data
+
+```{r}
+adv_desc <- read_excel(
+  advanced_file,
+  sheet = "01_Advanced_Descriptive"
+) |>
+  clean_names()
+```
+
+## Overview
+
+```{r}
+glimpse(adv_desc)
+```
+
+## Missing Data Audit
+
+```{r}
+adv_desc |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.))
+    )
+  )
+```
+
+## Central Tendency and Variability
+
+```{r}
+adv_desc |>
+  summarise(
+    age_mean = mean(age, na.rm = TRUE),
+    age_median = median(age, na.rm = TRUE),
+    age_sd = sd(age, na.rm = TRUE),
+    age_iqr = IQR(age, na.rm = TRUE),
+    income_mean = mean(income_million_vnd, na.rm = TRUE),
+    income_median = median(income_million_vnd, na.rm = TRUE),
+    income_sd = sd(income_million_vnd, na.rm = TRUE),
+    income_iqr = IQR(income_million_vnd, na.rm = TRUE)
+  )
+```
+
+## Skewness and Kurtosis
+
+```{r}
+if (requireNamespace("moments", quietly = TRUE)) {
+  tibble(
+    variable = c("income_million_vnd", "hospital_cost", "wait_time_min"),
+    skewness = c(
+      moments::skewness(adv_desc$income_million_vnd, na.rm = TRUE),
+      moments::skewness(adv_desc$hospital_cost, na.rm = TRUE),
+      moments::skewness(adv_desc$wait_time_min, na.rm = TRUE)
+    ),
+    kurtosis = c(
+      moments::kurtosis(adv_desc$income_million_vnd, na.rm = TRUE),
+      moments::kurtosis(adv_desc$hospital_cost, na.rm = TRUE),
+      moments::kurtosis(adv_desc$wait_time_min, na.rm = TRUE)
+    )
+  )
+}
+```
+
+## Outlier Detection by IQR
+
+```{r}
+q1 <- quantile(adv_desc$outlier_score, 0.25, na.rm = TRUE)
+q3 <- quantile(adv_desc$outlier_score, 0.75, na.rm = TRUE)
+iqr_value <- IQR(adv_desc$outlier_score, na.rm = TRUE)
+
+lower_bound <- q1 - 1.5 * iqr_value
+upper_bound <- q3 + 1.5 * iqr_value
+
+adv_desc |>
+  filter(
+    outlier_score < lower_bound |
+      outlier_score > upper_bound
+  )
+```
+
+## Gini Index
+
+```{r}
+if (requireNamespace("ineq", quietly = TRUE)) {
+  ineq::Gini(adv_desc$income_million_vnd)
+}
+```
+
+## Diversity Index
+
+```{r}
+diagnosis_counts <- adv_desc |>
+  count(diagnosis_group)
+
+diagnosis_counts
+```
+
+```{r}
+if (requireNamespace("vegan", quietly = TRUE)) {
+  tibble(
+    shannon = vegan::diversity(diagnosis_counts$n, index = "shannon"),
+    simpson = vegan::diversity(diagnosis_counts$n, index = "simpson")
+  )
+}
+```
+
+::: {.callout-tip title="Key Points"}
+Advanced descriptive statistics giúp phát hiện các vấn đề mà mean và SD không thể hiện đầy đủ.
+:::
+
+------------------------------------------------------------------------
+
+# 7.3 Advanced Regression Models
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Advanced regression mở rộng hồi quy tuyến tính cho nhiều loại biến phụ thuộc.
+
+**When?**
+
+| Outcome type        | Model               |
+|---------------------|---------------------|
+| Binary              | Logistic regression |
+| Ordinal             | Ordinal regression  |
+| Count               | Poisson regression  |
+| Overdispersed count | Negative binomial   |
+| Continuous          | Linear regression   |
+:::
+
+## Import Data
+
+```{r}
+adv_reg <- read_excel(
+  advanced_file,
+  sheet = "02_Advanced_Regression"
+) |>
+  clean_names()
+```
+
+## Logistic Regression
+
+```{r}
+logit_model <- glm(
+  adopted_ai ~ digital_readiness + leadership_support + workload + training_hours,
+  data = adv_reg,
+  family = binomial
+)
+
+tidy(logit_model, exponentiate = TRUE, conf.int = TRUE)
+```
+
+## Ordinal Regression
+
+```{r}
+if (requireNamespace("MASS", quietly = TRUE)) {
+  ordinal_model <- MASS::polr(
+    as.factor(ordinal_performance) ~ digital_readiness + leadership_support + motivation,
+    data = adv_reg,
+    Hess = TRUE
+  )
+
+  broom::tidy(ordinal_model, conf.int = TRUE)
+}
+```
+
+## Poisson Regression
+
+```{r}
+poisson_model <- glm(
+  absences_count ~ workload + job_satisfaction + training_hours,
+  data = adv_reg,
+  family = poisson
+)
+
+tidy(poisson_model, exponentiate = TRUE, conf.int = TRUE)
+```
+
+## Mediation Logic
+
+```{r}
+med_model_a <- lm(
+  mediator_engagement ~ leadership_support,
+  data = adv_reg
+)
+
+med_model_b <- lm(
+  productivity_score ~ leadership_support + mediator_engagement,
+  data = adv_reg
+)
+
+tidy(med_model_a)
+tidy(med_model_b)
+```
+
+## Moderation Logic
+
+```{r}
+moderation_model <- lm(
+  productivity_score ~ digital_readiness * moderator_autonomy,
+  data = adv_reg
+)
+
+tidy(moderation_model)
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không chọn mô hình chỉ vì quen dùng `lm()`.
+
+Cần chọn mô hình theo loại biến phụ thuộc.
+:::
+
+------------------------------------------------------------------------
+
+# 7.4 Ridge, LASSO and Elastic Net
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Regularized regression là nhóm mô hình giúp xử lý nhiều predictors và đa cộng tuyến.
+
+**Methods**
+
+| Method      | Use                      |
+|-------------|--------------------------|
+| Ridge       | Shrinks coefficients     |
+| LASSO       | Variable selection       |
+| Elastic Net | Combines Ridge and LASSO |
+
+**When?**
+
+Dùng khi có nhiều biến dự báo, các biến tương quan cao hoặc mục tiêu là prediction.
+:::
+
+## Import Data
+
+```{r}
+reg_ml <- read_excel(
+  advanced_file,
+  sheet = "03_Ridge_Lasso_Elastic"
+) |>
+  clean_names()
+```
+
+## Prepare Matrix
+
+```{r}
+x <- reg_ml |>
+  select(starts_with("x")) |>
+  as.matrix()
+
+y <- reg_ml$y_continuous
+```
+
+## Ridge Regression
+
+```{r}
+if (requireNamespace("glmnet", quietly = TRUE)) {
+  ridge_cv <- glmnet::cv.glmnet(
+    x = x,
+    y = y,
+    alpha = 0
+  )
+
+  ridge_cv$lambda.min
+}
+```
+
+## LASSO Regression
+
+```{r}
+if (requireNamespace("glmnet", quietly = TRUE)) {
+  lasso_cv <- glmnet::cv.glmnet(
+    x = x,
+    y = y,
+    alpha = 1
+  )
+
+  lasso_cv$lambda.min
+}
+```
+
+## Elastic Net Regression
+
+```{r}
+if (requireNamespace("glmnet", quietly = TRUE)) {
+  elastic_cv <- glmnet::cv.glmnet(
+    x = x,
+    y = y,
+    alpha = 0.5
+  )
+
+  elastic_cv$lambda.min
+}
+```
+
+## LASSO Coefficients
+
+```{r}
+if (requireNamespace("glmnet", quietly = TRUE)) {
+  coef(lasso_cv, s = "lambda.min")
+}
+```
+
+::: {.callout-important title="Research Application"}
+Regularized regression phù hợp cho các bài nghiên cứu prediction, đặc biệt khi có nhiều biến khảo sát hoặc nhiều biến hành vi.
+:::
+
+------------------------------------------------------------------------
+
+# 7.5 Advanced SEM Overview
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Advanced SEM mở rộng từ PLS-SEM cơ bản sang CFA, CB-SEM, multi-group SEM và measurement invariance.
+
+**When?**
+
+Dùng khi trọng tâm là theory testing và measurement quality.
+:::
+
+## Import SEM Data
+
+```{r}
+sem_adv <- read_excel(
+  advanced_file,
+  sheet = "04_SEM_Advanced"
+) |>
+  clean_names()
+```
+
+## CFA with lavaan
+
+```{r}
+if (requireNamespace("lavaan", quietly = TRUE)) {
+  cfa_model <- '
+    PE =~ pe1 + pe2 + pe3 + pe4
+    EE =~ ee1 + ee2 + ee3 + ee4
+    SI =~ si1 + si2 + si3 + si4
+    FC =~ fc1 + fc2 + fc3 + fc4
+    DR =~ dr1 + dr2 + dr3 + dr4
+    TR =~ tr1 + tr2 + tr3 + tr4
+    BI =~ bi1 + bi2 + bi3
+    AU =~ au1 + au2 + au3
+  '
+
+  cfa_fit <- lavaan::cfa(
+    cfa_model,
+    data = sem_adv,
+    ordered = names(sem_adv)[grepl("^(pe|ee|si|fc|dr|tr|bi|au)", names(sem_adv))]
+  )
+
+  lavaan::summary(
+    cfa_fit,
+    fit.measures = TRUE,
+    standardized = TRUE
+  )
+}
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên chuyển sang structural paths nếu measurement model chưa được đánh giá.
+:::
+
+------------------------------------------------------------------------
+
+# 7.6 Bayesian Thinking and Monte Carlo
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Bayesian thinking tập trung vào xác suất của tham số sau khi quan sát dữ liệu.
+
+**Core logic**
+
+``` text
+Prior
+↓
+Data
+↓
+Posterior
+```
+
+Monte Carlo simulation dùng mô phỏng lặp lại để hiểu bất định và phân phối kết quả.
+:::
+
+## Import Data
+
+```{r}
+bayes_mc <- read_excel(
+  advanced_file,
+  sheet = "05_Bayesian_MonteCarlo"
+) |>
+  clean_names()
+```
+
+## Monte Carlo Simulation
+
+```{r}
+set.seed(123)
+
+mc_means <- replicate(
+  10000,
+  mean(rnorm(100, mean = 0, sd = 1))
+)
+
+mc_results <- tibble(sample_mean = mc_means)
+
+ggplot(mc_results, aes(x = sample_mean)) +
+  geom_histogram(bins = 40) +
+  labs(
+    title = "Monte Carlo Simulation of Sample Means",
+    x = "Sample mean",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+```
+
+## Bootstrap Confidence Interval
+
+```{r}
+set.seed(123)
+
+bootstrap_means <- replicate(
+  2000,
+  mean(sample(bayes_mc$observed_mean, replace = TRUE))
+)
+
+tibble(bootstrap_mean = bootstrap_means) |>
+  summarise(
+    mean_bootstrap = mean(bootstrap_mean),
+    lower_ci = quantile(bootstrap_mean, 0.025),
+    upper_ci = quantile(bootstrap_mean, 0.975)
+  )
+```
+
+::: {.callout-tip title="Key Points"}
+Monte Carlo is useful when the answer is easier to simulate than to derive analytically.
+:::
+
+------------------------------------------------------------------------
+
+# 7.7 Simpson's Paradox
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Simpson's Paradox xảy ra khi xu hướng trong dữ liệu tổng hợp khác với xu hướng trong từng nhóm con.
+
+**Why?**
+
+Nó nhắc chúng ta rằng phân tích gộp có thể gây hiểu sai nếu có confounding variable.
+:::
+
+## Import Data
+
+```{r}
+simpson <- read_excel(
+  advanced_file,
+  sheet = "06_Simpsons_Paradox"
+) |>
+  clean_names()
+```
+
+## Department-level Rates
+
+```{r}
+simpson |>
+  mutate(rate = admitted / applications) |>
+  arrange(department, gender)
+```
+
+## Overall Rates
+
+```{r}
+simpson |>
+  group_by(gender) |>
+  summarise(
+    total_applications = sum(applications),
+    total_admitted = sum(admitted),
+    overall_rate = total_admitted / total_applications,
+    .groups = "drop"
+  )
+```
+
+## Visualization
+
+```{r}
+ggplot(simpson, aes(x = department, y = admission_rate, fill = gender)) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "Simpson's Paradox: Admission Rate by Department and Gender",
+    x = "Department",
+    y = "Admission rate"
+  ) +
+  theme_minimal()
+```
+
+::: {.callout-warning title="Common Mistakes"}
+Không nên chỉ nhìn dữ liệu gộp.
+
+Luôn kiểm tra các nhóm con quan trọng.
+:::
+
+------------------------------------------------------------------------
+
+# 7.8 Advanced Likert Analysis
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+Advanced Likert visualization giúp trình bày câu trả lời khảo sát theo dạng dễ đọc và phù hợp bài báo.
+
+**Main plots**
+
+- Horizontal stacked Likert bar
+- Diverging Likert plot
+- Grouped Likert plot
+:::
+
+## Import Likert Data
+
+```{r}
+likert_data <- read_excel(
+  advanced_file,
+  sheet = "07_Likert_Advanced"
+) |>
+  clean_names()
+```
+
+## Long Format
+
+```{r}
+likert_long <- likert_data |>
+  pivot_longer(
+    cols = starts_with("q"),
+    names_to = "item",
+    values_to = "response"
+  ) |>
+  mutate(
+    response = factor(
+      response,
+      levels = 1:5,
+      labels = c(
+        "Strongly disagree",
+        "Disagree",
+        "Neutral",
+        "Agree",
+        "Strongly agree"
+      )
+    )
+  )
+```
+
+## Horizontal Stacked Likert Bar
+
+```{r}
+likert_summary <- likert_long |>
+  count(item, response) |>
+  group_by(item) |>
+  mutate(percent = n / sum(n) * 100) |>
+  ungroup()
+
+ggplot(likert_summary, aes(x = percent, y = item, fill = response)) +
+  geom_col() +
+  labs(
+    title = "Horizontal Likert-style Stacked Bar",
+    x = "Percent",
+    y = "Survey item",
+    fill = "Response"
+  ) +
+  theme_minimal()
+```
+
+## Diverging Likert-style Bar
+
+```{r}
+likert_diverging <- likert_summary |>
+  mutate(
+    percent_signed = case_when(
+      response %in% c("Strongly disagree", "Disagree") ~ -percent,
+      response == "Neutral" ~ 0,
+      TRUE ~ percent
+    )
+  )
+
+ggplot(likert_diverging, aes(x = percent_signed, y = item, fill = response)) +
+  geom_col() +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Diverging Likert-style Bar",
+    x = "Percent",
+    y = "Survey item",
+    fill = "Response"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+# 7.9 Advanced Visualization Lab with ggplot2
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+This section is a visualization gallery.
+
+It introduces the main families of `ggplot2` figures and tidy visualization workflows.
+
+**Important note**
+
+It is not realistic to cover every single `ggplot2` function, but this lab covers the most important figure types used in research and reporting.
+:::
+
+## Load Visualization Datasets
+
+```{r}
+heatmap_data <- read_excel(
+  advanced_file,
+  sheet = "08_Visualization_Heatmap"
+) |>
+  clean_names()
+
+volcano_data <- read_excel(
+  advanced_file,
+  sheet = "09_Visualization_Volcano"
+) |>
+  clean_names()
+
+network_data <- read_excel(
+  advanced_file,
+  sheet = "10_Visualization_Network"
+) |>
+  clean_names()
+```
+
+------------------------------------------------------------------------
+
+## 7.9.1 Histogram
+
+```{r}
+ggplot(adv_desc, aes(x = gpa)) +
+  geom_histogram(bins = 30) +
+  labs(
+    title = "Histogram",
+    x = "GPA",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.2 Density Plot
+
+```{r}
+ggplot(adv_desc, aes(x = satisfaction)) +
+  geom_density() +
+  labs(
+    title = "Density Plot",
+    x = "Satisfaction",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.3 Boxplot
+
+```{r}
+ggplot(adv_desc, aes(x = gender, y = satisfaction)) +
+  geom_boxplot() +
+  labs(
+    title = "Boxplot",
+    x = "Gender",
+    y = "Satisfaction"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.4 Violin Plot
+
+```{r}
+ggplot(adv_desc, aes(x = gender, y = satisfaction)) +
+  geom_violin() +
+  labs(
+    title = "Violin Plot",
+    x = "Gender",
+    y = "Satisfaction"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.5 Jitter Plot
+
+```{r}
+ggplot(adv_desc, aes(x = gender, y = satisfaction)) +
+  geom_jitter(width = 0.15, alpha = 0.5) +
+  labs(
+    title = "Jitter Plot",
+    x = "Gender",
+    y = "Satisfaction"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.6 Bar Chart
+
+```{r}
+adv_desc |>
+  count(region) |>
+  ggplot(aes(x = region, y = n)) +
+  geom_col() +
+  labs(
+    title = "Bar Chart",
+    x = "Region",
+    y = "Count"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.7 Horizontal Bar Chart
+
+```{r}
+adv_desc |>
+  count(diagnosis_group) |>
+  ggplot(aes(x = n, y = reorder(diagnosis_group, n))) +
+  geom_col() +
+  labs(
+    title = "Horizontal Bar Chart",
+    x = "Count",
+    y = "Diagnosis group"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.8 Stacked Bar Chart
+
+```{r}
+ggplot(adv_desc, aes(x = region, fill = gender)) +
+  geom_bar() +
+  labs(
+    title = "Stacked Bar Chart",
+    x = "Region",
+    y = "Count",
+    fill = "Gender"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.9 Proportional Stacked Bar Chart
+
+```{r}
+ggplot(adv_desc, aes(x = region, fill = gender)) +
+  geom_bar(position = "fill") +
+  labs(
+    title = "Proportional Stacked Bar Chart",
+    x = "Region",
+    y = "Proportion",
+    fill = "Gender"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.10 Scatter Plot
+
+```{r}
+ggplot(adv_desc, aes(x = income_million_vnd, y = satisfaction)) +
+  geom_point(alpha = 0.6) +
+  labs(
+    title = "Scatter Plot",
+    x = "Income",
+    y = "Satisfaction"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.11 Scatter Plot with Regression Line
+
+```{r}
+ggplot(adv_desc, aes(x = income_million_vnd, y = satisfaction)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "Scatter Plot with Regression Line",
+    x = "Income",
+    y = "Satisfaction"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.12 Line Chart
+
+```{r}
+adv_desc |>
+  mutate(date = as.Date(date)) |>
+  group_by(date) |>
+  summarise(
+    mean_satisfaction = mean(satisfaction, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = date, y = mean_satisfaction)) +
+  geom_line() +
+  labs(
+    title = "Line Chart",
+    x = "Date",
+    y = "Mean satisfaction"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.13 Area Chart
+
+```{r}
+adv_desc |>
+  mutate(date = as.Date(date)) |>
+  group_by(date) |>
+  summarise(
+    claims = sum(claims_count, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = date, y = claims)) +
+  geom_area(alpha = 0.6) +
+  labs(
+    title = "Area Chart",
+    x = "Date",
+    y = "Claims"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.14 Faceted Plot
+
+```{r}
+ggplot(adv_desc, aes(x = satisfaction)) +
+  geom_histogram(bins = 20) +
+  facet_wrap(~ region) +
+  labs(
+    title = "Faceted Histogram",
+    x = "Satisfaction",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.15 Mean and Error Bar Plot
+
+```{r}
+adv_desc |>
+  group_by(region) |>
+  summarise(
+    mean_satisfaction = mean(satisfaction, na.rm = TRUE),
+    se_satisfaction = sd(satisfaction, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = region, y = mean_satisfaction)) +
+  geom_col() +
+  geom_errorbar(
+    aes(
+      ymin = mean_satisfaction - se_satisfaction,
+      ymax = mean_satisfaction + se_satisfaction
+    ),
+    width = 0.2
+  ) +
+  labs(
+    title = "Mean Plot with Standard Error",
+    x = "Region",
+    y = "Mean satisfaction"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.16 Dot Plot
+
+```{r}
+adv_desc |>
+  group_by(school) |>
+  summarise(
+    mean_gpa = mean(gpa, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = mean_gpa, y = reorder(school, mean_gpa))) +
+  geom_point(size = 3) +
+  labs(
+    title = "Dot Plot",
+    x = "Mean GPA",
+    y = "School"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.17 Lollipop Chart
+
+```{r}
+adv_desc |>
+  group_by(school) |>
+  summarise(
+    mean_satisfaction = mean(satisfaction, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = mean_satisfaction, y = reorder(school, mean_satisfaction))) +
+  geom_segment(aes(x = 0, xend = mean_satisfaction, yend = school)) +
+  geom_point(size = 3) +
+  labs(
+    title = "Lollipop Chart",
+    x = "Mean satisfaction",
+    y = "School"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.18 Heatmap
+
+```{r}
+ggplot(heatmap_data, aes(x = sample_id, y = feature, fill = value_z)) +
+  geom_tile() +
+  labs(
+    title = "Heatmap",
+    x = "Sample",
+    y = "Feature",
+    fill = "Z-score"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  )
+```
+
+## 7.9.19 Correlation Heatmap
+
+```{r}
+corr_vars <- adv_reg |>
+  select(
+    digital_readiness,
+    leadership_support,
+    workload,
+    motivation,
+    job_satisfaction,
+    productivity_score
+  )
+
+corr_matrix <- cor(corr_vars, use = "pairwise.complete.obs")
+
+corr_long <- as.data.frame(as.table(corr_matrix)) |>
+  rename(
+    variable_1 = Var1,
+    variable_2 = Var2,
+    correlation = Freq
+  )
+
+ggplot(corr_long, aes(x = variable_1, y = variable_2, fill = correlation)) +
+  geom_tile() +
+  geom_text(aes(label = round(correlation, 2)), size = 3) +
+  labs(
+    title = "Correlation Heatmap",
+    x = NULL,
+    y = NULL,
+    fill = "r"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+## 7.9.20 Volcano Plot
+
+```{r}
+ggplot(volcano_data, aes(x = log2_fold_change, y = neg_log10_p)) +
+  geom_point(aes(shape = significant), alpha = 0.7) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+  labs(
+    title = "Volcano Plot",
+    x = "Log2 fold change",
+    y = "-log10(p-value)",
+    shape = "Significant"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.21 Ridgeline Plot
+
+```{r}
+if (requireNamespace("ggridges", quietly = TRUE)) {
+  ggplot(adv_desc, aes(x = satisfaction, y = region)) +
+    ggridges::geom_density_ridges() +
+    labs(
+      title = "Ridgeline Plot",
+      x = "Satisfaction",
+      y = "Region"
+    ) +
+    theme_minimal()
+}
+```
+
+## 7.9.22 Alluvial Plot
+
+```{r}
+if (requireNamespace("ggalluvial", quietly = TRUE)) {
+  alluvial_data <- adv_desc |>
+    count(region, gender, diagnosis_group)
+
+  ggplot(
+    alluvial_data,
+    aes(
+      axis1 = region,
+      axis2 = gender,
+      axis3 = diagnosis_group,
+      y = n
+    )
+  ) +
+    ggalluvial::geom_alluvium(aes(fill = region), width = 1/12) +
+    ggalluvial::geom_stratum(width = 1/12) +
+    ggalluvial::stat_stratum(
+      geom = "text",
+      aes(label = after_stat(stratum)),
+      size = 3
+    ) +
+    scale_x_discrete(
+      limits = c("Region", "Gender", "Diagnosis"),
+      expand = c(.05, .05)
+    ) +
+    labs(
+      title = "Alluvial Plot",
+      y = "Count"
+    ) +
+    theme_minimal()
+}
+```
+
+## 7.9.23 Network Plot
+
+```{r}
+if (requireNamespace("igraph", quietly = TRUE) &&
+    requireNamespace("ggraph", quietly = TRUE)) {
+
+  graph_object <- igraph::graph_from_data_frame(
+    network_data,
+    directed = TRUE
+  )
+
+  ggraph::ggraph(graph_object, layout = "fr") +
+    ggraph::geom_edge_link(
+      aes(width = weight),
+      alpha = 0.4,
+      arrow = grid::arrow(length = unit(3, "mm"))
+    ) +
+    ggraph::geom_node_point(size = 4) +
+    ggraph::geom_node_text(
+      aes(label = name),
+      repel = TRUE
+    ) +
+    theme_void() +
+    labs(
+      title = "Network Plot"
+    )
+}
+```
+
+## 7.9.24 Coordinate Flip
+
+```{r}
+adv_desc |>
+  count(region) |>
+  ggplot(aes(x = region, y = n)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Coordinate Flip Example",
+    x = "Region",
+    y = "Count"
+  ) +
+  theme_minimal()
+```
+
+## 7.9.25 Theme Comparison
+
+```{r}
+ggplot(adv_desc, aes(x = gpa, y = satisfaction)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Theme Classic Example",
+    x = "GPA",
+    y = "Satisfaction"
+  ) +
+  theme_classic()
+```
+
+::: {.callout-tip title="Key Points"}
+The most important `ggplot2` skills are:
+
+- Reshape data with `pivot_longer()`
+- Map variables using `aes()`
+- Select appropriate `geom_*()`
+- Add labels with `labs()`
+- Improve readability with `theme_*()`
+- Use facets for subgroup comparison
+- Export figures with `ggsave()`
+:::
+
+------------------------------------------------------------------------
+
+# 7.10 Research Publication Toolkit
+
+::: {.callout-note title="Knowledge Notes"}
+**What?**
+
+A publication toolkit helps researchers convert analysis outputs into report-ready tables, figures and interpretations.
+
+**Core outputs**
+
+- Table 1
+- Descriptive table
+- Regression table
+- SEM table
+- Correlation heatmap
+- Likert plot
+- Figure captions
+- Method selection guide
+:::
+
+## Method Selection Guide
+
+| Research question                           | Recommended method     |
+|---------------------------------------------|------------------------|
+| What does the sample look like?             | Descriptive statistics |
+| Are two variables associated?               | Correlation            |
+| Which factors predict an outcome?           | Regression             |
+| Which variables matter most for prediction? | LASSO / Elastic Net    |
+| Does a theoretical model fit the data?      | SEM                    |
+| How uncertain is the estimate?              | Bayesian / Bootstrap   |
+| Can aggregation mislead us?                 | Simpson's Paradox      |
+| How do respondents answer survey items?     | Likert visualization   |
+
+------------------------------------------------------------------------
+
+# Practice Exercise
+
+::: {.callout-important title="Practice Exercise"}
+Using `module7_advanced_data.xlsx`, complete:
+
+1.  Create an advanced descriptive report.
+2.  Fit one logistic regression model.
+3.  Fit one LASSO model.
+4.  Run one Monte Carlo simulation.
+5.  Explain Simpson's Paradox.
+6.  Create one horizontal Likert plot.
+7.  Create five different ggplot2 figures.
+8.  Create one heatmap.
+9.  Create one volcano plot.
+10. Write a short interpretation for each output.
+:::
+
+------------------------------------------------------------------------
+
+# Challenge
+
+::: {.callout-warning collapse="true" title="Challenge"}
+## Task
+
+Create a mini research analytics portfolio using at least five methods from Module 7.
+
+Your portfolio must include:
+
+- One advanced descriptive table
+- One advanced regression model
+- One regularized regression model
+- One simulation
+- One advanced visualization
+- One interpretation paragraph
+:::
+
+::: {.callout-tip collapse="true" title="Suggested Solution"}
+A strong portfolio can include:
+
+1.  Skewness and kurtosis table
+2.  Logistic regression for binary adoption
+3.  LASSO for predictor selection
+4.  Monte Carlo simulation of sample means
+5.  Diverging Likert plot
+6.  Correlation heatmap
+7.  Short academic interpretation
+:::
+
+------------------------------------------------------------------------
+
+# Mini Project 7
+
+::: {.callout-important title="Mini Project 7"}
+## Topic
+
+Advanced Research Analytics Portfolio
+
+## Deliverable
+
+``` text
+Module7_Advanced_Analytics_Portfolio.html
+```
+
+## Required sections
+
+1.  Advanced descriptive statistics
+2.  Advanced regression model
+3.  Ridge/LASSO/Elastic Net analysis
+4.  Monte Carlo simulation
+5.  Simpson's Paradox interpretation
+6.  Likert visualization
+7.  Advanced ggplot2 visualization gallery
+8.  Method selection guide
+9.  Academic interpretation
+10. Reflection on when to use each method
+:::
+
+------------------------------------------------------------------------
+
+# Key Takeaways
+
+::: {.callout-tip title="Key Points"}
+- Advanced analytics should be selected based on the research question, not trendiness.
+- Ridge, LASSO and Elastic Net are useful for prediction and many predictors.
+- Bayesian thinking focuses on uncertainty and probability.
+- Monte Carlo simulation helps understand uncertainty through repeated sampling.
+- Simpson's Paradox shows why subgroup analysis matters.
+- Likert visualization is essential for survey research.
+- `ggplot2` can produce almost all common research figures when combined with tidy data.
+- Publication-ready research requires good methods, good figures and careful interpretation.
+:::
+
+------------------------------------------------------------------------
+
+# What Next?
+
+::: {.callout-note title="What Next?"}
+After Module 7, learners should be able to design their own research analytics workflow.
+
+Recommended next steps:
+
+1.  Choose a research question.
+2.  Identify the outcome variable.
+3.  Select a suitable method.
+4.  Run the analysis.
+5.  Create publication-ready figures.
+6.  Write an interpretation.
+7.  Document the full workflow in Quarto.
+:::

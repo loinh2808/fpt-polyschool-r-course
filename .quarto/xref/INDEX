@@ -1,0 +1,98 @@
+{
+  "index.qmd": {
+    "index.html": "16f85dc4"
+  },
+  "module-1.qmd": {
+    "module-1.html": "05191c83"
+  },
+  "module-2.qmd": {
+    "module-2.html": "2d3733a9"
+  },
+  "module-3.qmd": {
+    "module-3.html": "5d13a66d"
+  },
+  "module-4.qmd": {
+    "module-4.html": "2948a82e"
+  },
+  "module-5.qmd": {
+    "module-5.html": "e9961d36"
+  },
+  "module-6.qmd": {
+    "module-6.html": "ac2954dc"
+  },
+  "module-1.knit.md": {
+    "module-1.knit.html": "d60a4327"
+  },
+  "module-7.qmd": {
+    "module-7.html": "02b06f22"
+  },
+  "glossary.qmd": {
+    "glossary.html": "dc1eb292"
+  },
+  "research-toolkit.qmd": {
+    "research-toolkit.html": "02a11a81"
+  },
+  "resources.qmd": {
+    "resources.html": "e326c638"
+  },
+  "roadmap.qmd": {
+    "roadmap.html": "c3a63440"
+  },
+  "advanced/advanced-home.qmd": {
+    "advanced-home.html": "fd3110f3"
+  },
+  "advanced/adv-01-descriptive.qmd": {
+    "adv-01-descriptive.html": "522a3dba"
+  },
+  "advanced/adv-02-regression.qmd": {
+    "adv-02-regression.html": "8199f409"
+  },
+  "advanced/adv-03-regularized.qmd": {
+    "adv-03-regularized.html": "8ca5054a"
+  },
+  "advanced/adv-04-sem.qmd": {
+    "adv-04-sem.html": "d4958e63"
+  },
+  "advanced/adv-05-bayesian.qmd": {
+    "adv-05-bayesian.html": "847fc975"
+  },
+  "advanced/adv-06-monte-carlo.qmd": {
+    "adv-06-monte-carlo.html": "d4e36daa"
+  },
+  "advanced/adv-07-simpson.qmd": {
+    "adv-07-simpson.html": "c2479454"
+  },
+  "advanced/adv-08-likert.qmd": {
+    "adv-08-likert.html": "36559d10"
+  },
+  "advanced/adv-09-visualization.qmd": {
+    "adv-09-visualization.html": "62f8113f"
+  },
+  "adv-10-toolkit.qmd": {
+    "adv-10-toolkit.html": "a9ac2737"
+  },
+  "advanced/adv-11-meta-analysis.qmd": {
+    "adv-11-meta-analysis.html": "c429af91"
+  },
+  "advanced/adv-12-bibliometric.qmd": {
+    "adv-12-bibliometric.html": "346a80ef"
+  },
+  "advanced/adv-13-anova.qmd": {
+    "adv-13-anova.html": "c57d0e16"
+  },
+  "advanced/adv-14-mixed-models.qmd": {
+    "adv-14-mixed-models.html": "c0b27250"
+  },
+  "advanced/adv-15-reproducible.qmd": {
+    "adv-15-reproducible.html": "fd46e212"
+  },
+  "advanced/adv-10-toolkit.qmd": {
+    "adv-10-toolkit.html": "b81423ed"
+  },
+  "case-study-utaut.qmd": {
+    "case-study-utaut.html": "8f3b3bd8"
+  },
+  "case-study-cdio.qmd": {
+    "case-study-cdio.html": "8ed38933"
+  }
+}
