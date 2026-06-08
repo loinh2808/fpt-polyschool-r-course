@@ -1,4 +1,54 @@
 ---
-title: "roadmap.qmd"
-editor: visual
+title: "Learning Roadmap"
 ---
+
+# Learning Roadmap
+
+## Foundation Modules
+
+| Module | Topic                     | Output              |
+|--------|---------------------------|---------------------|
+| 1      | R Fundamentals            | Data Import Report  |
+| 2      | Data Cleaning             | Clean Dataset       |
+| 3      | Descriptive Statistics    | Descriptive Report  |
+| 4      | Correlation & Regression  | Regression Report   |
+| 5      | PLS-SEM                   | SEM Results         |
+| 6      | Visualization & Reporting | Publication Figures |
+
+## Advanced Analytics Modules
+
+| Module | Topic                       |
+|--------|-----------------------------|
+| A1     | Descriptive Diagnostics     |
+| A2     | Advanced Regression         |
+| A3     | Ridge, LASSO & Elastic Net  |
+| A4     | Advanced SEM                |
+| A5     | Bayesian Statistics         |
+| A6     | Monte Carlo Simulation      |
+| A7     | Simpson's Paradox           |
+| A8     | Advanced Likert Analysis    |
+| A9     | Visualization Gallery       |
+| A10    | Research Toolkit            |
+| A11    | Meta-analysis               |
+| A12    | Bibliometric Analysis       |
+| A13    | Experimental Design & ANOVA |
+| A14    | Mixed Models                |
+| A15    | Reproducible Research       |
+
+# Learning Roadmap
+
+\`\`\`{mermaid}
+
+flowchart TD
+
+A\[Module 1: Import Data\] --\> B\[Module 2: Clean Data\]
+
+B --\> C\[Module 3: Describe Data\]
+
+C --\> D\[Module 4: Regression\]
+
+D --\> E\[Module 5: PLS-SEM\]
+
+E --\> F\[Module 6: Visualization\]
+
+F --\> G\[Advanced Analytics\]
